@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load django_bootstrap_breadcrumbs %}
+
+{% block title %}
+    <title>Виды спорта</title>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="navbar-brand">-</li>
+    <li class="navbar-brand">Выбор вид спорта</li>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="container" style="margin-top:5%" >
+            <ul class="list-inline col-md-10 offset-1">
+                <li class="list-inline-item" style="width:30%;margin-left: 2%;margin-top:3%;background:
+                    #0dcaf0;text-align: center; "><a style="color:black" href = {% url "beach volleyball" %}>Пляжный волейбол</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
