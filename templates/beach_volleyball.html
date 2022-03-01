@@ -35,14 +35,9 @@
             let red_squad = document.getElementById("id_red_team")
             let blue_squad = document.getElementById("id_blue_team")
 
-            if (red_squad.innerHTML.length === 0 || blue_squad.innerHTML.length === 0) {
-                alert("Введите состав обеих команд")
-            }
-
-            else {
-                form.style.display = "none"
+            form.style.display = "none"
                 prepare_control_buttons()
-            }
+
         }
 
         function prepare_control_buttons() {
