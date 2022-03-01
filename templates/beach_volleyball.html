@@ -196,25 +196,32 @@
     <div class="row col-md-10 offset-1 justify-content-md-center">
         <div class = "red_team_controls col-md-6 mx-auto text-center">
             <form action="#" method="get">
-                <button style="margin-top: 14%; background: red" type="button" class="btn btn-submit"
-                        id="team_red_plus_point">+</button>
+                <a style="margin-top: 14%;" type="button" class=""
+                        id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                                                      alt="+1 Красной команде"></a>
                 <h6 style="margin-top: 4%">Красная команда</h6>
-                <button style="margin-top: 4%; background: red" type="button" class="btn btn-submit"
-                        id="team_red_minus_point">-</button>
+                <a style="margin-top: 4%;" type="button" class="btn btn-submit"
+                        id="team_red_minus_point"><img class="controls-images" style="width:15%;margin-top:0;"
+                                                       src="{% static 'images/minus 2.png' %}"
+                                                       alt="-1 Красной команде"></a>
             </form>
         </div>
 
         <div class = "blue_team_controls col-md-6 mx-auto text-center">
             <form action="#" method="get">
-                <button style="margin-top: 14%; background: blue" type="button" class="btn btn-submit"
-                        id="team_blue_plus_point">+</button>
+                <a style="margin-top: 14%" type="button" class=""
+                        id="team_blue_plus_point"><img class="controls-images" style="background: blue"
+                                                       src="{% static 'images/plus4.png' %}"
+                                                      alt="+1 Синей команде"></a>
                 <h6 style="margin-top: 4%">Синяя команда</h6>
-                <button style="margin-top: 4%; background: blue" type="button" class="btn btn-submit"
-                        id="team_blue_minus_point">-</button>
+                <a style="margin-top: 4%;" type="button" class="btn btn-submit"
+                        id="team_blue_minus_point"><img class="controls-images" style="width:15%;margin-top:0;
+                        background: blue;" src="{% static 'images/minus 2.png' %}"
+                                                       alt="-1 Синей команде"></a>
             </form>
         </div>
         <div>
-                <button style="margin-top: 12%" type="button" class="btn btn-success col-md-6 offset-3"
+                <button style="margin-top: 9%" type="button" class="btn btn-success col-md-6 offset-3"
                     id="end_set">Партия закончена</button>
         </div>
     </div>
