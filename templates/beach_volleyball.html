@@ -3,6 +3,11 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
+{% endblock %}
+
+
 {% block title %}
     <title>Пляжный воллейбол</title>
 {% endblock %}
@@ -16,7 +21,10 @@
 
     <script type="text/javascript">
 
+
         document.addEventListener("DOMContentLoaded", open_popup);
+
+        document.addEventListener("DOMContentLoaded", modal_end_set)
 
         function open_popup() {
             let form = document.getElementById("team_reg_form")
@@ -50,11 +58,6 @@
             blue_plus_point.addEventListener("click",  () => plus_point("blue"))
             red_minus_point.addEventListener("click",  () => minus_point("red"))
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
-
-            let end_set = document.getElementById("end_set")
-
-            end_set.addEventListener("click", () => end_set_func())
-
         }
 
         function save_red_team() {
@@ -96,7 +99,7 @@
             set_score_elem_int = set_score_elem_int + 1
             set_score_elem.innerHTML = set_score_elem_int.toString()
             if (set_score_elem_int === 2) {
-                alert("Матч завершен")
+                modal_match_is_over()
             }
             else {
                 switch_active_set()
@@ -126,40 +129,76 @@
             if (red_score_int > blue_score_int) {
                 set_score_plus(set_score_red)
             }
-            else {
+            if  (blue_score_int  > red_score_int){
                 set_score_plus(set_score_blue)
             }
         }
+
+        function modal_end_set() {
+            let modalBtn = document.getElementById("end_set")
+            let modal = document.querySelector(".modal")
+            let closeBtn = document.querySelector(".close-btn")
+            let noBtn = document.getElementById("no_button")
+            let yesBtn = document.getElementById("yes_button")
+            modalBtn.onclick = function () {
+                console.log(modalBtn.id)
+
+                modal.style.display = "block"
+            }
+            closeBtn.onclick = function () {
+                modal.style.display = "none"
+            }
+            window.onclick = function (e) {
+                if (e.target === modal) {
+                    modal.style.display = "none"
+                }
+            }
+            noBtn.onclick = function () {
+                modal.style.display = "none"
+            }
+            yesBtn.onclick = function () {
+                modal.style.display = "none"
+                end_set_func()
+            }
+        }
+
+        function modal_match_is_over() {
+            let modal = document.getElementById("match_is_over")
+            modal.style.display = "block"
+            setTimeout(close_modal_match_is_over, 1500)
+        }
+
+        function close_modal_match_is_over() {
+            let modal = document.getElementById("match_is_over")
+            modal.style.display = "none"
+            window.location.replace("http://127.0.0.1:8000");
+        }
+
     </script>
 
 
     <div class='team_reg_form' style="" id="team_reg_form">
+        <div class="form_container col-md-4 offset-md-4">
+            <div class="auth col-md-6 offset-md-3">
 
-    <div class="form_container col-md-4 offset-md-4">
+                <h5 class="reg_team_label" style="color:white">Регистрация команд </h5>
 
-        <div class="auth col-md-6 offset-md-3">
+                <form action="#" method="get">
+                    <div class="form-group">
+                        <label for="id_red_team" style="color:red">Красная команда</label>
+                        <input type="text" onchange="save_red_team(this.value)" class="form-control" id="id_red_team" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="id_blue_team" style="color:#3535ed">Синяя команда</label>
+                        <input type="text" onchange="save_blue_team(this.value)" class="form-control" id="id_blue_team" required />
+                    </div>
+                    <button style="margin-top: 4%" type="button" class="btn btn-success" id="team_reg_button"
+                            oninput="setCustomValidity('')">Далее</button>
+                </form>
 
-            <h5 style="" class="reg_team_label">Регистрация команд </h5>
-
-            <form action="#" method="get">
-                <div class="form-group">
-                    <label for="id_red_team">Красная команда</label>
-                    <input type="text" onchange="save_red_team(this.value)" class="form-control" id="id_red_team" required />
-                </div>
-                <div class="form-group">
-                    <label for="id_blue_team">Синяя команда</label>
-                    <input type="text" onchange="save_blue_team(this.value)" class="form-control" id="id_blue_team" required />
-                </div>
-                <button style="margin-top: 4%" type="button" class="btn btn-success" id="team_reg_button"
-                        oninput="setCustomValidity('')">Далее</button>
-            </form>
-
+            </div>
         </div>
-
     </div>
-
-
-</div>
 
 
     <div class="score_table col-md-10 offset-1" style="margin-top:3%">
@@ -225,5 +264,23 @@
         </div>
     </div>
 
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <p>Партия завершена?</p>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="yes_button">Да</button>
+                <button class="close" id="no_button">Нет</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="match_is_over" >
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <p>Матч завершен</p>
+
+        </div>
+    </div>
 
 {% endblock %}

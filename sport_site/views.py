@@ -56,3 +56,7 @@ def main(request):
 def beach_volleyball(request):
     context = {}
     return render(request, "beach_volleyball.html", context)
+
+def testfunc(request):
+
+    return render(request, "sport.html")
