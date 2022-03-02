@@ -7,8 +7,8 @@ class SportsAdmin(admin.ModelAdmin):
 
 
 class MatchAdmin(admin.ModelAdmin):
-    fields = ["sport", "date"]
-
+    fields = [field.name for field in Match._meta.get_fields()]
+    fields.remove("id")
 
 admin.site.register(Sports, SportsAdmin)
 admin.site.register(Match, MatchAdmin)

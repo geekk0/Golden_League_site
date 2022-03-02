@@ -5,6 +5,8 @@ from .models import Sports, Match
 from django.views.generic import DetailView, View
 from .forms import LoginForm, SquadForm
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
 
 
 
@@ -35,14 +37,36 @@ class SquadRegister(View):
     def get(self, request, *args, **kwargs):
         form = SquadForm(request.POST or None)
         context = {"form": form}
-        return render(request, "beach_volleyball.html", context)
+        return render(request, "team_registration.html", context)
 
     def post(self, request, *args, **kwargs):
         form = SquadForm(request.POST or None)
-        red_team = form["red_team"]
-        blue_team = form["blue_team"]
+        red_team = form["red_squad"]
+        blue_team = form["blue_squad"]
+        sport = form["sport"]
+        create_match(sport, red_team, blue_team)
+        return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
-        return HttpResponse(status=200)
+
+def enter_match(request, sport_name):
+    matches = Match.objects.filter(sport__name=sport_name)
+
+    if matches.exists():
+        context = {"matches": matches}
+        return render(request, "beach_volleyball.html", context)
+    else:
+        return HttpResponseRedirect("/Регистрация команд")
+
+
+def create_match(sport, red_team, blue_team):
+    sport_type = Sports.objects.get(id=sport.value())
+    match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value())
+    match.created_date = timezone.now()
+    match.save()
+
+    return match
+
+
 
 @login_required
 def main(request):
@@ -60,3 +84,17 @@ def beach_volleyball(request):
 def testfunc(request):
 
     return render(request, "sport.html")
+
+
+def data_send(request, match_id):
+
+    match = Match.objects.get(id=match_id)
+
+    text = request.GET.get("red_points_1")
+
+    match.red_points_set_1 = text
+
+    match.save()
+
+    return HttpResponse(status=204)
+

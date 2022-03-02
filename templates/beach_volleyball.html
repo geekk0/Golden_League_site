@@ -22,11 +22,13 @@
     <script type="text/javascript">
 
 
-        document.addEventListener("DOMContentLoaded", open_popup);
-
         document.addEventListener("DOMContentLoaded", modal_end_set)
 
-        function open_popup() {
+        document.addEventListener("DOMContentLoaded", prepare_control_buttons);
+
+
+
+        /*function open_popup() {
             let form = document.getElementById("team_reg_form")
             form.style.display = "block"
             form.setAttribute("active_set", "set_1")
@@ -45,9 +47,12 @@
             form.style.display = "none"
                 prepare_control_buttons()
 
-        }
+        }*/
 
         function prepare_control_buttons() {
+            let score = document.getElementById("score")
+            score.setAttribute("active_set", "set_1")
+
             let red_plus_point = document.getElementById("team_red_plus_point")
             let red_minus_point = document.getElementById("team_red_minus_point")
 
@@ -60,7 +65,7 @@
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
         }
 
-        function save_red_team() {
+        /*function save_red_team() {
             let red_team = document.getElementById("red_squad")
             red_team.innerHTML = document.getElementById("id_red_team").value
         }
@@ -68,20 +73,24 @@
         function save_blue_team() {
             let blue_team = document.getElementById("blue_squad")
             blue_team.innerText = document.getElementById("id_blue_team").value
-        }
+        }*/
 
         function plus_point(team) {
-            let active_set = document.getElementById("team_reg_form").getAttribute("active_set")
+            let active_set = document.getElementById("score").getAttribute("active_set")
             let point_score = document.getElementById(team+"_points_"+active_set)
             let int_point = parseInt(point_score.innerHTML)
 
             int_point = int_point + 1
             point_score.innerHTML = int_point.toString()
 
+            let send_value = document.getElementById("red_points_1")
+            send_value.value = int_point.toString()
+            send_form()
+
         }
 
         function minus_point(team) {
-            let active_set = document.getElementById("team_reg_form").getAttribute("active_set")
+            let active_set = document.getElementById("score").getAttribute("active_set")
             let point_score = document.getElementById(team+"_points_"+active_set)
             let int_point = parseInt(point_score.innerHTML)
             if (int_point > 0) {
@@ -107,16 +116,16 @@
         }
 
         function switch_active_set() {
-            let form = document.getElementById("team_reg_form")
-            let active_set = form.getAttribute("active_set")
+            let score = document.getElementById("score")
+            let active_set = score.getAttribute("active_set")
             let set_num = parseInt(active_set.slice(4))
             if (set_num < 3) {
-                form.setAttribute("active_set", "set_"+(set_num+1).toString())
+                score.setAttribute("active_set", "set_"+(set_num+1).toString())
             }
         }
 
         function end_set_func() {
-            let active_set = document.getElementById("team_reg_form").getAttribute("active_set")  /*red_points_set_1*/
+            let active_set = document.getElementById("score").getAttribute("active_set")  /*red_points_set_1*/
             let red_score = document.getElementById("red_points_"+active_set).innerHTML
             let blue_score = document.getElementById("blue_points_"+active_set).innerHTML
 
@@ -162,6 +171,13 @@
             }
         }
 
+        function send_form() {
+            let send_value = document.getElementById("red_points_1")
+            console.log(send_value.innerHTML)
+
+            document.forms['score'].submit()
+        }
+
         function modal_match_is_over() {
             let modal = document.getElementById("match_is_over")
             modal.style.display = "block"
@@ -174,34 +190,42 @@
             window.location.replace("http://127.0.0.1:8000");
         }
 
+        function show(e){
+            let send_value = document.getElementById("red_points_1")
+            console.log(e)
+        }
+
     </script>
 
 
-    <div class='team_reg_form' style="" id="team_reg_form">
-        <div class="form_container col-md-4 offset-md-4">
-            <div class="auth col-md-6 offset-md-3">
 
-                <h5 class="reg_team_label" style="color:white">Регистрация команд </h5>
 
-                <form action="#" method="get">
-                    <div class="form-group">
-                        <label for="id_red_team" style="color:red">Красная команда</label>
-                        <input type="text" onchange="save_red_team(this.value)" class="form-control" id="id_red_team" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="id_blue_team" style="color:#3535ed">Синяя команда</label>
-                        <input type="text" onchange="save_blue_team(this.value)" class="form-control" id="id_blue_team" required />
-                    </div>
-                    <button style="margin-top: 4%" type="button" class="btn btn-success" id="team_reg_button"
-                            oninput="setCustomValidity('')">Далее</button>
-                </form>
+    {% for match in matches %}
 
+        <div class='team_reg_form' style="display:none" id="team_reg_form">
+            <div class="form_container col-md-4 offset-md-4">
+                <div class="auth col-md-6 offset-md-3">
+
+
+
+                    <form action="{% url 'send_data' match.id %}" method="get" name="score" id="send_score_form">
+                        <input type="text" id="red_points_1" name="red_points_1">
+                        <!--<input type="text" id="red_points_2" name="red_points_2">
+                        <input type="text" id="red_points_3" name="red_points_3">
+                        <input type="text" id="blue_points_1" name="blue_points_1">
+                        <input type="text" id="blue_points_1" name="blue_points_2">
+                        <input type="text" id="blue_points_1" name="blue_points_3">
+                        <input type="text" id="red_set_score" name="red_set_score">
+                        <input type="text" id="blue_set_score" name="blue_set_score">-->
+
+
+                    </form>
+
+                </div>
             </div>
         </div>
-    </div>
 
-
-    <div class="score_table col-md-10 offset-1" style="margin-top:3%">
+        <div class="score_table col-md-10 offset-1" style="margin-top:3%" id="score">
         <table class="table table-bordered">
             <thead>
                 <tr style="text-align: center;vertical-align: middle;">
@@ -214,23 +238,23 @@
             </thead>
             <tbody>
                 <tr style="text-align: center;" class="row_content">
-                    <th scope="row" style="font-weight: normal;color:red" id="red_squad">Красная команда</th>
-                    <th scope="row" style="font-weight: normal" id="red_set_score">0</th>
-                    <th scope="row" style="font-weight: normal" id="red_points_set_1">0</th>
-                    <th scope="row" style="font-weight: normal" id="red_points_set_2">0</th>
-                    <th scope="row" style="font-weight: normal" id="red_points_set_3">0</th>
+                    <th scope="row" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
+                    <th scope="row" style="font-weight: normal" id="red_set_score">{{ match.red_set_score }}</th>
+                    <th scope="row" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
+                    <th scope="row" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
+                    <th scope="row" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
                 </tr>
                 <tr style="text-align: center;" class="row_content">
-                    <th scope="row" style="font-weight: normal;color:blue" id="blue_squad">Синяя команда</th>
-                    <th scope="row" style="font-weight: normal" id="blue_set_score">0</th>
-                    <th scope="row" style="font-weight: normal" id="blue_points_set_1">0</th>
-                    <th scope="row" style="font-weight: normal" id="blue_points_set_2">0</th>
-                    <th scope="row" style="font-weight: normal" id="blue_points_set_3">0</th>
+                    <th scope="row" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
+                    <th scope="row" style="font-weight: normal" id="blue_set_score">{{ match.blue_set_score }}</th>
+                    <th scope="row" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
+                    <th scope="row" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
+                    <th scope="row" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
                 </tr>
             </tbody>
         </table>
     </div>
-
+    {% endfor %}
     <div class="row col-md-10 offset-1 justify-content-md-center">
         <div class = "red_team_controls col-md-6 mx-auto text-center">
             <form action="#" method="get">

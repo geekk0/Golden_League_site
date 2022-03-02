@@ -1,4 +1,5 @@
 from django import forms
+from .models import Match, Sports
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib import messages
@@ -76,100 +77,13 @@ class LoginForm(forms.ModelForm):
         fields = ['username', 'password']
 
 
-class SquadForm(forms.Form):
-    red_team = forms.CharField(label="Красная команда")
-    blue_team = forms.CharField(label="Синяя команда")
-
-"""class ImageForm(forms.ModelForm):
-    image = forms.ImageField(label='Изображение')
-
+class SquadForm(forms.ModelForm):
     class Meta:
-        model = Images
-        fields = ('image', )
+        model = Match
+        fields = ["sport", "red_squad", "blue_squad"]
 
 
-class AddNote(forms.ModelForm):
-
-    text = forms.Textarea()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['message'].label = 'Текст записи'
-
-    def clean(self):
-        return self.cleaned_data
-
-    class Meta:
-        model = Notes
-        fields = ['message']
-
-
-class AddComment(forms.ModelForm):
-    text = forms.Textarea()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['text'].label = 'Текст коммента'
-
-    def clean(self):
-        return self.cleaned_data
-
-    class Meta:
-        model = Comments
-        fields = ['text']
-
-
-class ResetPassword(forms.ModelForm):
-
-    old_password = forms.CharField(label='Введите старый пароль', widget=forms.PasswordInput)
-    new_password = forms.CharField(label='Введите новый пароль', widget=forms.PasswordInput)
-    confirm_new_password = forms.CharField(label='Повторите новый пароль', widget=forms.PasswordInput)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['old_password'].label = 'Введите старый пароль'
-        self.fields['new_password'].label = 'Введите новый пароль'
-
-
-    def clean(self):
-
-
-        old_password = self.cleaned_data['old_password']
-        new_password = self.cleaned_data['new_password']
-
-
-        confirm_new_password = self.cleaned_data['confirm_new_password']
-
-        if new_password == old_password:
-            raise forms.ValidationError(f'Новый пароль не отличается от старого')
-
-        if new_password != confirm_new_password:
-            raise forms.ValidationError(f'Введенные пароли не совпадают')
-
-        username = self.cleaned_data['username']
-        user = User.objects.get(username=username)
-
-        if not user.check_password(old_password):
-            raise forms.ValidationError(f'Неверный пароль')
-
-        validate_password(new_password, user=user, password_validators=None)
-
-        return self.cleaned_data
-
-    class Meta:
-
-        model = User
-        fields = ['username', 'old_password', 'new_password', 'confirm_new_password']
-
-
-class AddScheduledTaskForm(forms.ModelForm):
-
-    start_date = forms.DateField(widget=forms.SelectDateWidget)
-    start_date.label = 'На какой день(дни) задание'
-    CHOICES = [(0, 'Понедельник'), (1, 'Вторник'), (2, 'Среда'), (3, 'Четверг'), (4, 'Пятница')
-               , (5, 'Суббота'), (6, 'Воскресенье')]
-    week_days = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=CHOICES, required=False)
-    week_days.label = 'Дни недели:'
+class SendScore(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -178,13 +92,7 @@ class AddScheduledTaskForm(forms.ModelForm):
         return self.cleaned_data
 
     class Meta:
-        model = ScheduledTasks
-        fields = ['departments', 'start_date', 'name', 'week_days', 'regularity', 'text']
-
-
-class UploadFileForm(forms.Form):
-    title = forms.CharField(max_length=50)
-    file = forms.FileField()"""
-
+        model = Match
+        fields = '__all__'
 
 
