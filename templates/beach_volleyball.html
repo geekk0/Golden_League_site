@@ -21,33 +21,25 @@
 
     <script type="text/javascript">
 
-
         document.addEventListener("DOMContentLoaded", modal_end_set)
 
         document.addEventListener("DOMContentLoaded", prepare_control_buttons);
 
+        document.addEventListener("DOMContentLoaded", prepare_score_values)
 
+        function prepare_score_values() {
 
-        /*function open_popup() {
-            let form = document.getElementById("team_reg_form")
-            form.style.display = "block"
-            form.setAttribute("active_set", "set_1")
-
-            let close_button = document.getElementById("team_reg_button")
-            close_button.addEventListener('click', close);
+            let input_score_dict = {{ match_score|safe }};
+            let send_score = document.getElementsByClassName("send_score")
+            for (let i=0; i < send_score.length; i++) {
+                send_score[i].value = input_score_dict[i]
+                console.log(send_score[i].id + " : "+send_score[i].value)
             }
 
-        function close() {
+            let score = document.getElementById("score")
+            score.setAttribute("active_set", "set_"+input_score_dict[8])
 
-            let form = document.getElementById("team_reg_form")
-
-            let red_squad = document.getElementById("id_red_team")
-            let blue_squad = document.getElementById("id_blue_team")
-
-            form.style.display = "none"
-                prepare_control_buttons()
-
-        }*/
+        }
 
         function prepare_control_buttons() {
             let score = document.getElementById("score")
@@ -65,18 +57,6 @@
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
         }
 
-
-
-        /*function save_red_team() {
-            let red_team = document.getElementById("red_squad")
-            red_team.innerHTML = document.getElementById("id_red_team").value
-        }
-
-        function save_blue_team() {
-            let blue_team = document.getElementById("blue_squad")
-            blue_team.innerText = document.getElementById("id_blue_team").value
-        }*/
-
         function plus_point(team) {
             let active_set = document.getElementById("score").getAttribute("active_set")
             let point_score = document.getElementById(team+"_points_"+active_set)
@@ -87,7 +67,6 @@
 
             console.log(active_set)
             let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
-            console.log(send_value.id)
             send_value.value = int_point.toString()
             send_form()
 
@@ -114,16 +93,21 @@
         }
 
         function set_score_plus(set_score_elem) {
-            console.log(set_score_elem)
-            let set_score_elem_int = parseInt(set_score_elem.innerHTML)
+            let set_score_elem_int = parseInt(set_score_elem.value)
+            console.log(set_score_elem.id)
             set_score_elem_int = set_score_elem_int + 1
+            set_score_elem.value = set_score_elem_int.toString()
             set_score_elem.innerHTML = set_score_elem_int.toString()
+            console.log(set_score_elem.id)
+            console.log(set_score_elem.value)
+            console.log(set_score_elem.innerHTML)
             if (set_score_elem_int === 2) {
                 modal_match_is_over()
             }
             else {
                 switch_active_set()
             }
+
         }
 
         function switch_active_set() {
@@ -133,6 +117,8 @@
             if (set_num < 3) {
                 score.setAttribute("active_set", "set_"+(set_num+1).toString())
             }
+            document.getElementById("active_set").value = (set_num+1).toString()
+            send_form()
         }
 
         function end_set_func() {
@@ -152,6 +138,7 @@
             if  (blue_score_int  > red_score_int){
                 set_score_plus(set_score_blue)
             }
+            send_form()
         }
 
         function modal_end_set() {
@@ -161,7 +148,6 @@
             let noBtn = document.getElementById("no_button")
             let yesBtn = document.getElementById("yes_button")
             modalBtn.onclick = function () {
-                console.log(modalBtn.id)
 
                 modal.style.display = "block"
             }
@@ -198,10 +184,6 @@
             window.location.replace("http://127.0.0.1:8000");
         }
 
-        function show(e){
-            let send_value = document.getElementById("red_points_1")
-            console.log(e)
-        }
 
     </script>
 
@@ -210,34 +192,20 @@
 
     {% for match in matches %}
 
-        <script>
-
-            document.addEventListener("DOMContentLoaded", prepare_score_values)
-
-            function prepare_score_values() {
-
-                /*let red_points_1 = document.getElementById("red_points_1")
-                red_points_1.value = parseInt(red_points_1.innerHTML)
-                console.log(red_points_1.innerHTML)*/
-            }
-
-        </script>
-
         <div class='team_reg_form' style="display:none" id="team_reg_form">
             <div class="form_container col-md-4 offset-md-4">
                 <div class="auth col-md-6 offset-md-3">
 
-
-
-                    <form action="{% url 'send_data' match.id %}" method="get" name="score" id="send_score_form">
+                    <form action="{% url 'save_data' match.id %}" method="get" name="score" id="send_score_form">
                         <input type="text" id="red_points_1" name="red_points_1" class="send_score">
                         <input type="text" id="red_points_2" name="red_points_2" class="send_score">
                         <input type="text" id="red_points_3" name="red_points_3" class="send_score">
                         <input type="text" id="blue_points_1" name="blue_points_1" class="send_score">
-                        <input type="text" id="blue_points_1" name="blue_points_2" class="send_score">
-                        <input type="text" id="blue_points_1" name="blue_points_3" class="send_score">
-                        <!--<input type="text" id="red_set_score" name="red_set_score" class="send_score">
-                        <input type="text" id="blue_set_score" name="blue_set_score" class="send_score">-->
+                        <input type="text" id="blue_points_2" name="blue_points_2" class="send_score">
+                        <input type="text" id="blue_points_3" name="blue_points_3" class="send_score">
+                        <input type="text" id="red_set_score" name="red_set_score" class="send_score">
+                        <input type="text" id="blue_set_score" name="blue_set_score" class="send_score">
+                        <input type="text" id="active_set" name="active_set" class="send_score">
 
 
                     </form>

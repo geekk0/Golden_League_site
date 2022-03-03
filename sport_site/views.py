@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -52,10 +54,41 @@ def enter_match(request, sport_name):
     matches = Match.objects.filter(sport__name=sport_name)
 
     if matches.exists():
-        context = {"matches": matches}
+        match_score = send_match_score(matches)
+        context = {"matches": matches, "match_score": json.dumps(match_score)}
         return render(request, "beach_volleyball.html", context)
     else:
         return HttpResponseRedirect("/Регистрация команд")
+
+
+def send_match_score(queryset):
+
+    match = queryset.first()
+
+    match_score = [match.red_points_set_1, match.red_points_set_2, match.red_points_set_3, match.blue_points_set_1,
+                   match.blue_points_set_2, match.blue_points_set_3, match.red_set_score,
+                   match.blue_set_score, match.active_set]
+
+    return match_score
+
+
+def match_score_save(request, match_id):
+
+    match = Match.objects.get(id=match_id)
+
+    match.red_points_set_1 = request.GET.get("red_points_1")
+    match.red_points_set_2 = request.GET.get("red_points_2")
+    match.red_points_set_3 = request.GET.get("red_points_3")
+    match.blue_points_set_1 = request.GET.get("blue_points_1")
+    match.blue_points_set_2 = request.GET.get("blue_points_2")
+    match.blue_points_set_3 = request.GET.get("blue_points_3")
+    match.red_set_score = request.GET.get("red_set_score")
+    match.blue_set_score = request.GET.get("blue_set_score")
+    match.active_set = request.GET.get("active_set")
+
+    match.save()
+
+    return HttpResponse(status=204)
 
 
 def create_match(sport, red_team, blue_team):
@@ -81,23 +114,5 @@ def beach_volleyball(request):
     context = {}
     return render(request, "beach_volleyball.html", context)
 
-def testfunc(request):
 
-    return render(request, "sport.html")
-
-
-def data_send(request, match_id):
-
-    match = Match.objects.get(id=match_id)
-
-    match.red_points_set_1 = request.GET.get("red_points_1")
-    """match.red_points_set_2 = request.GET.get("red_points_2")
-    match.red_points_set_3 = request.GET.get("red_points_3")
-    match.blue_points_set_1 = request.GET.get("blue_points_1")
-    match.blue_points_set_2 = request.GET.get("blue_points_2")
-    match.blue_points_set_3 = request.GET.get("blue_points_3")"""
-
-    match.save()
-
-    return HttpResponse(status=204)
 
