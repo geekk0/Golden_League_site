@@ -1,0 +1,38 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block breadcrumb %}
+    <li class="navbar-brand">-</li>
+    <li class="navbar-brand">Регистрация команд</li>
+{% endblock %}
+
+{%  block content %}
+
+
+<div class='' style="margin-top:100px; text-align: center">
+
+    <div class="col-md-4 offset-md-4">
+
+        <div class="auth col-md-6 offset-md-3">
+
+            <h3 style="" class="text-center">Регистрация команд</h3>
+            <br>
+            <br>
+            <h5 style="" class="text-center"></h5>
+
+            <form style="" action ='' method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Войти">
+            </form>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

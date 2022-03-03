@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sports, Match
+from .models import Sports, Match, EndedMatches
 
 
 class SportsAdmin(admin.ModelAdmin):
@@ -9,6 +9,15 @@ class SportsAdmin(admin.ModelAdmin):
 class MatchAdmin(admin.ModelAdmin):
     fields = [field.name for field in Match._meta.get_fields()]
     fields.remove("id")
+    fields.remove("active_set")
+
+
+class EndedMatchesAdmin(admin.ModelAdmin):
+    fields = [field.name for field in Match._meta.get_fields()]
+    fields.remove("id")
+    fields.remove("active_set")
+
 
 admin.site.register(Sports, SportsAdmin)
 admin.site.register(Match, MatchAdmin)
+admin.site.register(EndedMatches, EndedMatchesAdmin)

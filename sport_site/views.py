@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from .models import Sports, Match
+from .models import Sports, Match, EndedMatches
 from django.views.generic import DetailView, View
 from .forms import LoginForm, SquadForm
 from django.contrib.auth.decorators import login_required
@@ -99,6 +99,27 @@ def create_match(sport, red_team, blue_team):
 
     return match
 
+
+def end_match(request):
+    match = Match.objects.all().first()
+
+    ended_match = EndedMatches.objects.create(sport=match.sport, date=match.date, red_squad=match.red_squad,
+                                              blue_squad=match.blue_squad)
+
+    ended_match.red_set_score = match.red_set_score
+    ended_match.blue_set_score = match.blue_set_score
+    ended_match.red_points_set_1 = match.red_points_set_1
+    ended_match.red_points_set_2 = match.red_points_set_2
+    ended_match.red_points_set_3 = match.red_points_set_3
+    ended_match.blue_points_set_1 = match.blue_points_set_1
+    ended_match.blue_points_set_2 = match.blue_points_set_2
+    ended_match.blue_points_set_3 = match.blue_points_set_3
+
+    ended_match.save()
+
+    match.delete()
+
+    return HttpResponseRedirect("/")
 
 
 @login_required

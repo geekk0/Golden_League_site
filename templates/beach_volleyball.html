@@ -181,11 +181,7 @@
             setTimeout(close_modal_match_is_over, 1500)
         }
 
-        function close_modal_match_is_over() {
-            let modal = document.getElementById("match_is_over")
-            modal.style.display = "none"
-            window.location.replace("http://127.0.0.1:8000");
-        }
+
 
 
     </script>
@@ -194,6 +190,14 @@
 
 
     {% for match in matches %}
+
+        <script>
+            function close_modal_match_is_over() {
+            let modal = document.getElementById("match_is_over")
+            modal.style.display = "none"
+            window.location.replace("{% url 'Завершение матча' %}");
+        }
+        </script>
 
         <div class='team_reg_form' style="display:none" id="team_reg_form">
             <div class="form_container col-md-4 offset-md-4">
