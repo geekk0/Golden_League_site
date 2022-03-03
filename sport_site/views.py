@@ -90,9 +90,12 @@ def data_send(request, match_id):
 
     match = Match.objects.get(id=match_id)
 
-    text = request.GET.get("red_points_1")
-
-    match.red_points_set_1 = text
+    match.red_points_set_1 = request.GET.get("red_points_1")
+    """match.red_points_set_2 = request.GET.get("red_points_2")
+    match.red_points_set_3 = request.GET.get("red_points_3")
+    match.blue_points_set_1 = request.GET.get("blue_points_1")
+    match.blue_points_set_2 = request.GET.get("blue_points_2")
+    match.blue_points_set_3 = request.GET.get("blue_points_3")"""
 
     match.save()
 

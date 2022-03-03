@@ -65,6 +65,8 @@
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
         }
 
+
+
         /*function save_red_team() {
             let red_team = document.getElementById("red_squad")
             red_team.innerHTML = document.getElementById("id_red_team").value
@@ -83,7 +85,9 @@
             int_point = int_point + 1
             point_score.innerHTML = int_point.toString()
 
-            let send_value = document.getElementById("red_points_1")
+            console.log(active_set)
+            let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
+            console.log(send_value.id)
             send_value.value = int_point.toString()
             send_form()
 
@@ -93,12 +97,19 @@
             let active_set = document.getElementById("score").getAttribute("active_set")
             let point_score = document.getElementById(team+"_points_"+active_set)
             let int_point = parseInt(point_score.innerHTML)
+            let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
             if (int_point > 0) {
                 int_point = int_point - 1
                 point_score.innerHTML = int_point.toString()
+
+
+                send_value.value = int_point.toString()
+                send_form()
             }
             else {
                 point_score.innerHTML = "0"
+                send_value.value = int_point.toString()
+                send_form()
             }
         }
 
@@ -172,9 +183,6 @@
         }
 
         function send_form() {
-            let send_value = document.getElementById("red_points_1")
-            console.log(send_value.innerHTML)
-
             document.forms['score'].submit()
         }
 
@@ -202,6 +210,19 @@
 
     {% for match in matches %}
 
+        <script>
+
+            document.addEventListener("DOMContentLoaded", prepare_score_values)
+
+            function prepare_score_values() {
+
+                /*let red_points_1 = document.getElementById("red_points_1")
+                red_points_1.value = parseInt(red_points_1.innerHTML)
+                console.log(red_points_1.innerHTML)*/
+            }
+
+        </script>
+
         <div class='team_reg_form' style="display:none" id="team_reg_form">
             <div class="form_container col-md-4 offset-md-4">
                 <div class="auth col-md-6 offset-md-3">
@@ -209,14 +230,14 @@
 
 
                     <form action="{% url 'send_data' match.id %}" method="get" name="score" id="send_score_form">
-                        <input type="text" id="red_points_1" name="red_points_1">
-                        <!--<input type="text" id="red_points_2" name="red_points_2">
-                        <input type="text" id="red_points_3" name="red_points_3">
-                        <input type="text" id="blue_points_1" name="blue_points_1">
-                        <input type="text" id="blue_points_1" name="blue_points_2">
-                        <input type="text" id="blue_points_1" name="blue_points_3">
-                        <input type="text" id="red_set_score" name="red_set_score">
-                        <input type="text" id="blue_set_score" name="blue_set_score">-->
+                        <input type="text" id="red_points_1" name="red_points_1" class="send_score">
+                        <input type="text" id="red_points_2" name="red_points_2" class="send_score">
+                        <input type="text" id="red_points_3" name="red_points_3" class="send_score">
+                        <input type="text" id="blue_points_1" name="blue_points_1" class="send_score">
+                        <input type="text" id="blue_points_1" name="blue_points_2" class="send_score">
+                        <input type="text" id="blue_points_1" name="blue_points_3" class="send_score">
+                        <!--<input type="text" id="red_set_score" name="red_set_score" class="send_score">
+                        <input type="text" id="blue_set_score" name="blue_set_score" class="send_score">-->
 
 
                     </form>
