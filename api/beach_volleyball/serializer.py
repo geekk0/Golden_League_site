@@ -8,7 +8,6 @@ class MatchSerializer(serializers.ModelSerializer):
         model = Match
         fields = [field.name for field in Match._meta.get_fields()]
         fields.remove("id")
-        fields.remove("active_set")
 
 
 
