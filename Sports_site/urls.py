@@ -20,5 +20,6 @@ from sport_site import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.LoginView.as_view(), name='login'),
-    path('', include('sport_site.urls'))
+    path('', include('sport_site.urls')),
+    path('api/', include('api.urls')),
 ]
