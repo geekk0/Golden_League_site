@@ -45,7 +45,7 @@ class SquadRegister(View):
         form = SquadForm(request.POST or None)
         red_team = form["red_squad"]
         blue_team = form["blue_squad"]
-        sport = form["sport"]
+        sport = 1
         create_match(sport, red_team, blue_team)
         return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -58,7 +58,7 @@ def enter_match(request, sport_name):
         context = {"matches": matches, "match_score": json.dumps(match_score)}
         return render(request, "beach_volleyball.html", context)
     else:
-        return HttpResponseRedirect("/Регистрация команд")
+        return HttpResponseRedirect("/Регистрация команд/%s" % sport_name)
 
 
 def send_match_score(queryset):
@@ -92,7 +92,7 @@ def match_score_save(request, match_id):
 
 
 def create_match(sport, red_team, blue_team):
-    sport_type = Sports.objects.get(id=sport.value())
+    sport_type = Sports.objects.get(id=sport)
     match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value())
     match.created_date = timezone.now()
     match.save()
@@ -131,9 +131,7 @@ def main(request):
     return render(request, "sports.html", context)
 
 
-def beach_volleyball(request):
-    context = {}
-    return render(request, "beach_volleyball.html", context)
+
 
 
 

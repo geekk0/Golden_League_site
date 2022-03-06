@@ -80,7 +80,7 @@ class LoginForm(forms.ModelForm):
 class SquadForm(forms.ModelForm):
     class Meta:
         model = Match
-        fields = ["sport", "red_squad", "blue_squad"]
+        fields = ["red_squad", "blue_squad"]
 
 
 class SendScore(forms.ModelForm):
