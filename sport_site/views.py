@@ -10,8 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 
-
-
 class LoginView(View):
 
     def get(self, request, *args, **kwargs):
@@ -67,7 +65,7 @@ def send_match_score(queryset):
 
     match_score = [match.red_points_set_1, match.red_points_set_2, match.red_points_set_3, match.blue_points_set_1,
                    match.blue_points_set_2, match.blue_points_set_3, match.red_set_score,
-                   match.blue_set_score, match.active_set]
+                   match.blue_set_score, match.active_set, match.current_inning]
 
     return match_score
 
@@ -85,6 +83,7 @@ def match_score_save(request, match_id):
     match.red_set_score = request.GET.get("red_set_score")
     match.blue_set_score = request.GET.get("blue_set_score")
     match.active_set = request.GET.get("active_set")
+    match.current_inning = request.GET.get("current_inning")
 
     match.save()
 
