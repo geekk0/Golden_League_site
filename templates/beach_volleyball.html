@@ -41,7 +41,6 @@
 
             let active_inning_team = input_score_dict[9]
             set_inning(active_inning_team)
-
         }
 
         function prepare_control_buttons() {
@@ -196,23 +195,22 @@
                 blue_in_icon.style.visibility = "hidden"
                 send_value.value = "red"
 
-                red_inning_button.style.display = "none"
-                blue_inning_button.style.display = "none"
+                red_inning_button.style.visibility = "hidden"
+                blue_inning_button.style.visibility = "hidden"
             }
             else if (team === 'blue') {
                 blue_in_icon.style.visibility = "visible"
                 red_inn_icon.style.visibility = "hidden"
                 send_value.value = "blue"
-                red_inning_button.style.display = "none"
-                blue_inning_button.style.display = "none"
-            }
-            else {
-                red_inning_button.style.display = "block"
-                blue_inning_button.style.display = "block"
+                red_inning_button.style.visibility = "hidden"
+                blue_inning_button.style.visibility = "hidden"
             }
         }
 
-
+        function first_inning(team){
+            set_inning(team)
+            send_form()
+        }
 
     </script>
 
@@ -294,9 +292,9 @@
     {% endfor %}
     <div class="row col-md-10 offset-1 ">
 
-        <div style="margin-top:3%" class = "red_first_inning col-md-3 text-right">
+        <div style="margin-top:3%" class = "red_first_inning col-md-3 text-center">
             <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
-                    onclick="set_inning(team='red')" class="btn btn-success">Первая подача</button>
+                    onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
         </div>
         <div class = "red_team_controls col-md-3 text-center">
 
@@ -326,9 +324,9 @@
                                                        alt="-1 Синей команде"></a>
             </form>
         </div>
-        <div style="margin-top:3%" class = "blue_first_inning col-md-3 ">
+        <div style="margin-top:3%" class = "blue_first_inning col-md-3 text-center">
             <button id = "btn_set_inning_blue" style="background: blue; border:black"
-                    onclick="set_inning('blue')" class="btn btn-success">Первая подача</button></div>
+                    onclick="first_inning('blue')" class="btn btn-success">Первая подача</button></div>
 
         <div>
                 <button style="margin-top: 6%;" type="button" class="btn btn-success col-md-6 offset-3"
@@ -356,5 +354,7 @@
 
         </div>
     </div>
+
+</div>
 
 {% endblock %}
