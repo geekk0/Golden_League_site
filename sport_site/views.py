@@ -87,7 +87,7 @@ def match_score_save(request, match_id):
 
     match.save()
 
-    return HttpResponse(status=204)
+    return HttpResponse(status=205)
 
 
 def create_match(sport, red_team, blue_team):
