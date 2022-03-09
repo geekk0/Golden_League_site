@@ -58,6 +58,9 @@
             red_minus_point.addEventListener("click",  () => minus_point("red"))
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
 
+            console.log(navigator.appVersion.indexOf("Safari"))
+            console.log(navigator.appVersion.indexOf("Mozilla"))
+
             if (navigator.appVersion.indexOf("Safari") > 0) {
                 let OSName = "MacOS"
                 let client_os = document.getElementById("client_os")

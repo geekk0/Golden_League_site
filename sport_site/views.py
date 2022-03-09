@@ -86,6 +86,7 @@ def match_score_save(request, match_id):
     match.current_inning = request.GET.get("current_inning")
 
     match.client_os = request.GET.get("client_os")
+    print(match.client_os)
 
     match.save()
 
