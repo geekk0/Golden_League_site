@@ -87,7 +87,7 @@ def match_score_save(request, match_id):
 
     match.save()
 
-    return HttpResponseRedirect("http://192.168.77.2/Пляжный волейбол/Матч")
+    return HttpResponseRedirect("http://185.18.202.239/Пляжный волейбол/Матч")
 
 
 def create_match(sport, red_team, blue_team):
