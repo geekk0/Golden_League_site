@@ -85,9 +85,14 @@ def match_score_save(request, match_id):
     match.active_set = request.GET.get("active_set")
     match.current_inning = request.GET.get("current_inning")
 
+    match.client_os = request.GET.get("client_os")
+
     match.save()
 
-    return HttpResponseRedirect("http://185.18.202.239/Пляжный волейбол/Матч")
+    if match.client_os == "MacOS":
+        return HttpResponse(status=100)
+    else:
+        return HttpResponse(status=204)
 
 
 def create_match(sport, red_team, blue_team):

@@ -30,6 +30,7 @@ class Match(models.Model):
     blue_points_set_3 = models.IntegerField(verbose_name="Очки синих в 3 партии", default=0)
     active_set = models.IntegerField(verbose_name="Текущая партия", default=1)
     current_inning = models.CharField(verbose_name="Текущая подача",  max_length=128, default="blank")
+    client_os = models.CharField(verbose_name="ОС клиента",  max_length=128, default="common")
 
     def __str__(self):
         return str(self.date)

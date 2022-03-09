@@ -57,6 +57,12 @@
             blue_plus_point.addEventListener("click",  () => plus_point("blue"))
             red_minus_point.addEventListener("click",  () => minus_point("red"))
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
+
+            if (navigator.appVersion.indexOf("Mac") > 0) {
+                let OSName = "MacOS"
+                let client_os = document.getElementById("client_os")
+                client_os.value = OSName
+            }
         }
 
         function plus_point(team) {
@@ -70,6 +76,7 @@
             console.log(active_set)
             let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
             send_value.value = int_point.toString()
+
             set_inning(team)
             send_form()
 
@@ -242,6 +249,7 @@
                         <input type="text" id="blue_set_score" name="blue_set_score" class="send_score">
                         <input type="text" id="active_set" name="active_set" class="send_score">
                         <input type="text" id="current_inning" name="current_inning" class="send_score">
+                        <input type="text" id="client_os" name="client_os" class="send_score">
 
 
                     </form>
