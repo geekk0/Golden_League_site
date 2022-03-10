@@ -91,7 +91,7 @@ def match_score_save(request, match_id):
     match.save()
 
     if match.client_os == "MacOS":
-        return HttpResponse(status=100)
+        return HttpResponseRedirect("/Пляжный волейбол/Матч")
     else:
         return HttpResponse(status=204)
 
