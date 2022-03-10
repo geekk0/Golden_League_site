@@ -40,12 +40,43 @@
             score.setAttribute("active_set", "set_"+input_score_dict[8])
 
             let active_inning_team = input_score_dict[9]
+            console.log(active_inning_team)
+            let client_os = document.getElementById("client_os")
+            client_os.value = input_score_dict[10]
+
+            if (navigator.userAgent.includes("Apple")) {
+                let OSName = "MacOS"
+                console.log(OSName)
+                client_os = document.getElementById("client_os")
+                client_os.value = OSName
+            }
+            else {
+                client_os.value = "common"
+            }
+
             set_inning(active_inning_team)
         }
 
         function prepare_control_buttons() {
-            let score = document.getElementById("score")
-            score.setAttribute("active_set", "set_1")
+
+            let input_score_dict = {{ match_score|safe }};
+            let swap_position = input_score_dict[11]
+            console.log("position_from_input: "+swap_position)
+
+            swap_sides(swap_position)
+
+            let red_plus_point_swapped = document.getElementById("team_red_plus_point_swapped")
+            let red_minus_point_swapped = document.getElementById("team_red_minus_point_swapped")
+
+            let blue_plus_point_swapped = document.getElementById("team_blue_plus_point_swapped")
+            let blue_minus_point_swapped = document.getElementById("team_blue_minus_point_swapped")
+
+            red_plus_point_swapped.addEventListener("click",  () => plus_point("red"))
+            blue_plus_point_swapped.addEventListener("click",  () => plus_point("blue"))
+            red_minus_point_swapped.addEventListener("click",  () => minus_point("red"))
+            blue_minus_point_swapped.addEventListener("click",  () => minus_point("blue"))
+
+
 
             let red_plus_point = document.getElementById("team_red_plus_point")
             let red_minus_point = document.getElementById("team_red_minus_point")
@@ -58,14 +89,8 @@
             red_minus_point.addEventListener("click",  () => minus_point("red"))
             blue_minus_point.addEventListener("click",  () => minus_point("blue"))
 
-            console.log(navigator.appVersion.indexOf("Safari"))
-            console.log(navigator.appVersion.indexOf("Mozilla"))
-
-            if (navigator.appVersion.indexOf("Safari") > 0) {
-                let OSName = "MacOS"
-                let client_os = document.getElementById("client_os")
-                client_os.value = OSName
-            }
+            let score = document.getElementById("score")
+            score.setAttribute("active_set", "set_1")
         }
 
         function plus_point(team) {
@@ -148,12 +173,23 @@
             let score_blue_show = document.getElementById("set_blue_score")
 
             if (red_score_int > blue_score_int) {
+                document.getElementById("current_inning").value = "blank"
                 set_score_plus(set_score_red, score_red_show)
             }
             if  (blue_score_int  > red_score_int){
+                document.getElementById("current_inning").value = "blank"
                 set_score_plus(set_score_blue, score_blue_show)
             }
+            document.getElementById("red_inning_icon").style.visibility = "hidden"
+            document.getElementById("blue_inning_icon").style.visibility = "hidden"
+            document.getElementById("current_inning").value = "blank"
+            document.getElementById("btn_set_inning_blue_swapped").style.visibility = "visible"
+            document.getElementById("btn_set_inning_red_swapped").style.visibility = "visible"
+            document.getElementById("btn_set_inning_blue").style.visibility = "visible"
+            document.getElementById("btn_set_inning_red").style.visibility = "visible"
+            console.log("sending current inning: "+document.getElementById("current_inning").value)
             send_form()
+
         }
 
         function modal_end_set() {
@@ -207,19 +243,52 @@
 
                 red_inning_button.style.visibility = "hidden"
                 blue_inning_button.style.visibility = "hidden"
+                document.getElementById("btn_set_inning_blue_swapped").style.visibility = "hidden"
+                document.getElementById("btn_set_inning_red_swapped").style.visibility = "hidden"
+
             }
-            else if (team === 'blue') {
+            else if (team === 'blue')  {
                 blue_in_icon.style.visibility = "visible"
                 red_inn_icon.style.visibility = "hidden"
                 send_value.value = "blue"
                 red_inning_button.style.visibility = "hidden"
                 blue_inning_button.style.visibility = "hidden"
+                document.getElementById("btn_set_inning_blue_swapped").style.visibility = "hidden"
+                document.getElementById("btn_set_inning_red_swapped").style.visibility = "hidden"
             }
         }
 
         function first_inning(team){
             set_inning(team)
             send_form()
+        }
+
+        function swap_sides(position) {
+            let swapped = document.getElementById("controls_swapped")
+            let unswapped = document.getElementById("controls")
+
+            if (position === 2) {
+                swapped.style.display = "block"
+                unswapped.style.display = "none"
+                document.getElementById("swap_position").value = 2
+            }
+            else {
+                swapped.style.display = "none"
+                unswapped.style.display = "block"
+                document.getElementById("swap_position").value = 1
+
+            }
+            let current_position = document.getElementById("swap_position")
+            console.log("current position: "+current_position.value)
+
+
+        }
+
+        function swap_sides_send(position) {
+            swap_sides(position)
+            send_form()
+            let send_position = document.getElementById("swap_position")
+            console.log("send_position: "+send_position)
         }
 
     </script>
@@ -253,6 +322,7 @@
                         <input type="text" id="active_set" name="active_set" class="send_score">
                         <input type="text" id="current_inning" name="current_inning" class="send_score">
                         <input type="text" id="client_os" name="client_os" class="send_score">
+                        <input type="text" id="swap_position" name="swap_position" class="send_score">
 
 
                     </form>
@@ -261,111 +331,173 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="score_table col-md-10 offset-1" style="margin-top:3%" id="score">
-                <table class="table table-bordered">
-                <thead>
-                    <tr style="text-align: center;vertical-align: middle;">
-                        <th scope="col" >Состав команды</th>
-                        <th scope="col" >Счет по партиям</th>
-                        <th scope="col" >Счет 1 партии</th>
-                        <th scope="col" >Счет 2 партии</th>
-                        <th scope="col" >Счет 3 партии</th>
-                        <th scope="col" >Подача</th>
-                    </tr>
+        <div class="container">
+            <div class="row">
+                <div class="score_table col-md-10-offset-1 col-xs-12" style="margin-top:1%" id="score">
+                    <table class="table table-bordered mx-auto w-auto small">
+                    <thead>
+                        <tr style="text-align: center;vertical-align: middle;">
+                            <th scope="col" >Команды</th>
+                            <th scope="col" >Счет по партиям</th>
+                            <th scope="col" >Счет 1 партии</th>
+                            <th scope="col" >Счет 2 партии</th>
+                            <th scope="col" >Счет 3 партии</th>
+                            <th scope="col" >Подача</th>
+                        </tr>
 
-                </thead>
-                <tbody>
-                    <tr style="text-align: center;" class="row_content">
-                        <th scope="row" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
-                        <th scope="row" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
-                        <th scope="row" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
-                        <th scope="row" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
-                        <th scope="row" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
-                        <th scope="row" >
-                            <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
-                                 alt="Подача" style="width:15%;visibility:hidden"></th>
-                    </tr>
-                    <tr style="text-align: center;" class="row_content">
-                        <th scope="row" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
-                        <th scope="row" style="font-weight: normal" id="set_blue_score">{{ match.blue_set_score }}</th>
-                        <th scope="row" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
-                        <th scope="row" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
-                        <th scope="row" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
-                        <th scope="row" >
-                            <img id="blue_inning_icon" src="{% static 'images/ball.png' %}"
-                                 alt="Подача" style="width:15%;visibility:hidden"></th>
-                    </tr>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <tr style="text-align: center;" class="row_content">
+                            <th scope="row" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
+                            <th scope="row" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
+                            <th scope="row" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
+                            <th scope="row" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
+                            <th scope="row" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
+                            <th scope="row" >
+                                <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
+                                     alt="Подача" style="width:15%;visibility:hidden"></th>
+                        </tr>
+                        <tr style="text-align: center;" class="row_content">
+                            <th scope="row" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
+                            <th scope="row" style="font-weight: normal" id="set_blue_score">{{ match.blue_set_score }}</th>
+                            <th scope="row" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
+                            <th scope="row" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
+                            <th scope="row" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
+                            <th scope="row" >
+                                <img id="blue_inning_icon" src="{% static 'images/ball.png' %}"
+                                     alt="Подача" style="width:15%;visibility:hidden"></th>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
             </div>
+        </div>
 
     {% endfor %}
-    <div class="row col-md-10 offset-1 ">
+        <div class="container-xs" id="controls">
+            <div class="row">
 
-        <div style="margin-top:3%" class = "red_first_inning col-md-3 text-center">
-            <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
-                    onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                <div style="" class = "red_first_inning col-3 text-center">
+                    <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
+                            onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                </div>
+                <div class = "red_team_controls col-3 text-center">
+
+                    <form action="#" method="get">
+                        <a style="" type="button" class=""
+                                id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                                                              alt="+1 Красной команде"></a>
+                        <h6 style="">Красная команда</h6>
+                        <a style="" type="button" class="btn btn-submit"
+                                id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
+                                                               src="{% static 'images/minus 2.png' %}"
+                                                               alt="-1 Красной команде"></a>
+                    </form>
+                </div>
+
+
+                <div class = "blue_team_controls col-3 text-center">
+                    <form action="#" method="get">
+                        <a style="" type="button" class=""
+                                id="team_blue_plus_point"><img class="controls-images" style="background: blue"
+                                                               src="{% static 'images/plus4.png' %}"
+                                                              alt="+1 Синей команде"></a>
+                        <h6 style="">Синяя команда</h6>
+                        <a style=";" type="button" class="btn btn-submit"
+                                id="team_blue_minus_point"><img class="controls-images" style="width:30%;
+                                background: blue;" src="{% static 'images/minus 2.png' %}"
+                                                               alt="-1 Синей команде"></a>
+                    </form>
+                </div>
+                <div style="" class = "blue_first_inning col-3 text-center">
+                    <button id = "btn_set_inning_blue" style="background: blue; border:black"
+                            onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                    <br>
+                    <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                            onclick="swap_sides_send(2)" class="btn">
+                        <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                             style="width:30%;"></button>
+
+                </div>
+            </div>
+
         </div>
-        <div class = "red_team_controls col-md-3 text-center">
 
-            <form action="#" method="get">
-                <a style="margin-top: 14%;" type="button" class=""
-                        id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
-                                                      alt="+1 Красной команде"></a>
-                <h6 style="margin-top: 4%">Красная команда</h6>
-                <a style="margin-top: 4%;" type="button" class="btn btn-submit"
-                        id="team_red_minus_point"><img class="controls-images" style="width:20%;margin-top:0;"
-                                                       src="{% static 'images/minus 2.png' %}"
-                                                       alt="-1 Красной команде"></a>
-            </form>
+        <div class="container-xs" id="controls_swapped" style="display: none">
+            <div class="row">
+
+                <div style="" class = "blue_first_inning  col-3 text-center">
+                    <button id = "btn_set_inning_blue_swapped" style="background:blue ; border:black;margin-left: auto"
+                            onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                </div>
+                <div class = "blue_team_controls col-3 text-center">
+                    <form action="#" method="get">
+                        <a style="" type="button" class=""
+                                id="team_blue_plus_point_swapped"><img class="controls-images" style="background: blue"
+                                                               src="{% static 'images/plus4.png' %}"
+                                                              alt="+1 Синей команде"></a>
+                        <h6 style="">Синяя команда</h6>
+                        <a style=";" type="button" class="btn btn-submit"
+                                id="team_blue_minus_point_swapped"><img class="controls-images" style="width:30%;
+                                background: blue;" src="{% static 'images/minus 2.png' %}"
+                                                               alt="-1 Синей команде"></a>
+                    </form>
+                </div>
+
+                <div class = "red_team_controls col-3 text-center">
+
+                    <form action="#" method="get">
+                        <a style="" type="button" class=""
+                                id="team_red_plus_point_swapped"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                                                              alt="+1 Красной команде"></a>
+                        <h6 style="">Красная команда</h6>
+                        <a style="" type="button" class="btn btn-submit"
+                                id="team_red_minus_point_swapped"><img class="controls-images" style="width:30%;margin-top:0;"
+                                                               src="{% static 'images/minus 2.png' %}"
+                                                               alt="-1 Красной команде"></a>
+                    </form>
+                </div>
+                <div style="" class = "red_first_inning col-3 text-center">
+                    <button id = "btn_set_inning_red_swapped" style="background:#bd1313; border:black"
+                            onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                    <br>
+                    <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                            onclick="swap_sides_send(1)" class="btn">
+                        <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                             style="width:30%;"></button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+                <button style="margin-top: 2%;" type="button" class="btn btn-success col-4 offset-4"
+                        id="end_set">Партия закончена</button>
         </div>
 
 
-        <div class = "blue_team_controls col-md-3 text-center">
-            <form action="#" method="get">
-                <a style="margin-top: 14%" type="button" class=""
-                        id="team_blue_plus_point"><img class="controls-images" style="background: blue"
-                                                       src="{% static 'images/plus4.png' %}"
-                                                      alt="+1 Синей команде"></a>
-                <h6 style="margin-top: 4%">Синяя команда</h6>
-                <a style="margin-top: 4%;" type="button" class="btn btn-submit"
-                        id="team_blue_minus_point"><img class="controls-images" style="width:20%;margin-top:0;
-                        background: blue;" src="{% static 'images/minus 2.png' %}"
-                                                       alt="-1 Синей команде"></a>
-            </form>
-        </div>
-        <div style="margin-top:3%" class = "blue_first_inning col-md-3 text-center">
-            <button id = "btn_set_inning_blue" style="background: blue; border:black"
-                    onclick="first_inning('blue')" class="btn btn-success">Первая подача</button></div>
 
-        <div>
-                <button style="margin-top: 6%;" type="button" class="btn btn-success col-md-6 offset-3"
-                    id="end_set">Партия закончена</button>
-        </div>
-
-
-    </div>
-
-    <div class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <p>Партия завершена?</p>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="yes_button">Да</button>
-                <button class="close" id="no_button">Нет</button>
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <p>Партия завершена?</p>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="yes_button">Да</button>
+                    <button class="close" id="no_button">Нет</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="match_is_over" >
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <p>Матч завершен</p>
+                <div class="modal" id="match_is_over" >
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <p>Матч завершен</p>
 
-        </div>
-    </div>
+                </div>
+            </div>
 
-</div>
+
+
 
 {% endblock %}

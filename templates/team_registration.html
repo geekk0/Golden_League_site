@@ -10,29 +10,28 @@
 
 {%  block content %}
 
+    <div class="container">
+        <div class='row' style="margin-top:3%; text-align: center">
 
-<div class='' style="margin-top:100px; text-align: center">
+            <div class="col-md-4 offset-md-4">
 
-    <div class="col-md-4 offset-md-4">
+                <div class="auth col-md-6 offset-md-3">
 
-        <div class="auth col-md-6 offset-md-3">
+                    <h3 style="" class="text-center">Регистрация команд</h3>
+                    <br>
+                    <h5 style="" class="text-center"></h5>
 
-            <h3 style="" class="text-center">Регистрация команд</h3>
-            <br>
-            <br>
-            <h5 style="" class="text-center"></h5>
+                    <form style="" action ='' method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Войти">
+                    </form>
 
-            <form style="" action ='' method="POST">
-                {% csrf_token %}
-                {{ form|crispy }}
-                <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Войти">
-            </form>
+                </div>
+
+            </div>
 
         </div>
-
     </div>
-
-
-</div>
 
 {% endblock %}

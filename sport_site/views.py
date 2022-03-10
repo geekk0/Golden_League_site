@@ -65,7 +65,7 @@ def send_match_score(queryset):
 
     match_score = [match.red_points_set_1, match.red_points_set_2, match.red_points_set_3, match.blue_points_set_1,
                    match.blue_points_set_2, match.blue_points_set_3, match.red_set_score,
-                   match.blue_set_score, match.active_set, match.current_inning]
+                   match.blue_set_score, match.active_set, match.current_inning, match.client_os, match.swap_position]
 
     return match_score
 
@@ -86,8 +86,8 @@ def match_score_save(request, match_id):
     match.current_inning = request.GET.get("current_inning")
 
     match.client_os = request.GET.get("client_os")
-    print(match.client_os)
-
+    match.swap_position = request.GET.get("swap_position")
+    print(match.swap_position)
     match.save()
 
     if match.client_os == "MacOS":

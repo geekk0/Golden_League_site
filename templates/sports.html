@@ -11,14 +11,16 @@
 
 {% block content %}
 
-    <div class="row">
-        {% for sport in sports %}
-            <div class="container" style="margin-top:5%" >
-                <ul class="list-inline col-md-10 offset-1">
-                    <li class="list-inline-item" style="width:30%;margin-left: 2%;margin-top:3%;background:
-                        #0dcaf0;text-align: center; "><a style="color:black" href = {% url "Матч" sport.name %}>{{ sport.name }}</a></li>
-                </ul>
-            </div>
-        {% endfor %}
+    <div class="container">
+        <div class="row">
+            {% for sport in sports %}
+                <div class="container" style="margin-top:5%" >
+                    <ul class="list-inline col-md-10 offset-1">
+                        <li class="list-inline-item" style="width:30%;margin-left: 2%;margin-top:3%;background:
+                            #0dcaf0;text-align: center; "><a style="color:black" href = {% url "Матч" sport.name %}>{{ sport.name }}</a></li>
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
