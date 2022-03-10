@@ -51,9 +51,14 @@ class SquadRegister(View):
 def enter_match(request, sport_name):
     matches = Match.objects.filter(sport__name=sport_name)
 
+    if request.user.groups.filter(name='Referees').exists():
+        user_is_referee = True
+    else:
+        user_is_referee = False
+
     if matches.exists():
         match_score = send_match_score(matches)
-        context = {"matches": matches, "match_score": json.dumps(match_score)}
+        context = {"matches": matches, "match_score": json.dumps(match_score), "user_is_referee": user_is_referee}
         return render(request, "beach_volleyball.html", context)
     else:
         return HttpResponseRedirect("/Регистрация команд/%s" % sport_name)

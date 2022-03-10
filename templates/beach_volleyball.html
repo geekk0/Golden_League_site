@@ -378,129 +378,130 @@
         </div>
 
     {% endfor %}
-        <div class="container-xs" id="controls">
+        {% if user_is_referee == True %}
+            <div class="container-xs" id="controls">
+                <div class="row">
+
+                    <div style="" class = "red_first_inning col-3 text-center">
+                        <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
+                                onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                    </div>
+                    <div class = "red_team_controls col-3 text-center">
+
+                        <form action="#" method="get">
+                            <a style="" type="button" class=""
+                                    id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                                                                  alt="+1 Красной команде"></a>
+                            <h6 style="">Красная команда</h6>
+                            <a style="" type="button" class="btn btn-submit"
+                                    id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
+                                                                   src="{% static 'images/minus 2.png' %}"
+                                                                   alt="-1 Красной команде"></a>
+                        </form>
+                    </div>
+
+
+                    <div class = "blue_team_controls col-3 text-center">
+                        <form action="#" method="get">
+                            <a style="" type="button" class=""
+                                    id="team_blue_plus_point"><img class="controls-images" style="background: blue"
+                                                                   src="{% static 'images/plus4.png' %}"
+                                                                  alt="+1 Синей команде"></a>
+                            <h6 style="">Синяя команда</h6>
+                            <a style=";" type="button" class="btn btn-submit"
+                                    id="team_blue_minus_point"><img class="controls-images" style="width:30%;
+                                    background: blue;" src="{% static 'images/minus 2.png' %}"
+                                                                   alt="-1 Синей команде"></a>
+                        </form>
+                    </div>
+                    <div style="" class = "blue_first_inning col-3 text-center">
+                        <button id = "btn_set_inning_blue" style="background: blue; border:black"
+                                onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                        <br>
+                        <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                                onclick="swap_sides_send(2)" class="btn">
+                            <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                                 style="width:30%;"></button>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="container-xs" id="controls_swapped" style="display: none">
+                <div class="row">
+
+                    <div style="" class = "blue_first_inning  col-3 text-center">
+                        <button id = "btn_set_inning_blue_swapped" style="background:blue ; border:black;margin-left: auto"
+                                onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                    </div>
+                    <div class = "blue_team_controls col-3 text-center">
+                        <form action="#" method="get">
+                            <a style="" type="button" class=""
+                                    id="team_blue_plus_point_swapped"><img class="controls-images" style="background: blue"
+                                                                   src="{% static 'images/plus4.png' %}"
+                                                                  alt="+1 Синей команде"></a>
+                            <h6 style="">Синяя команда</h6>
+                            <a style=";" type="button" class="btn btn-submit"
+                                    id="team_blue_minus_point_swapped"><img class="controls-images" style="width:30%;
+                                    background: blue;" src="{% static 'images/minus 2.png' %}"
+                                                                   alt="-1 Синей команде"></a>
+                        </form>
+                    </div>
+
+                    <div class = "red_team_controls col-3 text-center">
+
+                        <form action="#" method="get">
+                            <a style="" type="button" class=""
+                                    id="team_red_plus_point_swapped"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                                                                  alt="+1 Красной команде"></a>
+                            <h6 style="">Красная команда</h6>
+                            <a style="" type="button" class="btn btn-submit"
+                                    id="team_red_minus_point_swapped"><img class="controls-images" style="width:30%;margin-top:0;"
+                                                                   src="{% static 'images/minus 2.png' %}"
+                                                                   alt="-1 Красной команде"></a>
+                        </form>
+                    </div>
+                    <div style="" class = "red_first_inning col-3 text-center">
+                        <button id = "btn_set_inning_red_swapped" style="background:#bd1313; border:black"
+                                onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                        <br>
+                        <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                                onclick="swap_sides_send(1)" class="btn">
+                            <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                                 style="width:30%;"></button>
+
+                    </div>
+                </div>
+
+            </div>
+
             <div class="row">
-
-                <div style="" class = "red_first_inning col-3 text-center">
-                    <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
-                            onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
-                </div>
-                <div class = "red_team_controls col-3 text-center">
-
-                    <form action="#" method="get">
-                        <a style="" type="button" class=""
-                                id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
-                                                              alt="+1 Красной команде"></a>
-                        <h6 style="">Красная команда</h6>
-                        <a style="" type="button" class="btn btn-submit"
-                                id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
-                                                               src="{% static 'images/minus 2.png' %}"
-                                                               alt="-1 Красной команде"></a>
-                    </form>
-                </div>
-
-
-                <div class = "blue_team_controls col-3 text-center">
-                    <form action="#" method="get">
-                        <a style="" type="button" class=""
-                                id="team_blue_plus_point"><img class="controls-images" style="background: blue"
-                                                               src="{% static 'images/plus4.png' %}"
-                                                              alt="+1 Синей команде"></a>
-                        <h6 style="">Синяя команда</h6>
-                        <a style=";" type="button" class="btn btn-submit"
-                                id="team_blue_minus_point"><img class="controls-images" style="width:30%;
-                                background: blue;" src="{% static 'images/minus 2.png' %}"
-                                                               alt="-1 Синей команде"></a>
-                    </form>
-                </div>
-                <div style="" class = "blue_first_inning col-3 text-center">
-                    <button id = "btn_set_inning_blue" style="background: blue; border:black"
-                            onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
-                    <br>
-                    <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
-                            onclick="swap_sides_send(2)" class="btn">
-                        <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                             style="width:30%;"></button>
-
-                </div>
+                    <button style="margin-top: 2%;" type="button" class="btn btn-success col-4 offset-4"
+                            id="end_set">Партия закончена</button>
             </div>
 
-        </div>
-
-        <div class="container-xs" id="controls_swapped" style="display: none">
-            <div class="row">
-
-                <div style="" class = "blue_first_inning  col-3 text-center">
-                    <button id = "btn_set_inning_blue_swapped" style="background:blue ; border:black;margin-left: auto"
-                            onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
-                </div>
-                <div class = "blue_team_controls col-3 text-center">
-                    <form action="#" method="get">
-                        <a style="" type="button" class=""
-                                id="team_blue_plus_point_swapped"><img class="controls-images" style="background: blue"
-                                                               src="{% static 'images/plus4.png' %}"
-                                                              alt="+1 Синей команде"></a>
-                        <h6 style="">Синяя команда</h6>
-                        <a style=";" type="button" class="btn btn-submit"
-                                id="team_blue_minus_point_swapped"><img class="controls-images" style="width:30%;
-                                background: blue;" src="{% static 'images/minus 2.png' %}"
-                                                               alt="-1 Синей команде"></a>
-                    </form>
-                </div>
-
-                <div class = "red_team_controls col-3 text-center">
-
-                    <form action="#" method="get">
-                        <a style="" type="button" class=""
-                                id="team_red_plus_point_swapped"><img class="controls-images" src="{% static 'images/plus4.png' %}"
-                                                              alt="+1 Красной команде"></a>
-                        <h6 style="">Красная команда</h6>
-                        <a style="" type="button" class="btn btn-submit"
-                                id="team_red_minus_point_swapped"><img class="controls-images" style="width:30%;margin-top:0;"
-                                                               src="{% static 'images/minus 2.png' %}"
-                                                               alt="-1 Красной команде"></a>
-                    </form>
-                </div>
-                <div style="" class = "red_first_inning col-3 text-center">
-                    <button id = "btn_set_inning_red_swapped" style="background:#bd1313; border:black"
-                            onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
-                    <br>
-                    <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
-                            onclick="swap_sides_send(1)" class="btn">
-                        <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                             style="width:30%;"></button>
-
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row">
-                <button style="margin-top: 2%;" type="button" class="btn btn-success col-4 offset-4"
-                        id="end_set">Партия закончена</button>
-        </div>
 
 
-
-        <div class="modal">
-            <div class="modal-content">
-                <span class="close-btn">&times;</span>
-                <p>Партия завершена?</p>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="yes_button">Да</button>
-                    <button class="close" id="no_button">Нет</button>
-                </div>
-            </div>
-        </div>
-
-                <div class="modal" id="match_is_over" >
+            <div class="modal">
                 <div class="modal-content">
                     <span class="close-btn">&times;</span>
-                    <p>Матч завершен</p>
-
+                    <p>Партия завершена?</p>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="yes_button">Да</button>
+                        <button class="close" id="no_button">Нет</button>
+                    </div>
                 </div>
             </div>
 
+                    <div class="modal" id="match_is_over" >
+                    <div class="modal-content">
+                        <span class="close-btn">&times;</span>
+                        <p>Матч завершен</p>
+
+                    </div>
+                </div>
+        {% endif %}
 
 
 
