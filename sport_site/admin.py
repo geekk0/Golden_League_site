@@ -16,6 +16,11 @@ class EndedMatchesAdmin(admin.ModelAdmin):
     fields = [field.name for field in Match._meta.get_fields()]
     fields.remove("id")
     fields.remove("active_set")
+    fields.remove("swap_position")
+    fields.remove("client_os")
+    fields.remove("current_inning")
+
+
 
 
 admin.site.register(Sports, SportsAdmin)
