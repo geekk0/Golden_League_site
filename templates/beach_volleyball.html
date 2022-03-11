@@ -32,7 +32,7 @@
 
         function spectator() {
             if (document.getElementById("spectator").style.display === "none") {
-                setTimeout(refresh, 3000)
+                setTimeout(refresh, 1000)
             }
         }
 
@@ -46,7 +46,6 @@
             let send_score = document.getElementsByClassName("send_score")
             for (let i=0; i < send_score.length; i++) {
                 send_score[i].value = input_score_dict[i]
-                console.log(send_score[i].id + " : "+send_score[i].value)
             }
 
             if (input_score_dict[6] === 2 || input_score_dict[7] === 2) {
@@ -57,13 +56,21 @@
             score.setAttribute("active_set", "set_"+input_score_dict[8])
 
             let active_inning_team = input_score_dict[9]
-            console.log(active_inning_team)
             let client_os = document.getElementById("client_os")
             client_os.value = input_score_dict[10]
 
+            let red_team_total_input = document.getElementById("red_team_total")
+            red_team_total_input.innerHTML = input_score_dict[13]
+            let blue_team_total_input = document.getElementById("blue_team_total")
+            blue_team_total_input.innerHTML = input_score_dict[14]
+
+            let match_total_input = document.getElementById("match_total")
+            match_total_input.innerHTML = input_score_dict[15]
+            let match_total_send = document.getElementById("match_total_send")
+            match_total_send.value = input_score_dict[15]
+
             if (navigator.userAgent.includes("Apple")) {
                 let OSName = "MacOS"
-                console.log(OSName)
                 client_os = document.getElementById("client_os")
                 client_os.value = OSName
             }
@@ -78,7 +85,6 @@
 
             let input_score_dict = {{ match_score|safe }};
             let swap_position = input_score_dict[11]
-            console.log("position_from_input: "+swap_position)
 
             swap_sides(swap_position)
 
@@ -118,12 +124,48 @@
             int_point = int_point + 1
             point_score.innerHTML = int_point.toString()
 
-            console.log(active_set)
             let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
             send_value.value = int_point.toString()
 
+            set_current_set_total()
+            set_team_total("red")
+            set_team_total("blue")
             set_inning(team)
+            match_total()
             send_form()
+
+        }
+
+        function set_current_set_total() {
+            let active_set = document.getElementById("score").getAttribute("active_set")
+            let red_points_current_set = parseInt(document.getElementById("red_points_set_"+active_set.slice(-1)).innerHTML)
+            let blue_points_current_set = parseInt(document.getElementById("blue_points_set_"+active_set.slice(-1)).innerHTML)
+            let total_current_set_show = document.getElementById("total_current_set")
+            let total_current_set_send = document.getElementById("total_current_set_send")
+
+            total_current_set_show.innerHTML = (red_points_current_set + blue_points_current_set).toString()
+            total_current_set_send.value = (red_points_current_set + blue_points_current_set)
+
+
+        }
+
+        function set_team_total(team) {
+            let team_total = parseInt(document.getElementById(team+"_points_set_1").innerHTML) +
+                parseInt(document.getElementById(team+"_points_set_2").innerHTML) +
+                parseInt(document.getElementById(team+"_points_set_3").innerHTML)
+            let team_total_show = document.getElementById(team+"_team_total")
+            let team_total_send = document.getElementById(team+"_team_total_send")
+            team_total_show.innerHTML = team_total.toString()
+            team_total_send.value = team_total
+        }
+
+        function match_total() {
+            let match_total_show = document.getElementById("match_total")
+            match_total_show.innerHTML = (parseInt(document.getElementById("red_team_total").innerHTML) +
+                parseInt(document.getElementById("blue_team_total").innerHTML)).toString()
+            let match_total_send = document.getElementById("match_total_send")
+            console.log(parseInt(match_total_show.innerHTML))
+            match_total_send.value = parseInt(match_total_show.innerHTML)
 
         }
 
@@ -132,24 +174,39 @@
             let point_score = document.getElementById(team+"_points_"+active_set)
             let int_point = parseInt(point_score.innerHTML)
             let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
+
+            let set_total_show = document.getElementById("total_current_set")
+            let set_total_send = document.getElementById("total_current_set_send")
+
+
             if (int_point > 0) {
                 int_point = int_point - 1
                 point_score.innerHTML = int_point.toString()
+                set_total_show.innerHTML = int_point.toString()
 
 
                 send_value.value = int_point.toString()
+                set_total_send.value = int_point.toString()
+                set_current_set_total()
+                set_team_total("red")
+                set_team_total("blue")
+                match_total()
                 send_form()
             }
-            else {
+
+             else {
                 point_score.innerHTML = "0"
                 send_value.value = int_point.toString()
+                set_current_set_total()
+                set_team_total("red")
+                set_team_total("blue")
+                match_total()
                 send_form()
             }
         }
 
         function set_score_plus(set_score_elem, score_elem_show) {
             let set_score_elem_int = parseInt(set_score_elem.value)
-            console.log(set_score_elem.id)
             set_score_elem_int = set_score_elem_int + 1
             set_score_elem.value = set_score_elem_int.toString()
             set_score_elem.innerHTML = set_score_elem_int.toString()
@@ -204,7 +261,6 @@
             document.getElementById("btn_set_inning_red_swapped").style.visibility = "visible"
             document.getElementById("btn_set_inning_blue").style.visibility = "visible"
             document.getElementById("btn_set_inning_red").style.visibility = "visible"
-            console.log("sending current inning: "+document.getElementById("current_inning").value)
             send_form()
 
         }
@@ -247,7 +303,6 @@
         }
 
         function set_inning(team) {
-            console.log(team)
             let red_inn_icon = document.getElementById("red_inning_icon")
             let blue_in_icon = document.getElementById("blue_inning_icon")
             let red_inning_button = document.getElementById("btn_set_inning_red")
@@ -296,7 +351,6 @@
 
             }
             let current_position = document.getElementById("swap_position")
-            console.log("current position: "+current_position.value)
 
 
         }
@@ -305,7 +359,6 @@
             swap_sides(position)
             send_form()
             let send_position = document.getElementById("swap_position")
-            console.log("send_position: "+send_position)
         }
 
     </script>
@@ -340,6 +393,12 @@
                         <input type="text" id="current_inning" name="current_inning" class="send_score">
                         <input type="text" id="client_os" name="client_os" class="send_score">
                         <input type="text" id="swap_position" name="swap_position" class="send_score">
+                        <input type="text" id="ace_out_send" name="ace_out_send" class="send_score">
+                        <input type="text" id="total_current_set_send" name="total_current_set_send" class="send_score">
+                        <input type="text" id="red_team_total_send" name="red_team_total_send" class="send_score">
+                        <input type="text" id="blue_team_total_send" name="blue_team_total_send" class="send_score">
+                        <input type="text" id="match_total_send" name="match_total_send" class="send_score">
+
 
 
                     </form>
@@ -354,25 +413,36 @@
                     <table class="table table-bordered mx-auto w-auto small">
                     <thead>
                         <tr style="text-align: center;vertical-align: middle;">
-                            <th scope="col" >Команды</th>
-                            <th scope="col" >Счет по партиям</th>
-                            <th scope="col" >Счет 1 партии</th>
-                            <th scope="col" >Счет 2 партии</th>
-                            <th scope="col" >Счет 3 партии</th>
-                            <th scope="col" >Подача</th>
+                            <th scope="col">Команды</th>
+                            <th scope="col">Счет по партиям</th>
+                            <th scope="col">Счет 1 партии</th>
+                            <th scope="col">Счет 2 партии</th>
+                            <th scope="col">Счет 3 партии</th>
+                            <th scope="col">Подача</th>
+                            <th scope="col">ACE/OUT</th>
+                            <th scope="col">Тотал текущей партии</th>
+                            <th scope="col">Тотал команд</th>
+                            <th scope="col">Тотал матча</th>
                         </tr>
 
                     </thead>
                     <tbody>
                         <tr style="text-align: center;" class="row_content">
-                            <th scope="row" class="col-2" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
-                            <th scope="row" class="col-2" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
-                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
-                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
-                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
+                            <th scope="row" class="col" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
+                            <th scope="row" class="col" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
+                            <th scope="row" class="col" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
+                            <th scope="row" class="col" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
+                            <th scope="row" class="col" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
                             <th scope="row" >
                                 <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
-                                     alt="Подача" style="width:15%;visibility:hidden"></th>
+                                     alt="Подача" style="width:25%;visibility:hidden"></th>
+                            <th scope="row" class="col" style="font-weight: normal" id="ace_out">{{ match.ace_out }}</th>
+                            <td rowspan="2"  style="font-weight: normal;" class="align-middle"
+                                id="total_current_set">{{ match.total_current_set }}</td>
+                            <th scope="row" class="col" style="font-weight: normal" id="red_team_total">{{ match.red_team_total }}</th>
+                            <td rowspan="2" class="align-middle" style="font-weight: normal" id="match_total">{{ match.match_total }}</td>
+
+
                         </tr>
                         <tr style="text-align: center;" class="row_content">
                             <th scope="row" class="col-2" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
@@ -382,7 +452,10 @@
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
                             <th scope="row" >
                                 <img class="col-2" id="blue_inning_icon" src="{% static 'images/ball.png' %}"
-                                     alt="Подача" style="width:15%;visibility:hidden"></th>
+                                     alt="Подача" style="width:25%;visibility:hidden"></th>
+                            <th scope="row" class="col" style="font-weight: normal" id="ace_out">{{ match.ace_out }}</th>
+                            <th scope="row" class="col" style="font-weight: normal" id="blue_team_total">{{ match.blue_team_total }}</th>
+
                         </tr>
                     </tbody>
                 </table>

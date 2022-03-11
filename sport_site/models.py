@@ -18,8 +18,8 @@ class Sports(models.Model):
 class Match(models.Model):
     sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
     date = models.DateField(verbose_name="Дата матча", default=datetime.date.today)
-    red_squad = models.CharField(verbose_name="Состав красной команды",  max_length=128)
-    blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=128)
+    red_squad = models.CharField(verbose_name="Состав красной команды",  max_length=10)
+    blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=10)
     red_set_score = models.IntegerField(verbose_name="Выигранные партии красной команды", default=0)
     blue_set_score = models.IntegerField(verbose_name="Выигранные партии синей команды", default=0)
     red_points_set_1 = models.IntegerField(verbose_name="Очки красных в 1 партии", default=0)
@@ -32,6 +32,11 @@ class Match(models.Model):
     current_inning = models.CharField(verbose_name="Текущая подача",  max_length=128, default="blank")
     client_os = models.CharField(verbose_name="ОС клиента",  max_length=128, default="common")
     swap_position = models.IntegerField(verbose_name="Позиция кнопок", default=1)
+    ace_out = models.CharField(verbose_name="Out/Ace", max_length=128, default=" ")
+    total_current_set = models.IntegerField(verbose_name="Тотал текущей партии", default=0)
+    red_team_total = models.IntegerField(verbose_name="Тотал красной команды", default=0)
+    blue_team_total = models.IntegerField(verbose_name="Тотал синей команды", default=0)
+    match_total = models.IntegerField(verbose_name="Тотал матча", default=0)
 
     def __str__(self):
         return str(self.date)
