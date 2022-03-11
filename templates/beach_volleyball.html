@@ -32,7 +32,7 @@
 
         function spectator() {
             if (document.getElementById("spectator").style.display === "none") {
-               setTimeout(refresh, 3000)
+                setTimeout(refresh, 3000)
             }
         }
 
@@ -365,23 +365,23 @@
                     </thead>
                     <tbody>
                         <tr style="text-align: center;" class="row_content">
-                            <th scope="row" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
-                            <th scope="row" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
-                            <th scope="row" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
-                            <th scope="row" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
-                            <th scope="row" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
                             <th scope="row" >
                                 <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
                                      alt="Подача" style="width:15%;visibility:hidden"></th>
                         </tr>
                         <tr style="text-align: center;" class="row_content">
-                            <th scope="row" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
-                            <th scope="row" style="font-weight: normal" id="set_blue_score">{{ match.blue_set_score }}</th>
-                            <th scope="row" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
-                            <th scope="row" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
-                            <th scope="row" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal;color:blue" id="blue_squad">{{ match.blue_squad }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="set_blue_score">{{ match.blue_set_score }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
+                            <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
                             <th scope="row" >
-                                <img id="blue_inning_icon" src="{% static 'images/ball.png' %}"
+                                <img class="col-2" id="blue_inning_icon" src="{% static 'images/ball.png' %}"
                                      alt="Подача" style="width:15%;visibility:hidden"></th>
                         </tr>
                     </tbody>
