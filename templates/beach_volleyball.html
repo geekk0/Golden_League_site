@@ -69,6 +69,13 @@
             let match_total_send = document.getElementById("match_total_send")
             match_total_send.value = input_score_dict[15]
 
+            let red_ace_out_input = document.getElementById("red_ace_out")
+            console.log(input_score_dict[16])
+            red_ace_out_input.innerHTML = input_score_dict[16]
+            let blue_ace_out_input = document.getElementById("blue_ace_out")
+            blue_ace_out_input.innerHTML = input_score_dict[17]
+
+
             if (navigator.userAgent.includes("Apple")) {
                 let OSName = "MacOS"
                 client_os = document.getElementById("client_os")
@@ -79,6 +86,17 @@
             }
 
             set_inning(active_inning_team)
+        }
+
+        function set_ace_out(team, action) {
+            console.log(team+"_ace_out")
+            let team_ace_out_show = document.getElementById(team+"_ace_out")
+            team_ace_out_show.innerHTML = action
+            let team_ace_out_send = document.getElementById(team+"_ace_out_send")
+            team_ace_out_send.value = action
+            send_form()
+            setTimeout(refresh, 6000)
+
         }
 
         function prepare_control_buttons() {
@@ -398,6 +416,8 @@
                         <input type="text" id="red_team_total_send" name="red_team_total_send" class="send_score">
                         <input type="text" id="blue_team_total_send" name="blue_team_total_send" class="send_score">
                         <input type="text" id="match_total_send" name="match_total_send" class="send_score">
+                        <input type="text" id="red_ace_out_send" name="red_ace_out_send" class="send_score">
+                        <input type="text" id="blue_ace_out_send" name="blue_ace_out_send" class="send_score">
 
 
 
@@ -419,7 +439,7 @@
                             <th scope="col">Счет 2 партии</th>
                             <th scope="col">Счет 3 партии</th>
                             <th scope="col">Подача</th>
-                            <th scope="col">ACE/OUT</th>
+                            <th scope="col">Ace/Out</th>
                             <th scope="col">Тотал текущей партии</th>
                             <th scope="col">Тотал команд</th>
                             <th scope="col">Тотал матча</th>
@@ -436,7 +456,7 @@
                             <th scope="row" >
                                 <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
                                      alt="Подача" style="width:25%;visibility:hidden"></th>
-                            <th scope="row" class="col" style="font-weight: normal" id="ace_out">{{ match.ace_out }}</th>
+                            <th scope="row" class="col" style="font-weight: bold" id="red_ace_out">{{ match.red_ace_out }}</th>
                             <td rowspan="2"  style="font-weight: normal;" class="align-middle"
                                 id="total_current_set">{{ match.total_current_set }}</td>
                             <th scope="row" class="col" style="font-weight: normal" id="red_team_total">{{ match.red_team_total }}</th>
@@ -453,7 +473,7 @@
                             <th scope="row" >
                                 <img class="col-2" id="blue_inning_icon" src="{% static 'images/ball.png' %}"
                                      alt="Подача" style="width:25%;visibility:hidden"></th>
-                            <th scope="row" class="col" style="font-weight: normal" id="ace_out">{{ match.ace_out }}</th>
+                            <th scope="row" class="col" style="font-weight: bold" id="blue_ace_out">{{ match.blue_ace_out }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="blue_team_total">{{ match.blue_team_total }}</th>
 
                         </tr>
@@ -468,10 +488,19 @@
             <div class="container-xs" id="controls">
                 <div class="row">
 
-                    <div style="" class = "red_first_inning col-3 text-center">
+                    <div style="" class = "red_first_inning col-2 text-center">
                         <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
-                                onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                                onclick="first_inning('red')" class="btn btn-success">Подача</button>
                     </div>
+
+                    <div class="red_ace_out col-1">
+                        <button id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
+                                onclick="set_ace_out('red', 'Ace')" class="btn btn-success">Ace</button>
+                        <br>
+                        <button id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
+                         margin-top:40%" onclick="set_ace_out('red', 'Out')" class="btn btn-success">Out</button>
+                    </div>
+
                     <div class = "red_team_controls col-3 text-center">
 
                         <form action="#" method="get">
@@ -500,9 +529,18 @@
                                                                    alt="-1 Синей команде"></a>
                         </form>
                     </div>
-                    <div style="" class = "blue_first_inning col-3 text-center">
+
+                    <div class="blue_ace_out col-1">
+                        <button id = "btn_blue_ace" style="background:blue; border:black;margin-left: auto"
+                                onclick="set_ace_out('blue', 'Ace')" class="btn btn-success">Ace</button>
+                        <br>
+                        <button id = "btn_blue_out" style="background:blue; border:black;margin-left: auto;
+                         margin-top:40%" onclick="set_ace_out('blue', 'Out')" class="btn btn-success">Out</button>
+                    </div>
+
+                    <div style="" class = "blue_first_inning col-2 text-center">
                         <button id = "btn_set_inning_blue" style="background: blue; border:black"
-                                onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                                onclick="first_inning('blue')" class="btn btn-success">Подача</button>
                         <br>
                         <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
                                 onclick="swap_sides_send(2)" class="btn">
@@ -517,10 +555,18 @@
             <div class="container-xs" id="controls_swapped" style="display: none">
                 <div class="row">
 
-                    <div style="" class = "blue_first_inning  col-3 text-center">
+                    <div style="" class = "blue_first_inning  col-2 text-center">
                         <button id = "btn_set_inning_blue_swapped" style="background:blue ; border:black;margin-left: auto"
-                                onclick="first_inning('blue')" class="btn btn-success">Первая подача</button>
+                                onclick="first_inning('blue')" class="btn btn-success">Подача</button>
                     </div>
+                    <div class="blue_ace_out col-1">
+                        <button id = "btn_blue_ace" style="background:blue; border:black;margin-left: auto"
+                                onclick="set_ace_out('blue', 'Ace')" class="btn btn-success">Ace</button>
+                        <br>
+                        <button id = "btn_blue_out" style="background:blue; border:black;margin-left: auto;
+                         margin-top:40%" onclick="set_ace_out('blue', 'Out')" class="btn btn-success">Out</button>
+                    </div>
+
                     <div class = "blue_team_controls col-3 text-center">
                         <form action="#" method="get">
                             <a style="" type="button" class=""
@@ -548,9 +594,17 @@
                                                                    alt="-1 Красной команде"></a>
                         </form>
                     </div>
-                    <div style="" class = "red_first_inning col-3 text-center">
+                    <div class="red_ace_out col-1">
+                        <button id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
+                                onclick="set_ace_out('red', 'Ace')" class="btn btn-success">Ace</button>
+                        <br>
+                        <button id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
+                         margin-top:40%" onclick="set_ace_out('red', 'Out')" class="btn btn-success">Out</button>
+                    </div>
+
+                    <div style="" class = "red_first_inning col-2 text-center">
                         <button id = "btn_set_inning_red_swapped" style="background:#bd1313; border:black"
-                                onclick="first_inning('red')" class="btn btn-success">Первая подача</button>
+                                onclick="first_inning('red')" class="btn btn-success">Пподача</button>
                         <br>
                         <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
                                 onclick="swap_sides_send(1)" class="btn">

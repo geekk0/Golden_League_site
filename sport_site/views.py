@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.contrib.auth import authenticate, login
@@ -70,10 +71,19 @@ def send_match_score(queryset):
 
     match = queryset.first()
 
+    ace_out_values = check_ace_out(match.red_ace_out, match.blue_ace_out, match.ace_out_time)
+
+    match.red_ace_out = ace_out_values[0]
+    match.blue_ace_out = ace_out_values[1]
+    match.ace_out_time = ace_out_values[2]
+
+    print(ace_out_values)
+
     match_score = [match.red_points_set_1, match.red_points_set_2, match.red_points_set_3, match.blue_points_set_1,
                    match.blue_points_set_2, match.blue_points_set_3, match.red_set_score,
                    match.blue_set_score, match.active_set, match.current_inning, match.client_os, match.swap_position,
-                   match.total_current_set, match.red_team_total, match.blue_team_total, match.match_total]
+                   match.total_current_set, match.red_team_total, match.blue_team_total, match.match_total,
+                   match.red_ace_out, match.blue_ace_out]
 
     return match_score
 
@@ -100,12 +110,52 @@ def match_score_save(request, match_id):
     match.blue_team_total = request.GET.get("blue_team_total_send")
     match.match_total = request.GET.get("match_total_send")
 
+    match.red_ace_out = request.GET.get("red_ace_out_send")
+    match.blue_ace_out = request.GET.get("blue_ace_out_send")
+
+    if match.red_ace_out or match.blue_ace_out != " ":
+        match.ace_out_time = timezone.now()
+
     match.save()
 
     if match.client_os == "MacOS":
         return HttpResponseRedirect("/Пляжный волейбол/Матч")
     else:
         return HttpResponse(status=204)
+
+
+def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
+
+    reset_ace_out_time = datetime.timedelta(seconds=5)
+
+    if ace_out_time is None:
+        red_ace_out_value = red_ace_out
+        blue_ace_out_value = blue_ace_out
+        ace_out_time_value = None
+
+    elif red_ace_out != (" " or "undefined"):
+        if timezone.now() - reset_ace_out_time > ace_out_time:
+            ace_out_time_value = timezone.now()
+            red_ace_out_value = " "
+            blue_ace_out_value = " "
+        else:
+            red_ace_out_value = red_ace_out
+            blue_ace_out_value = " "
+            ace_out_time_value = None
+
+    elif blue_ace_out != (" " or "undefined"):
+        if timezone.now() - reset_ace_out_time > ace_out_time:
+            ace_out_time_value = timezone.now()
+            blue_ace_out_value = " "
+            red_ace_out_value = " "
+        else:
+            red_ace_out_value = " "
+            blue_ace_out_value = blue_ace_out
+            ace_out_time_value = None
+
+
+
+    return red_ace_out_value, blue_ace_out_value, ace_out_time_value
 
 
 def create_match(sport, red_team, blue_team):

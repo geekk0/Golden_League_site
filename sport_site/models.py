@@ -32,11 +32,13 @@ class Match(models.Model):
     current_inning = models.CharField(verbose_name="Текущая подача",  max_length=128, default="blank")
     client_os = models.CharField(verbose_name="ОС клиента",  max_length=128, default="common")
     swap_position = models.IntegerField(verbose_name="Позиция кнопок", default=1)
-    ace_out = models.CharField(verbose_name="Out/Ace", max_length=128, default=" ")
     total_current_set = models.IntegerField(verbose_name="Тотал текущей партии", default=0)
     red_team_total = models.IntegerField(verbose_name="Тотал красной команды", default=0)
     blue_team_total = models.IntegerField(verbose_name="Тотал синей команды", default=0)
     match_total = models.IntegerField(verbose_name="Тотал матча", default=0)
+    red_ace_out = models.CharField(verbose_name="Ace/out красных", default=" ", max_length=10, null=True)
+    blue_ace_out = models.CharField(verbose_name="Ace/out синих", default=" ", max_length=10, null=True)
+    ace_out_time = models.DateTimeField(verbose_name="Время ace/out", null=True)
 
     def __str__(self):
         return str(self.date)
