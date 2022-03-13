@@ -118,10 +118,13 @@ def change_points(request, match_id, team, action):
 
     set = str(match.active_set)
 
+    print(set)
+
     if action == "plus":
         points = getattr(match, team+"_points_set_"+set)
         setattr(match, team+"_points_set_"+set, points + 1)
         match.current_inning = team
+
     else:
         points = getattr(match, team + "_points_set_" + set)
         if points == 0:
@@ -170,12 +173,19 @@ def ace_out(request, match_id, team, action):
     match = Match.objects.get(id=match_id)
 
     setattr(match, team + "_ace_out", action)
-    print(team + "_ace_out")
-    print(match.red_ace_out)
-    print(match.blue_ace_out)
+
     match.ace_out_time = timezone.now()
 
     match.save()
+
+    if action == "Ace":
+        change_points(request, match_id=match_id, team=team, action="plus")
+        # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
+    if action == "Out":
+        if team == "red":
+            change_points(request, match_id=match_id, team="blue", action="plus")
+        if team == "blue":
+            change_points(request, match_id=match_id, team="red", action="plus")
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -249,9 +259,9 @@ def main(request):
 
 def statistic_view(request, match_id):
 
-    matches = Match.objects.all()
+    match = Match.objects.get(id=match_id)
 
-    context = {"matches": matches}
+    context = {"match": match}
 
     return render(request, "Протокол шаблон.html", context)
 
