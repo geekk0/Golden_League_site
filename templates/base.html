@@ -22,15 +22,17 @@
             <div class="row align-bottom">
 
                 {% if request.user.is_authenticated %}
-                    <nav class="navbar navbar-expand bg-info col-12">
-                        <div class="collapse navbar-collapse col-md-10 offset-1">
-                            <ul class="navbar-nav mr-auto">
+                    {% block breadcrumb %}
+                        <nav class="navbar navbar-expand-sm bg-info col-12">
+                            <div class="collapse navbar-collapse col-md-10 offset-1 ">
+                                <ul class="navbar-nav mr-auto">
                                 <li class="navbar-brand"><a href="/" style="color:black">Панель управления судейской бригады</a></li>
-                                {% block breadcrumb %}
-                                {% endblock %}
-                            </ul>
-                        </div>
-                    </nav>
+
+
+                                </ul>
+                         </div>
+                        </nav>
+                    {% endblock %}
                 {% endif %}
             </div>
     </header>
