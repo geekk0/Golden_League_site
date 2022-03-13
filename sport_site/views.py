@@ -58,70 +58,24 @@ def enter_match(request, sport_name):
         user_is_referee = False
 
     if matches.exists():
-        match_score = send_match_score(matches)
-        context = {"matches": matches, "match_score": json.dumps(match_score), "user_is_referee": user_is_referee}
+
+        for match in matches:
+            expire_time = datetime.timedelta(seconds=4)
+
+            if match.ace_out_time is not None:
+                if timezone.now() - match.ace_out_time > expire_time:
+                    match.red_ace_out = " "
+                    match.blue_ace_out = " "
+                    match.ace_out_time = None
+
+        match.save()
+
+        context = {"matches": matches, "user_is_referee": user_is_referee}
         return render(request, "beach_volleyball.html", context)
     elif user_is_referee:
         return HttpResponseRedirect("/Регистрация команд/%s" % sport_name)
     else:
         return HttpResponseRedirect("/")
-
-
-def send_match_score(queryset):
-
-    match = queryset.first()
-
-    ace_out_values = check_ace_out(match.red_ace_out, match.blue_ace_out, match.ace_out_time)
-
-    match.red_ace_out = ace_out_values[0]
-    match.blue_ace_out = ace_out_values[1]
-    match.ace_out_time = ace_out_values[2]
-
-    print(ace_out_values)
-
-    match_score = [match.red_points_set_1, match.red_points_set_2, match.red_points_set_3, match.blue_points_set_1,
-                   match.blue_points_set_2, match.blue_points_set_3, match.red_set_score,
-                   match.blue_set_score, match.active_set, match.current_inning, match.client_os, match.swap_position,
-                   match.total_current_set, match.red_team_total, match.blue_team_total, match.match_total,
-                   match.red_ace_out, match.blue_ace_out]
-
-    return match_score
-
-
-def match_score_save(request, match_id):
-
-    match = Match.objects.get(id=match_id)
-
-    match.red_points_set_1 = request.GET.get("red_points_1")
-    match.red_points_set_2 = request.GET.get("red_points_2")
-    match.red_points_set_3 = request.GET.get("red_points_3")
-    match.blue_points_set_1 = request.GET.get("blue_points_1")
-    match.blue_points_set_2 = request.GET.get("blue_points_2")
-    match.blue_points_set_3 = request.GET.get("blue_points_3")
-    match.red_set_score = request.GET.get("red_set_score")
-    match.blue_set_score = request.GET.get("blue_set_score")
-    match.active_set = request.GET.get("active_set")
-    match.current_inning = request.GET.get("current_inning")
-
-    match.client_os = request.GET.get("client_os")
-    match.swap_position = request.GET.get("swap_position")
-    match.total_current_set = request.GET.get("total_current_set_send")
-    match.red_team_total = request.GET.get("red_team_total_send")
-    match.blue_team_total = request.GET.get("blue_team_total_send")
-    match.match_total = request.GET.get("match_total_send")
-
-    match.red_ace_out = request.GET.get("red_ace_out_send")
-    match.blue_ace_out = request.GET.get("blue_ace_out_send")
-
-    if match.red_ace_out or match.blue_ace_out != " ":
-        match.ace_out_time = timezone.now()
-
-    match.save()
-
-    if match.client_os == "MacOS":
-        return HttpResponseRedirect("/Пляжный волейбол/Матч")
-    else:
-        return HttpResponse(status=204)
 
 
 def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
@@ -156,6 +110,95 @@ def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
 
 
     return red_ace_out_value, blue_ace_out_value, ace_out_time_value
+
+
+def change_points(request, match_id, team, action):
+
+    match = Match.objects.get(id=match_id)
+
+    set = str(match.active_set)
+
+    if action == "plus":
+        points = getattr(match, team+"_points_set_"+set)
+        setattr(match, team+"_points_set_"+set, points + 1)
+        match.current_inning = team
+    else:
+        points = getattr(match, team + "_points_set_" + set)
+        if points == 0:
+            points = 0
+        else:
+            points -= 1
+        setattr(match, team + "_points_set_" + set, points)
+
+    match.total_current_set = getattr(match, "red_points_set_"+set) + getattr(match, "blue_points_set_"+set)
+    match.red_team_total = match.red_points_set_1 + match.red_points_set_2 + match.red_points_set_3
+    match.blue_team_total = match.blue_points_set_1 + match.blue_points_set_2 + match.blue_points_set_3
+    match.match_total = match.red_team_total + match.blue_team_total
+
+    match.save()
+
+    return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def set_inning(request, match_id, team):
+
+    match = Match.objects.get(id=match_id)
+
+    match.current_inning = team
+
+    match.save()
+
+    return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def swap_controls(request, match_id):
+
+    match = Match.objects.get(id=match_id)
+
+    if match.swap_position == 1:
+        match.swap_position = 2
+    else:
+        match.swap_position = 1
+
+    match.save()
+
+    return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def ace_out(request, match_id, team, action):
+
+    match = Match.objects.get(id=match_id)
+
+    setattr(match, team + "_ace_out", action)
+    print(team + "_ace_out")
+    print(match.red_ace_out)
+    print(match.blue_ace_out)
+    match.ace_out_time = timezone.now()
+
+    match.save()
+
+    return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def end_set(request, match_id):
+
+    match = Match.objects.get(id=match_id)
+    set = str(match.active_set)
+
+    if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
+        match.red_set_score += 1
+    elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
+        match.blue_set_score += 1
+
+    match.active_set += 1
+
+    match.current_inning = "blank"
+
+    match.save()
+
+
+
+    return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
 
 def create_match(sport, red_team, blue_team):

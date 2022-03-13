@@ -25,10 +25,7 @@
 
         document.addEventListener("DOMContentLoaded", modal_end_set)
 
-        document.addEventListener("DOMContentLoaded", prepare_control_buttons);
-
-        document.addEventListener("DOMContentLoaded", prepare_score_values)
-
+        document.addEventListener("DOMContentLoaded", check_match_is_over)
 
         function spectator() {
             if (document.getElementById("spectator").style.display === "none") {
@@ -36,259 +33,24 @@
             }
         }
 
-        function refresh() {
-            window.location.reload()
-        }
+        function check_match_is_over() {
+            console.log(parseInt(document.getElementById("red_set_score").innerHTML))
+            console.log(parseInt(document.getElementById("blue_set_score").innerHTML))
 
-        function prepare_score_values() {
 
-            let input_score_dict = {{ match_score|safe }};
-            let send_score = document.getElementsByClassName("send_score")
-            for (let i=0; i < send_score.length; i++) {
-                send_score[i].value = input_score_dict[i]
-            }
-
-            if (input_score_dict[6] === 2 || input_score_dict[7] === 2) {
+            if (parseInt((document.getElementById("set_red_score").innerHTML)) === 2 ||
+                parseInt(document.getElementById("set_blue_score").innerHTML) === 2) {
                 modal_match_is_over()
             }
-
-            let score = document.getElementById("score")
-            score.setAttribute("active_set", "set_"+input_score_dict[8])
-
-            let active_inning_team = input_score_dict[9]
-            let client_os = document.getElementById("client_os")
-            client_os.value = input_score_dict[10]
-
-            let red_team_total_input = document.getElementById("red_team_total")
-            red_team_total_input.innerHTML = input_score_dict[13]
-            let blue_team_total_input = document.getElementById("blue_team_total")
-            blue_team_total_input.innerHTML = input_score_dict[14]
-
-            let match_total_input = document.getElementById("match_total")
-            match_total_input.innerHTML = input_score_dict[15]
-            let match_total_send = document.getElementById("match_total_send")
-            match_total_send.value = input_score_dict[15]
-
-            let red_ace_out_input = document.getElementById("red_ace_out")
-            console.log(input_score_dict[16])
-            red_ace_out_input.innerHTML = input_score_dict[16]
-            let blue_ace_out_input = document.getElementById("blue_ace_out")
-            blue_ace_out_input.innerHTML = input_score_dict[17]
-
-
-            if (navigator.userAgent.includes("Apple")) {
-                let OSName = "MacOS"
-                client_os = document.getElementById("client_os")
-                client_os.value = OSName
-            }
-            else {
-                client_os.value = "common"
-            }
-
-            set_inning(active_inning_team)
-        }
-
-        function set_ace_out(team, action) {
-            console.log(team+"_ace_out")
-            let team_ace_out_show = document.getElementById(team+"_ace_out")
-            team_ace_out_show.innerHTML = action
-            let team_ace_out_send = document.getElementById(team+"_ace_out_send")
-            team_ace_out_send.value = action
-            send_form()
-            setTimeout(refresh, 6000)
-
-        }
-
-        function prepare_control_buttons() {
-
-            let input_score_dict = {{ match_score|safe }};
-            let swap_position = input_score_dict[11]
-
-            swap_sides(swap_position)
-
-            let red_plus_point_swapped = document.getElementById("team_red_plus_point_swapped")
-            let red_minus_point_swapped = document.getElementById("team_red_minus_point_swapped")
-
-            let blue_plus_point_swapped = document.getElementById("team_blue_plus_point_swapped")
-            let blue_minus_point_swapped = document.getElementById("team_blue_minus_point_swapped")
-
-            red_plus_point_swapped.addEventListener("click",  () => plus_point("red"))
-            blue_plus_point_swapped.addEventListener("click",  () => plus_point("blue"))
-            red_minus_point_swapped.addEventListener("click",  () => minus_point("red"))
-            blue_minus_point_swapped.addEventListener("click",  () => minus_point("blue"))
-
-
-
-            let red_plus_point = document.getElementById("team_red_plus_point")
-            let red_minus_point = document.getElementById("team_red_minus_point")
-
-            let blue_plus_point = document.getElementById("team_blue_plus_point")
-            let blue_minus_point = document.getElementById("team_blue_minus_point")
-
-            red_plus_point.addEventListener("click",  () => plus_point("red"))
-            blue_plus_point.addEventListener("click",  () => plus_point("blue"))
-            red_minus_point.addEventListener("click",  () => minus_point("red"))
-            blue_minus_point.addEventListener("click",  () => minus_point("blue"))
-
-            let score = document.getElementById("score")
-            score.setAttribute("active_set", "set_1")
-        }
-
-        function plus_point(team) {
-            let active_set = document.getElementById("score").getAttribute("active_set")
-            let point_score = document.getElementById(team+"_points_"+active_set)
-            let int_point = parseInt(point_score.innerHTML)
-
-            int_point = int_point + 1
-            point_score.innerHTML = int_point.toString()
-
-            let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
-            send_value.value = int_point.toString()
-
-            set_current_set_total()
-            set_team_total("red")
-            set_team_total("blue")
-            set_inning(team)
-            match_total()
-            send_form()
-
-        }
-
-        function set_current_set_total() {
-            let active_set = document.getElementById("score").getAttribute("active_set")
-            let red_points_current_set = parseInt(document.getElementById("red_points_set_"+active_set.slice(-1)).innerHTML)
-            let blue_points_current_set = parseInt(document.getElementById("blue_points_set_"+active_set.slice(-1)).innerHTML)
-            let total_current_set_show = document.getElementById("total_current_set")
-            let total_current_set_send = document.getElementById("total_current_set_send")
-
-            total_current_set_show.innerHTML = (red_points_current_set + blue_points_current_set).toString()
-            total_current_set_send.value = (red_points_current_set + blue_points_current_set)
-
-
-        }
-
-        function set_team_total(team) {
-            let team_total = parseInt(document.getElementById(team+"_points_set_1").innerHTML) +
-                parseInt(document.getElementById(team+"_points_set_2").innerHTML) +
-                parseInt(document.getElementById(team+"_points_set_3").innerHTML)
-            let team_total_show = document.getElementById(team+"_team_total")
-            let team_total_send = document.getElementById(team+"_team_total_send")
-            team_total_show.innerHTML = team_total.toString()
-            team_total_send.value = team_total
-        }
-
-        function match_total() {
-            let match_total_show = document.getElementById("match_total")
-            match_total_show.innerHTML = (parseInt(document.getElementById("red_team_total").innerHTML) +
-                parseInt(document.getElementById("blue_team_total").innerHTML)).toString()
-            let match_total_send = document.getElementById("match_total_send")
-            console.log(parseInt(match_total_show.innerHTML))
-            match_total_send.value = parseInt(match_total_show.innerHTML)
-
-        }
-
-        function minus_point(team) {
-            let active_set = document.getElementById("score").getAttribute("active_set")
-            let point_score = document.getElementById(team+"_points_"+active_set)
-            let int_point = parseInt(point_score.innerHTML)
-            let send_value = document.getElementById(team+"_points_"+active_set.slice(-1))
-
-            let set_total_show = document.getElementById("total_current_set")
-            let set_total_send = document.getElementById("total_current_set_send")
-
-
-            if (int_point > 0) {
-                int_point = int_point - 1
-                point_score.innerHTML = int_point.toString()
-                set_total_show.innerHTML = int_point.toString()
-
-
-                send_value.value = int_point.toString()
-                set_total_send.value = int_point.toString()
-                set_current_set_total()
-                set_team_total("red")
-                set_team_total("blue")
-                match_total()
-                send_form()
-            }
-
-             else {
-                point_score.innerHTML = "0"
-                send_value.value = int_point.toString()
-                set_current_set_total()
-                set_team_total("red")
-                set_team_total("blue")
-                match_total()
-                send_form()
-            }
-        }
-
-        function set_score_plus(set_score_elem, score_elem_show) {
-            let set_score_elem_int = parseInt(set_score_elem.value)
-            set_score_elem_int = set_score_elem_int + 1
-            set_score_elem.value = set_score_elem_int.toString()
-            set_score_elem.innerHTML = set_score_elem_int.toString()
-            score_elem_show.innerHTML = set_score_elem_int.toString()
-
-            if (set_score_elem_int === 2) {
-                modal_match_is_over()
-            }
-            else {
-                switch_active_set()
-            }
-
-        }
-
-        function switch_active_set() {
-            let score = document.getElementById("score")
-            let active_set = score.getAttribute("active_set")
-            let set_num = parseInt(active_set.slice(4))
-            if (set_num < 3) {
-                score.setAttribute("active_set", "set_"+(set_num+1).toString())
-            }
-            document.getElementById("active_set").value = (set_num+1).toString()
-            send_form()
-        }
-
-        function end_set_func() {
-            let active_set = document.getElementById("score").getAttribute("active_set")  /*red_points_set_1*/
-            let red_score = document.getElementById("red_points_"+active_set).innerHTML
-            let blue_score = document.getElementById("blue_points_"+active_set).innerHTML
-
-            let red_score_int = parseInt(red_score)
-            let blue_score_int = parseInt(blue_score)
-
-            let set_score_red = document.getElementById("red_set_score")
-            let set_score_blue = document.getElementById("blue_set_score")
-
-            let score_red_show = document.getElementById("set_red_score")
-            let score_blue_show = document.getElementById("set_blue_score")
-
-            if (red_score_int > blue_score_int) {
-                document.getElementById("current_inning").value = "blank"
-                set_score_plus(set_score_red, score_red_show)
-            }
-            if  (blue_score_int  > red_score_int){
-                document.getElementById("current_inning").value = "blank"
-                set_score_plus(set_score_blue, score_blue_show)
-            }
-            document.getElementById("red_inning_icon").style.visibility = "hidden"
-            document.getElementById("blue_inning_icon").style.visibility = "hidden"
-            document.getElementById("current_inning").value = "blank"
-            document.getElementById("btn_set_inning_blue_swapped").style.visibility = "visible"
-            document.getElementById("btn_set_inning_red_swapped").style.visibility = "visible"
-            document.getElementById("btn_set_inning_blue").style.visibility = "visible"
-            document.getElementById("btn_set_inning_red").style.visibility = "visible"
-            send_form()
 
         }
 
         function modal_end_set() {
+
             let modalBtn = document.getElementById("end_set")
             let modal = document.querySelector(".modal")
             let closeBtn = document.querySelector(".close-btn")
             let noBtn = document.getElementById("no_button")
-            let yesBtn = document.getElementById("yes_button")
             modalBtn.onclick = function () {
 
                 modal.style.display = "block"
@@ -304,15 +66,8 @@
             noBtn.onclick = function () {
                 modal.style.display = "none"
             }
-            yesBtn.onclick = function () {
-                modal.style.display = "none"
-                end_set_func()
-            }
-        }
 
-        function send_form() {
-            document.forms['score'].submit()
-        }
+            }
 
         function modal_match_is_over() {
             let modal = document.getElementById("match_is_over")
@@ -320,112 +75,23 @@
             setTimeout(close_modal_match_is_over, 1500)
         }
 
-        function set_inning(team) {
-            let red_inn_icon = document.getElementById("red_inning_icon")
-            let blue_in_icon = document.getElementById("blue_inning_icon")
-            let red_inning_button = document.getElementById("btn_set_inning_red")
-            let blue_inning_button = document.getElementById("btn_set_inning_blue")
-            let send_value = document.getElementById("current_inning")
-            if (team === 'red') {
-                red_inn_icon.style.visibility = "visible"
-                blue_in_icon.style.visibility = "hidden"
-                send_value.value = "red"
-
-                red_inning_button.style.visibility = "hidden"
-                blue_inning_button.style.visibility = "hidden"
-                document.getElementById("btn_set_inning_blue_swapped").style.visibility = "hidden"
-                document.getElementById("btn_set_inning_red_swapped").style.visibility = "hidden"
-
-            }
-            else if (team === 'blue')  {
-                blue_in_icon.style.visibility = "visible"
-                red_inn_icon.style.visibility = "hidden"
-                send_value.value = "blue"
-                red_inning_button.style.visibility = "hidden"
-                blue_inning_button.style.visibility = "hidden"
-                document.getElementById("btn_set_inning_blue_swapped").style.visibility = "hidden"
-                document.getElementById("btn_set_inning_red_swapped").style.visibility = "hidden"
-            }
-        }
-
-        function first_inning(team){
-            set_inning(team)
-            send_form()
-        }
-
-        function swap_sides(position) {
-            let swapped = document.getElementById("controls_swapped")
-            let unswapped = document.getElementById("controls")
-
-            if (position === 2) {
-                swapped.style.display = "block"
-                unswapped.style.display = "none"
-                document.getElementById("swap_position").value = 2
-            }
-            else {
-                swapped.style.display = "none"
-                unswapped.style.display = "block"
-                document.getElementById("swap_position").value = 1
-
-            }
-            let current_position = document.getElementById("swap_position")
-
-
-        }
-
-        function swap_sides_send(position) {
-            swap_sides(position)
-            send_form()
-            let send_position = document.getElementById("swap_position")
-        }
-
     </script>
-
-
 
 
     {% for match in matches %}
 
         <script>
+
+
             function close_modal_match_is_over() {
             let modal = document.getElementById("match_is_over")
             modal.style.display = "none"
             window.location.replace("{% url 'Завершение матча' %}");
         }
+
+
         </script>
 
-        <div class='team_reg_form' style="display:none" id="team_reg_form">
-            <div class="form_container col-md-4 offset-md-4">
-                <div class="auth col-md-6 offset-md-3">
-
-                    <form action="{% url 'save_data' match.id %}" method="get" name="score" id="send_score_form">
-                        <input type="text" id="red_points_1" name="red_points_1" class="send_score">
-                        <input type="text" id="red_points_2" name="red_points_2" class="send_score">
-                        <input type="text" id="red_points_3" name="red_points_3" class="send_score">
-                        <input type="text" id="blue_points_1" name="blue_points_1" class="send_score">
-                        <input type="text" id="blue_points_2" name="blue_points_2" class="send_score">
-                        <input type="text" id="blue_points_3" name="blue_points_3" class="send_score">
-                        <input type="text" id="red_set_score" name="red_set_score" class="send_score">
-                        <input type="text" id="blue_set_score" name="blue_set_score" class="send_score">
-                        <input type="text" id="active_set" name="active_set" class="send_score">
-                        <input type="text" id="current_inning" name="current_inning" class="send_score">
-                        <input type="text" id="client_os" name="client_os" class="send_score">
-                        <input type="text" id="swap_position" name="swap_position" class="send_score">
-                        <input type="text" id="ace_out_send" name="ace_out_send" class="send_score">
-                        <input type="text" id="total_current_set_send" name="total_current_set_send" class="send_score">
-                        <input type="text" id="red_team_total_send" name="red_team_total_send" class="send_score">
-                        <input type="text" id="blue_team_total_send" name="blue_team_total_send" class="send_score">
-                        <input type="text" id="match_total_send" name="match_total_send" class="send_score">
-                        <input type="text" id="red_ace_out_send" name="red_ace_out_send" class="send_score">
-                        <input type="text" id="blue_ace_out_send" name="blue_ace_out_send" class="send_score">
-
-
-
-                    </form>
-
-                </div>
-            </div>
-        </div>
 
         <div class="container">
             <div class="row">
@@ -448,14 +114,18 @@
                     </thead>
                     <tbody>
                         <tr style="text-align: center;" class="row_content">
+                            <th scope="row" class="col" style="display:none;font-weight: normal;color:red" id="match_id">{{ match.id }}</th>
                             <th scope="row" class="col" style="font-weight: normal;color:red" id="red_squad">{{ match.red_squad }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="set_red_score">{{ match.red_set_score }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="red_points_set_1">{{ match.red_points_set_1 }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="red_points_set_2">{{ match.red_points_set_2 }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="red_points_set_3">{{ match.red_points_set_3 }}</th>
                             <th scope="row" >
-                                <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
-                                     alt="Подача" style="width:25%;visibility:hidden"></th>
+                                {% if match.current_inning == "red" %}
+                                                <img id="red_inning_icon" src="{% static 'images/ball.png' %}"
+                                                    alt="Подача" style="width:25%">
+                                {% endif %}</th>
+
                             <th scope="row" class="col" style="font-weight: bold" id="red_ace_out">{{ match.red_ace_out }}</th>
                             <td rowspan="2"  style="font-weight: normal;" class="align-middle"
                                 id="total_current_set">{{ match.total_current_set }}</td>
@@ -471,8 +141,10 @@
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
                             <th scope="row" >
+                                {% if match.current_inning == "blue" %}
                                 <img class="col-2" id="blue_inning_icon" src="{% static 'images/ball.png' %}"
-                                     alt="Подача" style="width:25%;visibility:hidden"></th>
+                                     alt="Подача" style="width:25%;">
+                                {% endif %}</th>
                             <th scope="row" class="col" style="font-weight: bold" id="blue_ace_out">{{ match.blue_ace_out }}</th>
                             <th scope="row" class="col" style="font-weight: normal" id="blue_team_total">{{ match.blue_team_total }}</th>
 
@@ -483,154 +155,162 @@
             </div>
         </div>
 
-    {% endfor %}
         {% if user_is_referee == True %}
-            <div class="container-xs" id="controls">
+            {% if match.swap_position == 1 %}
+                <div class="container-xs" id="controls">
                 <div class="row">
 
+
                     <div style="" class = "red_first_inning col-2 text-center">
-                        <button id = "btn_set_inning_red" style="background: #bd1313; border:black;margin-left: auto"
-                                onclick="first_inning('red')" class="btn btn-success">Подача</button>
+
+                        {% if match.current_inning == "blank" %}
+                            <a  type="submit" id = "btn_set_inning_red" style="background: #bd1313; border:black;
+                            margin-left: auto"
+                                href="{% url 'Подача' match.id "red" %}" class="btn btn-success">Подача</a>
+                        {% endif %}
+
                     </div>
 
                     <div class="red_ace_out col-1">
-                        <button id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
-                                onclick="set_ace_out('red', 'Ace')" class="btn btn-success">Ace</button>
+                        <a type="submit" id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
+                                href="{% url 'Ace/Out' match.id "red" "Ace" %}" class="btn btn-success">Ace</a>
                         <br>
-                        <button id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
-                         margin-top:40%" onclick="set_ace_out('red', 'Out')" class="btn btn-success">Out</button>
+                        <a type="submit" id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
+                         margin-top:40%" href="{% url 'Ace/Out' match.id "red" "Out" %}" class="btn btn-success">Out</a>
                     </div>
 
                     <div class = "red_team_controls col-3 text-center">
 
-                        <form action="#" method="get">
-                            <a style="" type="button" class=""
+                            <a style="" type="submit" class="" href="{% url 'Изменить счет' match.id "red" "plus" %}"
                                     id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
                                                                   alt="+1 Красной команде"></a>
                             <h6 style="">Красная команда</h6>
-                            <a style="" type="button" class="btn btn-submit"
+                            <a style="" type="submit" class="btn btn-submit" href="{% url 'Изменить счет' match.id "red" "minus" %}"
                                     id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
                                                                    src="{% static 'images/minus 2.png' %}"
                                                                    alt="-1 Красной команде"></a>
-                        </form>
                     </div>
 
 
                     <div class = "blue_team_controls col-3 text-center">
-                        <form action="#" method="get">
-                            <a style="" type="button" class=""
+                            <a style="" type="submit" class="" href="{% url 'Изменить счет' match.id "blue" "plus" %}"
                                     id="team_blue_plus_point"><img class="controls-images" style="background: blue"
                                                                    src="{% static 'images/plus4.png' %}"
                                                                   alt="+1 Синей команде"></a>
                             <h6 style="">Синяя команда</h6>
-                            <a style=";" type="button" class="btn btn-submit"
+                            <a style=";" type="submit" class="btn btn-submit" href="{% url 'Изменить счет' match.id "blue" "minus" %}"
                                     id="team_blue_minus_point"><img class="controls-images" style="width:30%;
                                     background: blue;" src="{% static 'images/minus 2.png' %}"
                                                                    alt="-1 Синей команде"></a>
-                        </form>
                     </div>
 
                     <div class="blue_ace_out col-1">
-                        <button id = "btn_blue_ace" style="background:blue; border:black;margin-left: auto"
-                                onclick="set_ace_out('blue', 'Ace')" class="btn btn-success">Ace</button>
+                        <a type="submit" id = "btn_blue_ace" style="background: blue; border:black;margin-left: auto"
+                                href="{% url 'Ace/Out' match.id "blue" "Ace" %}" class="btn btn-success">Ace</a>
                         <br>
-                        <button id = "btn_blue_out" style="background:blue; border:black;margin-left: auto;
-                         margin-top:40%" onclick="set_ace_out('blue', 'Out')" class="btn btn-success">Out</button>
+                        <a type="submit" id = "btn_blue_out" style="background: blue; border:black;margin-left: auto;
+                         margin-top:40%" href="{% url 'Ace/Out' match.id "blue" "Out" %}" class="btn btn-success">Out</a>
                     </div>
+
 
                     <div style="" class = "blue_first_inning col-2 text-center">
-                        <button id = "btn_set_inning_blue" style="background: blue; border:black"
-                                onclick="first_inning('blue')" class="btn btn-success">Подача</button>
-                        <br>
-                        <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
-                                onclick="swap_sides_send(2)" class="btn">
-                            <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                                 style="width:30%;"></button>
+                        {% if match.current_inning == "blank" %}
+                            <a type="submit" id = "btn_set_inning_blue" style="background: blue; border:black"
+                                    href="{% url 'Подача' match.id "blue" %}" class="btn btn-success">Подача</a>
+                        {% endif %}
 
+                        <br>
+                        <a type="submit" id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                                href ="{% url 'Поменять стороны' match.id %}" class="btn">
+                            <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                                 style="width:30%"></a>
                     </div>
+
                 </div>
 
             </div>
-
-            <div class="container-xs" id="controls_swapped" style="display: none">
+            {% else %}
+                <div class="container-xs" id="controls_swapped">
                 <div class="row">
 
-                    <div style="" class = "blue_first_inning  col-2 text-center">
-                        <button id = "btn_set_inning_blue_swapped" style="background:blue ; border:black;margin-left: auto"
-                                onclick="first_inning('blue')" class="btn btn-success">Подача</button>
+                    <div style="" class = "blue_first_inning col-2 text-center">
+                        {% if match.current_inning == "blank" %}
+                            <a type="submit" id = "btn_set_inning_blue" style="background: blue; border:black"
+                                    href="{% url 'Подача' match.id "blue" %}" class="btn btn-success">Подача</a>
+                        {% endif %}
                     </div>
                     <div class="blue_ace_out col-1">
-                        <button id = "btn_blue_ace" style="background:blue; border:black;margin-left: auto"
-                                onclick="set_ace_out('blue', 'Ace')" class="btn btn-success">Ace</button>
+                        <a type="submit" id = "btn_blue_ace" style="background: blue; border:black;margin-left: auto"
+                                href="{% url 'Ace/Out' match.id "blue" "Ace" %}" class="btn btn-success">Ace</a>
                         <br>
-                        <button id = "btn_blue_out" style="background:blue; border:black;margin-left: auto;
-                         margin-top:40%" onclick="set_ace_out('blue', 'Out')" class="btn btn-success">Out</button>
+                        <a type="submit" id = "btn_blue_out" style="background: blue; border:black;margin-left: auto;
+                         margin-top:40%" href="{% url 'Ace/Out' match.id "blue" "Out" %}" class="btn btn-success">Out</a>
                     </div>
 
                     <div class = "blue_team_controls col-3 text-center">
-                        <form action="#" method="get">
-                            <a style="" type="button" class=""
-                                    id="team_blue_plus_point_swapped"><img class="controls-images" style="background: blue"
+                            <a style="" type="submit" class="" href="{% url 'Изменить счет' match.id "blue" "plus" %}"
+                                    id="team_blue_plus_point"><img class="controls-images" style="background: blue"
                                                                    src="{% static 'images/plus4.png' %}"
                                                                   alt="+1 Синей команде"></a>
                             <h6 style="">Синяя команда</h6>
-                            <a style=";" type="button" class="btn btn-submit"
-                                    id="team_blue_minus_point_swapped"><img class="controls-images" style="width:30%;
+                            <a style=";" type="submit" class="btn btn-submit" href="{% url 'Изменить счет' match.id "blue" "minus" %}"
+                                    id="team_blue_minus_point"><img class="controls-images" style="width:30%;
                                     background: blue;" src="{% static 'images/minus 2.png' %}"
                                                                    alt="-1 Синей команде"></a>
-                        </form>
                     </div>
 
                     <div class = "red_team_controls col-3 text-center">
 
-                        <form action="#" method="get">
-                            <a style="" type="button" class=""
-                                    id="team_red_plus_point_swapped"><img class="controls-images" src="{% static 'images/plus4.png' %}"
+                            <a style="" type="submit" class="" href="{% url 'Изменить счет' match.id "red" "plus" %}"
+                                    id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
                                                                   alt="+1 Красной команде"></a>
                             <h6 style="">Красная команда</h6>
-                            <a style="" type="button" class="btn btn-submit"
-                                    id="team_red_minus_point_swapped"><img class="controls-images" style="width:30%;margin-top:0;"
+                            <a style="" type="submit" class="btn btn-submit" href="{% url 'Изменить счет' match.id "red" "minus" %}"
+                                    id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
                                                                    src="{% static 'images/minus 2.png' %}"
                                                                    alt="-1 Красной команде"></a>
-                        </form>
                     </div>
                     <div class="red_ace_out col-1">
-                        <button id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
-                                onclick="set_ace_out('red', 'Ace')" class="btn btn-success">Ace</button>
+                        <a type="submit" id = "btn_red_ace" style="background: #bd1313; border:black;margin-left: auto"
+                                href="{% url 'Ace/Out' match.id "red" "Ace" %}" class="btn btn-success">Ace</a>
                         <br>
-                        <button id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
-                         margin-top:40%" onclick="set_ace_out('red', 'Out')" class="btn btn-success">Out</button>
+                        <a type="submit" id = "btn_red_out" style="background: #bd1313; border:black;margin-left: auto;
+                         margin-top:40%" href="{% url 'Ace/Out' match.id "red" "Out" %}" class="btn btn-success">Out</a>
                     </div>
 
                     <div style="" class = "red_first_inning col-2 text-center">
-                        <button id = "btn_set_inning_red_swapped" style="background:#bd1313; border:black"
-                                onclick="first_inning('red')" class="btn btn-success">Пподача</button>
-                        <br>
-                        <button id = "btn_swap" style="background: none; border:black; margin-top:10%"
-                                onclick="swap_sides_send(1)" class="btn">
+
+                        {% if match.current_inning == "blank" %}
+                            <a  type="submit" id = "btn_set_inning_red" style="background: #bd1313; border:black;
+                            margin-left: auto"
+                                href="{% url 'Подача' match.id "red" %}" class="btn btn-success">Подача</a>
+                        {% endif %}
+                            <br>
+
+                            <a type="submit" id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                                href ="{% url 'Поменять стороны' match.id %}" class="btn">
                             <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                                 style="width:30%;"></button>
+                                 style="width:30%"></a>
+
 
                     </div>
                 </div>
 
             </div>
-
+            {% endif %}
             <div class="row">
                     <button style="margin-top: 2%;" type="button" class="btn btn-success col-4 offset-4"
                             id="end_set">Партия закончена</button>
             </div>
 
-
-
             <div class="modal">
                 <div class="modal-content">
                     <span class="close-btn">&times;</span>
                     <p>Партия завершена?</p>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" id="yes_button">Да</button>
-                        <button class="close" id="no_button">Нет</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button onclick="window.location.href='{% url 'Закончить партию' match.id %}'" class="btn btn-primary" id="yes_button" >Да</button>
+                            <button class="close" id="no_button">Нет</button>
+                        </div>
                 </div>
             </div>
 
@@ -646,6 +326,7 @@
 
         {% endif %}
 
+    {% endfor %}
 
 
 {% endblock %}
