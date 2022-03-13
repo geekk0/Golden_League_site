@@ -18,6 +18,9 @@ class EndedMatchesAdmin(admin.ModelAdmin):
     fields.remove("swap_position")
     fields.remove("client_os")
     fields.remove("current_inning")
+    fields.remove("ace_out_time")
+    fields.remove("red_ace_out")
+    fields.remove("blue_ace_out")
 
 
 

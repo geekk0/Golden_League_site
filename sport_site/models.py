@@ -62,6 +62,10 @@ class EndedMatches(models.Model):
     blue_points_set_2 = models.IntegerField(verbose_name="Очки синих во 2 партии", default=0)
     blue_points_set_3 = models.IntegerField(verbose_name="Очки синих в 3 партии", default=0)
     active_set = models.IntegerField(verbose_name="Текущая партия", default=1)
+    total_current_set = models.IntegerField(verbose_name="Тотал текущей партии", default=0)
+    red_team_total = models.IntegerField(verbose_name="Тотал красной команды", default=0)
+    blue_team_total = models.IntegerField(verbose_name="Тотал синей команды", default=0)
+    match_total = models.IntegerField(verbose_name="Тотал матча", default=0)
 
     def __str__(self):
         return str(self.date)
