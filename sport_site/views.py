@@ -185,6 +185,9 @@ def end_set(request, match_id):
     match = Match.objects.get(id=match_id)
     set = str(match.active_set)
 
+    if match.red_set_score > 2 or match.blue_set_score > 2:
+        match.save()
+
     if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
         match.red_set_score += 1
     elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
