@@ -296,8 +296,6 @@ def statistic_view(request, match_id):
 
 def get_points_lists(match_id, points):
 
-    match = Match.objects.get(id=match_id)
-
     points_list = []
 
     for i in range(1, points+1):
