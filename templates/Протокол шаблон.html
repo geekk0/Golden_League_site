@@ -37,10 +37,9 @@
                                         <td>Б</td>
                                     </tr>
                                     <tr class="row_content">
-                                    {% for point in set_1_points %}
+                                    {% for point in inning_points_1 %}
                                         <tr class="row_content">
-                                            <td>{{ point.0 }}</td>
-                                            <td>{{ point.1 }}</td>
+                                            <td colspan="2">{{ point }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -62,10 +61,9 @@
                                         <td>А</td>
                                     </tr>
                                     <tr class="row_content">
-                                    {% for point in set_2_points %}
+                                    {% for point in inning_points_2 %}
                                         <tr class="row_content">
-                                            <td>{{ point.1 }}</td>
-                                            <td>{{ point.0 }}</td>
+                                            <td colspan="2">{{ point }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -87,10 +85,9 @@
                                         <td>Б</td>
                                     </tr>
                                     <tr class="row_content">
-                                    {% for point in set_3_points %}
+                                    {% for point in inning_points_3 %}
                                         <tr class="row_content">
-                                            <td>{{ point.1 }}</td>
-                                            <td>{{ point.0 }}</td>
+                                            <td colspan="2">{{ point }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -122,7 +119,7 @@
                     {% endif %}
                     {% endif %}
 
-                    <div class="referee_table" style="margin-top:15%">
+                    <!--<div class="referee_table" style="margin-top:15%">
                         <div class="row">
                             <table class="table table-bordered mx-auto col-12">
                             <thead>
@@ -158,7 +155,7 @@
                             </tbody>
                         </table>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
 
         </div>

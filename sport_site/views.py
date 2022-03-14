@@ -125,29 +125,46 @@ def change_points(request, match_id, team, action, ace_out=""):
 
     set = str(match.active_set)
 
+    print(ace_out)
 
     if action == "plus":
         points = getattr(match, team+"_points_set_"+set)
         setattr(match, team+"_points_set_"+set, points + 1)
 
-        # setattr(match, team+"_ace_out_points_set_"+set, points + 1)
         match.current_inning = team
 
-        match.get_str_points()
+        list_inning_points = getattr(match, "inning_points_" + set).split(" ")
 
-        ace_out_string = getattr(match, team+"_ace_out_points_set_"+set)
+        if ace_out == "Ace":
+            if team == "red":
 
-        print(ace_out_string)
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set))+"_Ace" + "--" +
+                                          str(getattr(match, "blue_points_set_" + set)))
+            if team == "blue":
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "--" +
+                                          str(getattr(match, "blue_points_set_" + set)) + "_Ace")
 
-        ace_out_list = ace_out_string.split(" ")
+        elif ace_out == "Out":
+            if team == "red":
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "--" +
+                                          str(getattr(match, "blue_points_set_" + set)) + "_Out")
+            if team == "blue":
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "_Out" + "--" +
+                                          str(getattr(match, "blue_points_set_" + set)))
 
-        ace_out_list[points] += " " + ace_out
+        else:
 
-        new = " ".join(ace_out_list)
+            list_inning_points.append(str(getattr(match, "red_points_set_" + set)) +
+                                      "--" + str(getattr(match, "blue_points_set_" + set)))
 
-        print(new)
+        print(list_inning_points)
 
-        setattr(match, team+"_ace_out_points_set_"+set, new)
+        inning_points_str = " ".join(list_inning_points)
+
+        print(inning_points_str)
+
+        setattr(match, "inning_points_"+set, inning_points_str)
+
 
     else:
         points = getattr(match, team + "_points_set_" + set)
@@ -156,6 +173,13 @@ def change_points(request, match_id, team, action, ace_out=""):
         else:
             points -= 1
         setattr(match, team + "_points_set_" + set, points)
+
+        list_inning_points = getattr(match, "inning_points_" + set).split(" ")[:-1]
+
+        inning_points_str = " ".join(list_inning_points)
+
+        setattr(match, "inning_points_" + set, inning_points_str)
+
 
     match.total_current_set = getattr(match, "red_points_set_"+set) + getattr(match, "blue_points_set_"+set)
     match.red_team_total = match.red_points_set_1 + match.red_points_set_2 + match.red_points_set_3
@@ -206,13 +230,11 @@ def ace_out(request, match_id, team, action):
         change_points(request, match_id=match_id, team=team, action="plus", ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
 
-
-
     if action == "Out":
         if team == "red":
-            change_points(request, match_id=match_id, team="blue", action="plus")
+            change_points(request, match_id=match_id, team="blue", action="plus", ace_out="Out")
         if team == "blue":
-            change_points(request, match_id=match_id, team="red", action="plus")
+            change_points(request, match_id=match_id, team="red", action="plus", ace_out="Out")
 
 
 
@@ -269,6 +291,12 @@ def end_match(request):
     ended_match.blue_points_set_1 = match.blue_points_set_1
     ended_match.blue_points_set_2 = match.blue_points_set_2
     ended_match.blue_points_set_3 = match.blue_points_set_3
+    ended_match.inning_points_1 = match.inning_points_1
+    ended_match.inning_points_2 = match.inning_points_2
+    ended_match.inning_points_3 = match.inning_points_3
+
+
+
 
     ended_match.save()
 
@@ -295,16 +323,27 @@ def statistic_view(request, match_id):
     else:
         match = EndedMatches.objects.filter(id=match_id).first()
 
-    red_points_1 = get_points_lists(match_id, match.red_points_set_1)
+    """red_points_1 = get_points_lists(match_id, match.red_points_set_1)
     red_points_2 = get_points_lists(match_id, match.red_points_set_2)
     red_points_3 = get_points_lists(match_id, match.red_points_set_3)
     blue_points_1 = get_points_lists(match_id, match.blue_points_set_1)
     blue_points_2 = get_points_lists(match_id, match.blue_points_set_2)
-    blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)
+    blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)"""
 
     context = {"match": match}
 
-    if red_points_1 and blue_points_1:
+    inning_points_1 = match.inning_points_1.split(" ")
+    inning_points_2 = match.inning_points_2.split(" ")
+    inning_points_3 = match.inning_points_3.split(" ")
+
+    if inning_points_1:
+        context["inning_points_1"] = inning_points_1
+    if inning_points_2:
+        context["inning_points_2"] = inning_points_2
+    if inning_points_3:
+        context["inning_points_3"] = inning_points_3
+
+    """if red_points_1 and blue_points_1:
         set_1_points = itertools.zip_longest(red_points_1, blue_points_1, fillvalue="")
         context["set_1_points"] = set_1_points
     if red_points_2 and blue_points_2:
@@ -312,7 +351,7 @@ def statistic_view(request, match_id):
         context["set_2_points"] = set_2_points
     if red_points_3 and blue_points_3:
         set_3_points = itertools.zip_longest(red_points_3, blue_points_3, fillvalue="")
-        context["set_3_points"] = set_3_points
+        context["set_3_points"] = set_3_points"""
 
     return render(request, "Протокол шаблон.html", context)
 
