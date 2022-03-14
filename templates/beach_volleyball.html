@@ -324,12 +324,18 @@
 
                     </div>
                 </div>
+
+
         {% else %}
             <p id="spectator" style="display:none"></p>
 
         {% endif %}
 
+
+        <a href="{% url 'Статистика' match.id %}" target="_blank" style="margin-left:20%">Статистика матча</a>
+
     {% endfor %}
+
 
 
 {% endblock %}

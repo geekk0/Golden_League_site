@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import json
 
 from django.contrib.auth import authenticate, login
@@ -118,7 +119,6 @@ def change_points(request, match_id, team, action):
 
     set = str(match.active_set)
 
-    print(set)
 
     if action == "plus":
         points = getattr(match, team+"_points_set_"+set)
@@ -229,7 +229,7 @@ def create_match(sport, red_team, blue_team):
 def end_match(request):
     match = Match.objects.all().first()
 
-    ended_match = EndedMatches.objects.create(sport=match.sport, date=match.date, red_squad=match.red_squad,
+    ended_match = EndedMatches.objects.create(sport=match.sport, id=match.id, date=match.date, red_squad=match.red_squad,
                                               blue_squad=match.blue_squad)
 
     ended_match.red_set_score = match.red_set_score
@@ -259,13 +259,49 @@ def main(request):
 
 def statistic_view(request, match_id):
 
-    match = Match.objects.get(id=match_id)
+    if Match.objects.filter(id=match_id).exists():
+
+        match = Match.objects.filter(id=match_id).first()
+
+    else:
+        match = EndedMatches.objects.filter(id=match_id).first()
+
+    red_points_1 = get_points_lists(match_id, match.red_points_set_1)
+    print(red_points_1)
+    red_points_2 = get_points_lists(match_id, match.red_points_set_2)
+    print(red_points_2)
+    red_points_3 = get_points_lists(match_id, match.red_points_set_3)
+    print(red_points_3)
+    blue_points_1 = get_points_lists(match_id, match.blue_points_set_1)
+    blue_points_2 = get_points_lists(match_id, match.blue_points_set_2)
+    blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)
 
     context = {"match": match}
+
+    if red_points_1 and blue_points_1:
+        set_1_points = itertools.zip_longest(red_points_1, blue_points_1, fillvalue="")
+        print("set_1_points" + str(set_1_points))
+        context["set_1_points"] = set_1_points
+    if red_points_2 and blue_points_2:
+        set_2_points = itertools.zip_longest(red_points_2, blue_points_2, fillvalue="")
+        print("set_2_points" + str(set_2_points))
+        context["set_2_points"] = set_2_points
+    if red_points_3 and blue_points_3:
+        set_3_points = itertools.zip_longest(red_points_3, blue_points_3, fillvalue="")
+        print("set_3_points" + str(set_3_points))
+        context["set_3_points"] = set_3_points
 
     return render(request, "Протокол шаблон.html", context)
 
 
+def get_points_lists(match_id, points):
 
+    match = Match.objects.get(id=match_id)
 
+    points_list = []
+
+    for i in range(1, points+1):
+        points_list.append(i)
+
+    return points_list
 

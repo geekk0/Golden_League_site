@@ -20,4 +20,14 @@
     background-size: 200%;
 }
 
+#table_set_1 tr{
+    line-height: 12px;
+}
 
+#table_set_2 tr{
+    line-height: 12px;
+}
+
+#table_set_3 tr{
+    line-height: 12px;
+}
