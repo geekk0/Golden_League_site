@@ -4,6 +4,7 @@ import datetime
 from django.db import models
 
 
+
 class Sports(models.Model):
     name = models.CharField(verbose_name="Название", max_length=128)
 
@@ -39,13 +40,39 @@ class Match(models.Model):
     red_ace_out = models.CharField(verbose_name="Ace/out красных", default=" ", max_length=10, null=True)
     blue_ace_out = models.CharField(verbose_name="Ace/out синих", default=" ", max_length=10, null=True)
     ace_out_time = models.DateTimeField(verbose_name="Время ace/out", null=True)
+    red_ace_out_points_set_1 = models.CharField(verbose_name="Очки красных ace/out партия 1", null=True, blank=True,
+                                                max_length=1024)
+    red_ace_out_points_set_2 = models.CharField(verbose_name="Очки красных ace/out партия 2", null=True, blank=True,
+                                                max_length=1024)
+    red_ace_out_points_set_3 = models.CharField(verbose_name="Очки красных ace/out партия 3", null=True, blank=True,
+                                                max_length=1024)
+    blue_ace_out_points_set_1 = models.CharField(verbose_name="Очки синих ace/out партия 1", null=True, blank=True,
+                                                 max_length=1024)
+    blue_ace_out_points_set_2 = models.CharField(verbose_name="Очки синих ace/out партия 2", null=True, blank=True,
+                                                 max_length=1024)
+    blue_ace_out_points_set_3 = models.CharField(verbose_name="Очки синих ace/out партия 3", null=True, blank=True,
+                                                 max_length=1024)
 
     def __str__(self):
         return str(self.date)
 
+    def get_str_points(self):
+        self.red_ace_out_points_set_1 = points_list_from_str(self.red_points_set_1)
+
     class Meta:
         verbose_name = "Матч"
         verbose_name_plural = "Матчи"
+
+
+def points_list_from_str(int_ace_out):
+
+    points_list = []
+
+
+    for i in range(1, int_ace_out+1):
+        points_list.append(str(i))
+
+    return " ".join(points_list)
 
 
 class EndedMatches(models.Model):

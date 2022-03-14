@@ -1,7 +1,10 @@
 import datetime
 import itertools
+import ast
 import json
+import sys
 
+import pdfcrowd
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -10,6 +13,9 @@ from django.views.generic import DetailView, View
 from .forms import LoginForm, SquadForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from io import BytesIO
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
 class LoginView(View):
@@ -113,7 +119,7 @@ def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
     return red_ace_out_value, blue_ace_out_value, ace_out_time_value
 
 
-def change_points(request, match_id, team, action):
+def change_points(request, match_id, team, action, ace_out=""):
 
     match = Match.objects.get(id=match_id)
 
@@ -123,7 +129,25 @@ def change_points(request, match_id, team, action):
     if action == "plus":
         points = getattr(match, team+"_points_set_"+set)
         setattr(match, team+"_points_set_"+set, points + 1)
+
+        # setattr(match, team+"_ace_out_points_set_"+set, points + 1)
         match.current_inning = team
+
+        match.get_str_points()
+
+        ace_out_string = getattr(match, team+"_ace_out_points_set_"+set)
+
+        print(ace_out_string)
+
+        ace_out_list = ace_out_string.split(" ")
+
+        ace_out_list[points] += " " + ace_out
+
+        new = " ".join(ace_out_list)
+
+        print(new)
+
+        setattr(match, team+"_ace_out_points_set_"+set, new)
 
     else:
         points = getattr(match, team + "_points_set_" + set)
@@ -179,13 +203,18 @@ def ace_out(request, match_id, team, action):
     match.save()
 
     if action == "Ace":
-        change_points(request, match_id=match_id, team=team, action="plus")
+        change_points(request, match_id=match_id, team=team, action="plus", ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
+
+
+
     if action == "Out":
         if team == "red":
             change_points(request, match_id=match_id, team="blue", action="plus")
         if team == "blue":
             change_points(request, match_id=match_id, team="red", action="plus")
+
+
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -267,11 +296,8 @@ def statistic_view(request, match_id):
         match = EndedMatches.objects.filter(id=match_id).first()
 
     red_points_1 = get_points_lists(match_id, match.red_points_set_1)
-    print(red_points_1)
     red_points_2 = get_points_lists(match_id, match.red_points_set_2)
-    print(red_points_2)
     red_points_3 = get_points_lists(match_id, match.red_points_set_3)
-    print(red_points_3)
     blue_points_1 = get_points_lists(match_id, match.blue_points_set_1)
     blue_points_2 = get_points_lists(match_id, match.blue_points_set_2)
     blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)
@@ -280,15 +306,12 @@ def statistic_view(request, match_id):
 
     if red_points_1 and blue_points_1:
         set_1_points = itertools.zip_longest(red_points_1, blue_points_1, fillvalue="")
-        print("set_1_points" + str(set_1_points))
         context["set_1_points"] = set_1_points
     if red_points_2 and blue_points_2:
         set_2_points = itertools.zip_longest(red_points_2, blue_points_2, fillvalue="")
-        print("set_2_points" + str(set_2_points))
         context["set_2_points"] = set_2_points
     if red_points_3 and blue_points_3:
         set_3_points = itertools.zip_longest(red_points_3, blue_points_3, fillvalue="")
-        print("set_3_points" + str(set_3_points))
         context["set_3_points"] = set_3_points
 
     return render(request, "Протокол шаблон.html", context)
@@ -296,10 +319,39 @@ def statistic_view(request, match_id):
 
 def get_points_lists(match_id, points):
 
+    if Match.objects.filter(id=match_id).exists():
+
+        match = Match.objects.filter(id=match_id).first()
+
+    else:
+        match = EndedMatches.objects.filter(id=match_id).first()
+
     points_list = []
 
     for i in range(1, points+1):
-        points_list.append(i)
+        if match.red_ace_out != " ":
+            points_list.append(str(i) + " "+match.red_ace_out)
+        else:
+            points_list.append(i)
 
     return points_list
 
+
+
+
+"""def html_to_pdf(request):
+    try:
+        # create the API client instance
+        client = pdfcrowd.HtmlToPdfClient('demo', 'ce544b6ea52a5621fb9d55f8b542d14d')
+
+        # run the conversion and write the result to a file
+        client.convertUrlToFile("http://185.18.202.239/%D0%A1%D1%82%D0%B0%D1%82%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0/36",
+                                "test_static")
+    except pdfcrowd.Error as why:
+        # report the error
+        sys.stderr.write('Pdfcrowd Error: {}\n'.format(why))
+
+        # rethrow or handle the exception
+        raise"""
+
+"""path("get_pdf", views.html_to_pdf, name="get_pdf")"""
