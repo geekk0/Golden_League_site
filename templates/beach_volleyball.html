@@ -333,9 +333,8 @@
 
 
         <a href="{% url 'Протокол' match.id %}" target="_blank" style="margin-left:20%">Протокол матча</a>
-
+        <a href="{% url 'Удалить матч' match.id %}" class="btn btn-success" style="background: #bd1313;
+        margin-left:50%">Удалить матч</a>
     {% endfor %}
-
-
 
 {% endblock %}

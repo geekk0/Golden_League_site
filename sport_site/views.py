@@ -40,10 +40,11 @@ class LoginView(View):
         return render(request, 'login.html', {'form': form})
 
 
-def logout(request):
-    user = logout(request)
+def user_logout(request):
+    request.user.set_unusable_password()
+    logout(request)
 
-    logout(user)
+    return HttpResponseRedirect("/")
 
 
 class SquadRegister(View):
@@ -144,24 +145,24 @@ def change_points(request, match_id, team, action, ace_out=""):
         if ace_out == "Ace":
             if team == "red":
 
-                list_inning_points.append(str(getattr(match, "red_points_set_" + set))+"_Ace" + "--" +
+                list_inning_points.append("(A)" + str(getattr(match, "red_points_set_" + set)) + "—" +
                                           str(getattr(match, "blue_points_set_" + set)))
             if team == "blue":
-                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "--" +
-                                          str(getattr(match, "blue_points_set_" + set)) + "_Ace")
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "—" +
+                                          str(getattr(match, "blue_points_set_" + set)) + "(A)")
 
         elif ace_out == "Out":
             if team == "red":
-                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "--" +
-                                          str(getattr(match, "blue_points_set_" + set)) + "_Out")
+                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "—" +
+                                          str(getattr(match, "blue_points_set_" + set)) + "(O)")
             if team == "blue":
-                list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "_Out" + "--" +
+                list_inning_points.append("(O)" + str(getattr(match, "red_points_set_" + set)) + "—" +
                                           str(getattr(match, "blue_points_set_" + set)))
 
         else:
 
             list_inning_points.append(str(getattr(match, "red_points_set_" + set)) +
-                                      "--" + str(getattr(match, "blue_points_set_" + set)))
+                                      "—" + str(getattr(match, "blue_points_set_" + set)))
 
         print(list_inning_points)
 
@@ -301,10 +302,15 @@ def end_match(request):
     ended_match.inning_points_2 = match.inning_points_2
     ended_match.inning_points_3 = match.inning_points_3
 
-
-
-
     ended_match.save()
+
+    match.delete()
+
+    return HttpResponseRedirect("/")
+
+
+def kill_match(request, match_id):
+    match = Match.objects.get(id=match_id)
 
     match.delete()
 
@@ -323,12 +329,19 @@ def main(request):
 @login_required
 def statistic_view(request, match_id):
 
+    if request.user.is_staff:
+        staff = True
+    else:
+        staff = False
+
     if Match.objects.filter(id=match_id).exists():
 
         match = Match.objects.filter(id=match_id).first()
+        live = True
 
     else:
         match = EndedMatches.objects.filter(id=match_id).first()
+        live = False
 
     """red_points_1 = get_points_lists(match_id, match.red_points_set_1)
     red_points_2 = get_points_lists(match_id, match.red_points_set_2)
@@ -337,7 +350,7 @@ def statistic_view(request, match_id):
     blue_points_2 = get_points_lists(match_id, match.blue_points_set_2)
     blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)"""
 
-    context = {"match": match}
+    context = {"match": match, "live": live, "staff": staff}
 
     inning_points_1 = match.inning_points_1.split(" ")
     inning_points_2 = match.inning_points_2.split(" ")
@@ -350,7 +363,14 @@ def statistic_view(request, match_id):
     if inning_points_3:
         context["inning_points_3"] = inning_points_3
 
-    """if red_points_1 and blue_points_1:
+    """for inning in range(len(inning_points_1)):
+        if inning_points_1[inning].startswith("A") or inning_points_1[inning].startswith("O"):
+            inning_points_1[inning] = inning_points_1[inning].replace("A", "A".ljust(4)) + "    "
+            print(inning_points_1[inning])
+    print(inning_points_1)
+    context["inning_points_1"] = inning_points_1
+
+    if red_points_1 and blue_points_1:
         set_1_points = itertools.zip_longest(red_points_1, blue_points_1, fillvalue="")
         context["set_1_points"] = set_1_points
     if red_points_2 and blue_points_2:

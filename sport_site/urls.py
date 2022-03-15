@@ -10,6 +10,9 @@ urlpatterns = [
     path("Закончить партию/<int:match_id>", views.end_set, name="Закончить партию"),
     path("Подача/<int:match_id>/<str:team>", views.set_inning, name="Подача"),
     path("Поменять стороны/<int:match_id>", views.swap_controls, name="Поменять стороны"),
-    path("Ace/Out/<int:match_id>/<str:team>/<str:action>", views.ace_out, name="Ace/Out")
+    path("Ace/Out/<int:match_id>/<str:team>/<str:action>", views.ace_out, name="Ace/Out"),
+    path("user_logout/", views.user_logout, name="user_logout"),
+    path("Закончить матч", views.end_match, name="Закончить матч"),
+    path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч")
 
 ]
