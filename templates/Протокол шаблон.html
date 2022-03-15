@@ -13,11 +13,25 @@
     {% endblock %}
 
     {% block title %}
-        <title>Статистика матча</title>
+        <title>Протокол матча</title>
     {% endblock %}
 </head>
 
 <body>
+    <script type="application/javascript">
+        document.addEventListener("DOMContentLoaded", refresh_3_sec)
+
+        function refresh_3_sec() {
+            setTimeout(refresh, 3000)
+        }
+
+        function refresh() {
+            window.location.reload(3)
+        }
+
+    </script>
+
+
     <div class="container-sm">
         <div class="row">
 
@@ -63,6 +77,9 @@
                                     <tr class="row_content">
                                     {% for point in inning_points_2 %}
                                         <tr class="row_content">
+                                            {% if "Ace" in point %}
+                                                <td colspan="2">Ace</td>
+                                            {% endif %}
                                             <td colspan="2">{{ point }}</td>
                                         </tr>
                                     {% endfor %}

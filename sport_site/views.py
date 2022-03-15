@@ -5,7 +5,7 @@ import json
 import sys
 
 import pdfcrowd
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from .models import Sports, Match, EndedMatches
@@ -38,6 +38,12 @@ class LoginView(View):
                 return HttpResponseRedirect('/')
 
         return render(request, 'login.html', {'form': form})
+
+
+def logout(request):
+    user = logout(request)
+
+    logout(user)
 
 
 class SquadRegister(View):
@@ -314,6 +320,7 @@ def main(request):
     return render(request, "sports.html", context)
 
 
+@login_required
 def statistic_view(request, match_id):
 
     if Match.objects.filter(id=match_id).exists():
