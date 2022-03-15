@@ -32,7 +32,8 @@
 
             </script>
 
-
+    {% if live == True %}
+        {% if staff == True %}
             <div class="container-sm">
                 <div class="row">
 
@@ -63,7 +64,157 @@
                                     </div>
 
                                     <div class="col-3">
-                                        <table id="table_set_2" class="table table-bordered col-3"
+                                        <table id="table_set_2" cellspacing="0" cellpadding="0" class="table table-bordered col-3"
+                                               style=" font-size: 12px;white-space: pre">
+                                        <thead>
+                                            <tr>
+                                                <td colspan="2" style="text-align: center;font-size: 16px">2 партия</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody style="text-align: center;">
+                                            <tr class="row_content">
+                                                <td>А</td>
+                                                <td>Б</td>
+                                            </tr>
+                                            <tr class="row_content">
+                                            {% for point in inning_points_2 %}
+                                                <tr class="row_content">
+                                                    {% if "Ace" in point %}
+                                                        <td colspan="2">Ace</td>
+                                                    {% endif %}
+                                                    <td colspan="2">{{ point }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <table id="table_set_3" class="table table-bordered col-3" style="font-size: 12px">
+                                        <thead>
+                                            <tr>
+                                                <td colspan="2" style="text-align: center;font-size: 16px">3 партия</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody style="text-align: center;">
+                                            <tr class="row_content">
+                                                <td>А</td>
+                                                <td>Б</td>
+                                            </tr>
+                                            <tr class="row_content">
+                                            {% for point in inning_points_3 %}
+                                                <tr class="row_content">
+                                                    <td colspan="2">{{ point }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                    </div>
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="col-7 text_template" style="text-align: center; margin-top:5%;font-size: 14pt">
+                            <h4> Протокол соревнований по пляжному волейболу «Золотая лига» №{{ match.id }} </h4>
+                            <br>
+                            <p>Дата: {{ match.date }}</p>
+                            <br>
+                            <p>Команда А: {{ match.red_squad }}</p>
+                            <br>
+                            <p>Команда Б: {{ match.blue_squad }}</p>
+                            <br>
+                            {% if match.red_set_score and match.blue_set_score %}
+                                <p>Результат: Со счетом {{ match.red_set_score }} : {{ match.blue_set_score }} победила команда: </p>
+                            {% if  match.red_set_score >  match.blue_set_score %}
+                                <p>А</p>
+                            {% endif %}
+                            {% if match.blue_set_score > match.red_set_score %}
+                                <p>Б</p>
+                            {% endif %}
+                            {% endif %}
+
+                            <!--<div class="referee_table" style="margin-top:15%">
+                                <div class="row">
+                                    <table class="table table-bordered mx-auto col-12">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-md-2">Должность</th>
+                                            <th scope="col" class="col-md-5">Подпись</th>
+                                            <th scope="col" class="col-md-5">Фамилия</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr style="text-align: center;" class="row_content">
+                                            <td>1-й судья</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2-й судья</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Капитан А</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Капитан Б</td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>-->
+                        </div>
+
+                </div>
+
+
+            </div>
+        {% endif %}
+    {% else %}
+            <div class="container-sm">
+                <div class="row">
+
+                        <div class="col-5 score_tables container" style="margin-top:5%">
+                            <div class="row">
+                                    <div class="col-3">
+                                        <table id="table_set_1" class="table table-bordered col-3" style="font-size: 12px">
+                                        <thead>
+                                            <tr>
+                                                <td colspan="2" style="text-align: center;font-size: 16px">1 партия</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody style="text-align: center;">
+                                            <tr class="row_content">
+                                                <td>А</td>
+                                                <td>Б</td>
+                                            </tr>
+                                            <tr class="row_content">
+                                            {% for point in inning_points_1 %}
+                                                <tr class="row_content">
+                                                    <td colspan="2">{{ point }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                    </div>
+
+                                    <div class="col-3">
+                                        <table id="table_set_2" cellspacing="0" cellpadding="0" class="table table-bordered col-3"
                                                style=" font-size: 12px;white-space: pre">
                                         <thead>
                                             <tr>
@@ -182,5 +333,6 @@
 
             </div>
 
+    {% endif %}
 
 </body>

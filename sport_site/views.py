@@ -85,7 +85,11 @@ def enter_match(request, sport_name):
         match.save()
 
         context = {"matches": matches, "user_is_referee": user_is_referee}
-        return render(request, "beach_volleyball.html", context)
+
+        if request.user.is_staff:
+            return render(request, "beach_volleyball.html", context)
+        else:
+            return HttpResponseRedirect("/")
     elif user_is_referee:
         return HttpResponseRedirect("/Регистрация команд/%s" % sport_name)
     else:
