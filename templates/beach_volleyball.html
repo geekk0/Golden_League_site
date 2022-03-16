@@ -333,8 +333,13 @@
 
 
         <a href="{% url 'Протокол' match.id %}" target="_blank" style="margin-left:20%">Протокол матча</a>
-        <a href="{% url 'Удалить матч' match.id %}" class="btn btn-success" style="background: #bd1313;
-        margin-left:50%">Удалить матч</a>
+        {% if user_is_referee == True %}
+            <a href="{% url 'Удалить матч' match.id %}" class="btn btn-success" style="background: #bd1313;
+            margin-left:50%">Удалить матч</a>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'Трансляция' %}" target="_blank" style="margin-left:20%">Трансляция матча</a>
     {% endfor %}
 
 {% endblock %}
