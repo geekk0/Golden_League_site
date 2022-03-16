@@ -13,6 +13,8 @@ urlpatterns = [
     path("Ace/Out/<int:match_id>/<str:team>/<str:action>", views.ace_out, name="Ace/Out"),
     path("user_logout/", views.user_logout, name="user_logout"),
     path("Закончить матч", views.end_match, name="Закончить матч"),
-    path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч")
+    path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч"),
+    path('pdf/', views.GeneratePdf.as_view()),
+    path("Трансляция", views.show_stream, name="Трансляция")
 
 ]

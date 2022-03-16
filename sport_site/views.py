@@ -22,6 +22,7 @@ class LoginView(View):
 
     def get(self, request, *args, **kwargs):
         form = LoginForm(request.POST or None)
+
         context = {'form': form}
         return render(request, 'login.html', context)
 
@@ -278,9 +279,14 @@ def end_set(request, match_id):
 
 def create_match(sport, red_team, blue_team):
     sport_type = Sports.objects.get(id=sport)
-    match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value())
-    match.created_date = timezone.now()
+    match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value(),
+                                 date=timezone.now())
+    match.get_name()
+    print(timezone.now())
     match.save()
+    match.__str__()
+
+
 
     """statistic_file = open("Протокол по пляжному волейболу "+str(match.id)+".html", 'w', encoding="utf-8")
     statistic_file.close()"""
@@ -305,6 +311,7 @@ def end_match(request):
     ended_match.inning_points_1 = match.inning_points_1
     ended_match.inning_points_2 = match.inning_points_2
     ended_match.inning_points_3 = match.inning_points_3
+    ended_match.name = match.name
 
     ended_match.save()
 
@@ -330,7 +337,6 @@ def main(request):
     return render(request, "sports.html", context)
 
 
-@login_required
 def statistic_view(request, match_id):
 
     if request.user.is_staff:
@@ -407,7 +413,29 @@ def get_points_lists(match_id, points):
     return points_list
 
 
+def show_stream(request):
 
+
+    return render(request, "stream.html")
+
+
+def html_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+
+class GeneratePdf(View):
+    def get(self, request, *args, **kwargs):
+        # getting the template
+        pdf = html_to_pdf('Протокол шаблон.html')
+
+        # rendering the template
+        return HttpResponse(pdf, content_type='application/pdf')
 
 """def html_to_pdf(request):
     try:

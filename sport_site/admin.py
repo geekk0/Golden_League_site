@@ -10,6 +10,9 @@ class MatchAdmin(admin.ModelAdmin):
     fields = [field.name for field in Match._meta.get_fields()]
     fields.remove("id")
 
+    class Meta:
+        ordering = ["-date"]
+
 
 class EndedMatchesAdmin(admin.ModelAdmin):
     fields = [field.name for field in Match._meta.get_fields()]
@@ -21,6 +24,9 @@ class EndedMatchesAdmin(admin.ModelAdmin):
     fields.remove("ace_out_time")
     fields.remove("red_ace_out")
     fields.remove("blue_ace_out")
+
+    class Meta:
+        ordering = ["-date"]
 
 
 

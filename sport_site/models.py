@@ -18,7 +18,8 @@ class Sports(models.Model):
 
 class Match(models.Model):
     sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
-    date = models.DateField(verbose_name="Дата матча", default=datetime.date.today)
+    date = models.DateTimeField(verbose_name="Дата матча", null=True, blank=True)
+    name = models.CharField(verbose_name="Название матча", max_length=128, null=True, blank=True)
     red_squad = models.CharField(verbose_name="Состав красной команды",  max_length=10)
     blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=10)
     red_set_score = models.IntegerField(verbose_name="Выигранные партии красной команды", default=0)
@@ -49,7 +50,11 @@ class Match(models.Model):
                                        default="")
 
     def __str__(self):
-        return str(self.date)
+        return   str(self.date.strftime("%m.%d.%y %H:%M ")) + "(" + self.red_squad + " - " + self.blue_squad + ")"
+
+    def get_name(self):
+        self.name = self.name = str(self.date.strftime("%m.%d.%y %H:%M ")) + \
+                                "(" + self.red_squad + " - " + self.blue_squad + ")"
 
 
 
@@ -60,7 +65,8 @@ class Match(models.Model):
 
 class EndedMatches(models.Model):
     sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
-    date = models.DateField(verbose_name="Дата матча", default=datetime.date.today)
+    date = models.DateTimeField(verbose_name="Дата матча", null=True, blank=True)
+    name = models.CharField(verbose_name="Название матча", max_length=128, null=True, blank=True)
     red_squad = models.CharField(verbose_name="Состав красной команды", max_length=128)
     blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=128)
     red_set_score = models.IntegerField(verbose_name="Выигранные партии красной команды", default=0)
@@ -84,7 +90,8 @@ class EndedMatches(models.Model):
                                        default="")
 
     def __str__(self):
-        return str(self.date)
+        self.name = str(self.date.strftime("%m.%d.%y %H:%M ")) + "(" + self.red_squad + " - " + self.blue_squad + ")"
+        return self.name
 
     class Meta:
         verbose_name = "Сыгранный матч"
