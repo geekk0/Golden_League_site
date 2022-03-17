@@ -33,6 +33,8 @@ class EndedMatchesAdmin(admin.ModelAdmin):
     fields.remove("ace_out_time")
     fields.remove("red_ace_out")
     fields.remove("blue_ace_out")
+    fields.remove("active")
+
 
     class Meta:
         ordering = ["-date"]
