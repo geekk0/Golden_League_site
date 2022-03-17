@@ -23,7 +23,10 @@ class LoginView(View):
     def get(self, request, *args, **kwargs):
         form = LoginForm(request.POST or None)
 
-        context = {'form': form}
+        ended_matches = EndedMatches.objects.all().order_by("-date")
+
+        context = {'form': form, "ended_matches": ended_matches}
+
         return render(request, 'login.html', context)
 
     def post(self, request, *args, **kwargs):
