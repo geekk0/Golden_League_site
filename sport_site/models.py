@@ -19,6 +19,7 @@ class Sports(models.Model):
 class Match(models.Model):
     sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
     date = models.DateTimeField(verbose_name="Дата матча", null=True, blank=True)
+    active = models.CharField(verbose_name="Активный/Завершенный", default="Завершенный", max_length=128)
     name = models.CharField(verbose_name="Название матча", max_length=128, null=True, blank=True)
     red_squad = models.CharField(verbose_name="Состав красной команды",  max_length=10)
     blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=10)

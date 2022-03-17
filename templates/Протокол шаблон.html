@@ -32,7 +32,7 @@
 
             </script>
 
-    {% if live == True %}
+    {% if match.active == "Активный" %}
         {% if staff == True %}
             <div class="container-sm">
                 <div class="row">
@@ -123,20 +123,18 @@
                         <div class="col-7 text_template" style="text-align: center; margin-top:5%;font-size: 14pt">
                             <h4> Протокол соревнований по пляжному волейболу «Золотая лига» №{{ match.id }} </h4>
                             <br>
-                            <p>Дата: {{ match.date|date:"d-m-Y" }}</p>
+                            <p>Дата: {{ match.date|date:"d.m.Y" }}</p>
                             <br>
                             <p>Команда А: {{ match.red_squad }}</p>
                             <br>
                             <p>Команда Б: {{ match.blue_squad }}</p>
                             <br>
-                            {% if match.red_set_score and match.blue_set_score %}
                                 <p>Результат: Со счетом {{ match.red_set_score }} : {{ match.blue_set_score }} победила команда: </p>
                             {% if  match.red_set_score >  match.blue_set_score %}
                                 <p>А</p>
                             {% endif %}
                             {% if match.blue_set_score > match.red_set_score %}
                                 <p>Б</p>
-                            {% endif %}
                             {% endif %}
 
                             <!--<div class="referee_table" style="margin-top:15%">
@@ -273,20 +271,18 @@
                         <div class="col-7 text_template" style="text-align: center; margin-top:5%;font-size: 14pt">
                             <h4> Протокол соревнований по пляжному волейболу «Золотая лига» №{{ match.id }} </h4>
                             <br>
-                            <p>Дата: {{ match.date }}</p>
+                            <p>Дата: {{ match.date|date:"d.m.Y" }}</p>
                             <br>
                             <p>Команда А: {{ match.red_squad }}</p>
                             <br>
                             <p>Команда Б: {{ match.blue_squad }}</p>
                             <br>
-                            {% if match.red_set_score and match.blue_set_score %}
                                 <p>Результат: Со счетом {{ match.red_set_score }} : {{ match.blue_set_score }} победила команда: </p>
                             {% if  match.red_set_score >  match.blue_set_score %}
                                 <p>А</p>
                             {% endif %}
                             {% if match.blue_set_score > match.red_set_score %}
                                 <p>Б</p>
-                            {% endif %}
                             {% endif %}
 
                             <!--<div class="referee_table" style="margin-top:15%">

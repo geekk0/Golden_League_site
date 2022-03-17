@@ -9,6 +9,15 @@ class SportsAdmin(admin.ModelAdmin):
 class MatchAdmin(admin.ModelAdmin):
     fields = [field.name for field in Match._meta.get_fields()]
     fields.remove("id")
+    fields.remove("red_ace_out")
+    fields.remove("blue_ace_out")
+    fields.remove("ace_out_time")
+    fields.remove("swap_position")
+    fields.remove("client_os")
+    fields.remove("name")
+    fields.remove("current_inning")
+
+    list_filter = ("active",)
 
     class Meta:
         ordering = ["-date"]

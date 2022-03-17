@@ -23,7 +23,7 @@ class LoginView(View):
     def get(self, request, *args, **kwargs):
         form = LoginForm(request.POST or None)
 
-        ended_matches = EndedMatches.objects.all().order_by("-date")
+        ended_matches = Match.objects.filter(active="Завершенный").order_by("-date")
 
         for match in ended_matches:
             match.get_name()
@@ -72,7 +72,7 @@ class SquadRegister(View):
 
 
 def enter_match(request, sport_name):
-    matches = Match.objects.filter(sport__name=sport_name)
+    matches = Match.objects.filter(sport__name=sport_name, active="Активный")
 
     if request.user.groups.filter(name='Referees').exists():
         user_is_referee = True
@@ -287,7 +287,7 @@ def end_set(request, match_id):
 def create_match(sport, red_team, blue_team):
     sport_type = Sports.objects.get(id=sport)
     match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value(),
-                                 date=timezone.now())
+                                 date=timezone.now(), active="Активный")
     match.get_name()
     print(timezone.now())
     match.save()
@@ -302,27 +302,11 @@ def create_match(sport, red_team, blue_team):
 
 
 def end_match(request):
-    match = Match.objects.all().first()
+    match = Match.objects.all().get(active="Активный")
 
-    ended_match = EndedMatches.objects.create(sport=match.sport, id=match.id, date=match.date, red_squad=match.red_squad,
-                                              blue_squad=match.blue_squad)
+    match.active = "Завершенный"
 
-    ended_match.red_set_score = match.red_set_score
-    ended_match.blue_set_score = match.blue_set_score
-    ended_match.red_points_set_1 = match.red_points_set_1
-    ended_match.red_points_set_2 = match.red_points_set_2
-    ended_match.red_points_set_3 = match.red_points_set_3
-    ended_match.blue_points_set_1 = match.blue_points_set_1
-    ended_match.blue_points_set_2 = match.blue_points_set_2
-    ended_match.blue_points_set_3 = match.blue_points_set_3
-    ended_match.inning_points_1 = match.inning_points_1
-    ended_match.inning_points_2 = match.inning_points_2
-    ended_match.inning_points_3 = match.inning_points_3
-    ended_match.name = match.name
-
-    ended_match.save()
-
-    match.delete()
+    match.save()
 
     return HttpResponseRedirect("/")
 
@@ -363,6 +347,7 @@ def ended_to_match(request):
         match.red_team_total = ended_match.red_team_total
         match.blue_team_total = ended_match.blue_team_total
         match.match_total = ended_match.match_total
+        match.active = "Завершенный"
 
         match.save()
 
@@ -384,50 +369,23 @@ def statistic_view(request, match_id, pdf=None):
     else:
         staff = False
 
+    context = {"staff": staff}
+
     if Match.objects.filter(id=match_id).exists():
 
-        match = Match.objects.filter(id=match_id).first()
-        live = True
+        match = Match.objects.get(id=match_id)
 
-    else:
-        match = EndedMatches.objects.filter(id=match_id).first()
-        live = False
+        context["match"] = match
 
-    """red_points_1 = get_points_lists(match_id, match.red_points_set_1)
-    red_points_2 = get_points_lists(match_id, match.red_points_set_2)
-    red_points_3 = get_points_lists(match_id, match.red_points_set_3)
-    blue_points_1 = get_points_lists(match_id, match.blue_points_set_1)
-    blue_points_2 = get_points_lists(match_id, match.blue_points_set_2)
-    blue_points_3 = get_points_lists(match_id, match.blue_points_set_3)"""
-
-    context = {"match": match, "live": live, "staff": staff}
-
-    if match.inning_points_1:
-        inning_points_1 = match.inning_points_1.split(" ")
-        context["inning_points_1"] = inning_points_1[1:]
-    if match.inning_points_2:
-        inning_points_2 = match.inning_points_2.split(" ")
-        context["inning_points_2"] = inning_points_2
-    if match.inning_points_3:
-        inning_points_3 = match.inning_points_3.split(" ")
-        context["inning_points_3"] = inning_points_3
-
-    """for inning in range(len(inning_points_1)):
-        if inning_points_1[inning].startswith("A") or inning_points_1[inning].startswith("O"):
-            inning_points_1[inning] = inning_points_1[inning].replace("A", "A".ljust(4)) + "    "
-            print(inning_points_1[inning])
-    print(inning_points_1)
-    context["inning_points_1"] = inning_points_1
-
-    if red_points_1 and blue_points_1:
-        set_1_points = itertools.zip_longest(red_points_1, blue_points_1, fillvalue="")
-        context["set_1_points"] = set_1_points
-    if red_points_2 and blue_points_2:
-        set_2_points = itertools.zip_longest(red_points_2, blue_points_2, fillvalue="")
-        context["set_2_points"] = set_2_points
-    if red_points_3 and blue_points_3:
-        set_3_points = itertools.zip_longest(red_points_3, blue_points_3, fillvalue="")
-        context["set_3_points"] = set_3_points"""
+        if match.inning_points_1:
+            inning_points_1 = match.inning_points_1.split(" ")
+            context["inning_points_1"] = inning_points_1[1:]
+        if match.inning_points_2:
+            inning_points_2 = match.inning_points_2.split(" ")
+            context["inning_points_2"] = inning_points_2
+        if match.inning_points_3:
+            inning_points_3 = match.inning_points_3.split(" ")
+            context["inning_points_3"] = inning_points_3
 
     if pdf:
         return context
@@ -435,28 +393,7 @@ def statistic_view(request, match_id, pdf=None):
         return render(request, "Протокол шаблон.html", context)
 
 
-def get_points_lists(match_id, points):
-
-    if Match.objects.filter(id=match_id).exists():
-
-        match = Match.objects.filter(id=match_id).first()
-
-    else:
-        match = EndedMatches.objects.filter(id=match_id).first()
-
-    points_list = []
-
-    for i in range(1, points+1):
-        if match.red_ace_out != " ":
-            points_list.append(str(i) + " "+match.red_ace_out)
-        else:
-            points_list.append(i)
-
-    return points_list
-
-
 def show_stream(request):
-
 
     return render(request, "stream.html")
 
