@@ -44,4 +44,3 @@ class EndedMatchesAdmin(admin.ModelAdmin):
 
 admin.site.register(Sports, SportsAdmin)
 admin.site.register(Match, MatchAdmin)
-admin.site.register(EndedMatches, EndedMatchesAdmin)
