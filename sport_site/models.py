@@ -42,11 +42,11 @@ class Match(models.Model):
     blue_ace_out = models.CharField(verbose_name="Ace/out синих", default=" ", max_length=10, null=True)
     ace_out_time = models.DateTimeField(verbose_name="Время ace/out", null=True)
 
-    inning_points_1 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_1 = models.CharField(verbose_name="Очки подач 1 сет", null=True, blank=True, max_length=1024,
                                        default="")
-    inning_points_2 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_2 = models.CharField(verbose_name="Очки подач 2 сет", null=True, blank=True, max_length=1024,
                                        default="")
-    inning_points_3 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_3 = models.CharField(verbose_name="Очки подач 3 сет", null=True, blank=True, max_length=1024,
                                        default="")
 
     def __str__(self):
@@ -81,11 +81,11 @@ class EndedMatches(models.Model):
     red_team_total = models.IntegerField(verbose_name="Тотал красной команды", default=0)
     blue_team_total = models.IntegerField(verbose_name="Тотал синей команды", default=0)
     match_total = models.IntegerField(verbose_name="Тотал матча", default=0)
-    inning_points_1 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_1 = models.CharField(verbose_name="Очки подач 1 сет", null=True, blank=True, max_length=1024,
                                        default="")
-    inning_points_2 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_2 = models.CharField(verbose_name="Очки подач 2 сет", null=True, blank=True, max_length=1024,
                                        default="")
-    inning_points_3 = models.CharField(verbose_name="Очки подас 1 сет", null=True, blank=True, max_length=1024,
+    inning_points_3 = models.CharField(verbose_name="Очки подач 3 сет", null=True, blank=True, max_length=1024,
                                        default="")
 
     def __str__(self):

@@ -45,14 +45,14 @@
                                             <tr>
                                                 <td colspan="2" style="text-align: center;font-size: 16px">1 партия</td>
                                             </tr>
-                                        </thead>
-
-                                        <tbody style="text-align: center;">
                                             <tr class="row_content">
                                                 <td>А</td>
                                                 <td>Б</td>
                                             </tr>
-                                            <tr class="row_content">
+                                        </thead>
+
+                                        <tbody style="text-align: center;">
+
                                             {% for point in inning_points_1 %}
                                                 <tr class="row_content">
                                                     <td colspan="2">{{ point }}</td>
@@ -123,7 +123,7 @@
                         <div class="col-7 text_template" style="text-align: center; margin-top:5%;font-size: 14pt">
                             <h4> Протокол соревнований по пляжному волейболу «Золотая лига» №{{ match.id }} </h4>
                             <br>
-                            <p>Дата: {{ match.date }}</p>
+                            <p>Дата: {{ match.date|date:"d-m-Y" }}</p>
                             <br>
                             <p>Команда А: {{ match.red_squad }}</p>
                             <br>

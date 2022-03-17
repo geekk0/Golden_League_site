@@ -335,6 +335,39 @@ def kill_match(request, match_id):
     return HttpResponseRedirect("/")
 
 
+def ended_to_match(request):
+
+    for ended_match in EndedMatches.objects.all():
+
+        match = Match.objects.create(id=ended_match.id, sport=ended_match.sport, date=ended_match.date, name=ended_match.name,
+                                     red_squad=ended_match.red_squad, blue_squad=ended_match.blue_squad)
+
+        match.red_set_score = ended_match.red_set_score
+        match.blue_set_score = ended_match.blue_set_score
+        match.red_points_set_1 = ended_match.red_points_set_1
+        match.red_points_set_2 = ended_match.red_points_set_2
+        match.red_points_set_3 = ended_match.red_points_set_3
+        match.blue_points_set_1 = ended_match.blue_points_set_1
+        match.blue_points_set_2 = ended_match.blue_points_set_2
+        match.blue_points_set_3 = ended_match.blue_points_set_3
+        match.inning_points_1 = ended_match.inning_points_1
+        match.inning_points_2 = ended_match.inning_points_2
+        match.inning_points_3 = ended_match.inning_points_3
+        match.name = ended_match.name
+        match.sport = ended_match.sport
+        match.date = ended_match.date
+        match.red_squad = ended_match.red_squad
+        match.blue_squad = ended_match.blue_squad
+        match.active_set = ended_match.active_set
+        match.total_current_set = ended_match.total_current_set
+        match.red_team_total = ended_match.red_team_total
+        match.blue_team_total = ended_match.blue_team_total
+        match.match_total = ended_match.match_total
+
+        match.save()
+
+    return HttpResponse(status=204)
+
 @login_required
 def main(request):
     sports = Sports.objects.all()
@@ -344,7 +377,7 @@ def main(request):
     return render(request, "sports.html", context)
 
 
-def statistic_view(request, match_id):
+def statistic_view(request, match_id, pdf=None):
 
     if request.user.is_staff:
         staff = True
@@ -369,15 +402,14 @@ def statistic_view(request, match_id):
 
     context = {"match": match, "live": live, "staff": staff}
 
-    inning_points_1 = match.inning_points_1.split(" ")
-    inning_points_2 = match.inning_points_2.split(" ")
-    inning_points_3 = match.inning_points_3.split(" ")
-
-    if inning_points_1:
-        context["inning_points_1"] = inning_points_1
-    if inning_points_2:
+    if match.inning_points_1:
+        inning_points_1 = match.inning_points_1.split(" ")
+        context["inning_points_1"] = inning_points_1[1:]
+    if match.inning_points_2:
+        inning_points_2 = match.inning_points_2.split(" ")
         context["inning_points_2"] = inning_points_2
-    if inning_points_3:
+    if match.inning_points_3:
+        inning_points_3 = match.inning_points_3.split(" ")
         context["inning_points_3"] = inning_points_3
 
     """for inning in range(len(inning_points_1)):
@@ -397,7 +429,10 @@ def statistic_view(request, match_id):
         set_3_points = itertools.zip_longest(red_points_3, blue_points_3, fillvalue="")
         context["set_3_points"] = set_3_points"""
 
-    return render(request, "Протокол шаблон.html", context)
+    if pdf:
+        return context
+    else:
+        return render(request, "Протокол шаблон.html", context)
 
 
 def get_points_lists(match_id, points):
@@ -437,8 +472,10 @@ def html_to_pdf(template_src, context_dict={}):
 
 
 class GeneratePdf(View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, match_id, *args, **kwargs):
         # getting the template
+        statistic_view(request, match_id=match_id)
+
         pdf = html_to_pdf('Протокол шаблон.html')
 
         # rendering the template
