@@ -25,6 +25,9 @@ class LoginView(View):
 
         ended_matches = EndedMatches.objects.all().order_by("-date")
 
+        for match in ended_matches:
+            match.get_name()
+
         context = {'form': form, "ended_matches": ended_matches}
 
         return render(request, 'login.html', context)

@@ -92,6 +92,10 @@ class EndedMatches(models.Model):
         return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
                + " (" + str(self.id) + ")"
 
+    def get_name(self):
+        self.name = str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
+            + " (" + str(self.id) + ")"
+
     class Meta:
         verbose_name = "Сыгранный матч"
         verbose_name_plural = "Сыгранные матчи"
