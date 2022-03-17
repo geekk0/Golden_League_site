@@ -6,7 +6,7 @@
 {%  block content %}
 
 
-<div class='' style="margin-top:100px; text-align: center">
+<div class='' style="margin-top:30px; text-align: center">
 
     <div class="col-md-4 offset-md-4">
 
@@ -42,5 +42,16 @@
 
 </div>
 
+<div class="col-md-10 offset-1" style="text-align: center">
+    <div class="row">
 
+        {% for match in ended_matches %}
+
+
+            <div class="col-2" style="margin-top: 2%; background: #0dcaf0">
+                <a href="{% url 'Протокол' match.id %}" target="_blank" style="color:black">{{ match.name }}</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {%  endblock %}
