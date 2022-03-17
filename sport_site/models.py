@@ -50,13 +50,12 @@ class Match(models.Model):
                                        default="")
 
     def __str__(self):
-        return   str(self.date.strftime("%m.%d.%y %H:%M ")) + "(" + self.red_squad + " - " + self.blue_squad + ")"
+        return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
+            + " (" + str(self.id) + ")"
 
     def get_name(self):
-        self.name = self.name = str(self.date.strftime("%m.%d.%y %H:%M ")) + \
-                                "(" + self.red_squad + " - " + self.blue_squad + ")"
-
-
+        self.name = str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
+            + " (" + str(self.id) + ")"
 
     class Meta:
         verbose_name = "Матч"
@@ -90,8 +89,8 @@ class EndedMatches(models.Model):
                                        default="")
 
     def __str__(self):
-        self.name = str(self.date.strftime("%m.%d.%y %H:%M ")) + "(" + self.red_squad + " - " + self.blue_squad + ")"
-        return self.name
+        return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
+               + " (" + str(self.id) + ")"
 
     class Meta:
         verbose_name = "Сыгранный матч"

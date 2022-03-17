@@ -11,10 +11,24 @@
 
 </head>
 <body>
-  <video id="my_video_1" class="video-js vjs-fluid vjs-default-skin" controls preload="auto"
+  <video id="my_video_1" class="video-js vjs-fluid vjs-default-skin" controls preload="auto" style="width:50%"
   data-setup='{}'>
-    <source src="http://golden-league.pro:8080/hls/stream.m3u8" type="application/x-mpegURL">
+    <source src="http://golden-league.pro:8080/hls/stream.m3u8" style="width:50%" type="application/x-mpegURL">
   </video>
+
+
+
+
+
+<video id="my_video_2" class="video-js vjs-fluid vjs-default-skin" controls preload="auto" style="width:50%"
+  data-setup='{}'>
+    <source src="http://golden-league.pro:8000/hls/stream.m3u8" type="application/x-mpegURL">
+  </video>
+
+<script>
+var player = videojs('my_video_2');
+player.play();
+</script>
 
 <script>
 var player = videojs('my_video_1');
