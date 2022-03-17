@@ -42,13 +42,17 @@
 
 </div>
 
-<div class="col-md-10 offset-1" style="text-align: center">
+<div class="col-md-10 offset-1" style="text-align: center;margin-top: 3%">
     <div class="row">
+
+        <div class="col-6-offset-3">
+            <h5>Протколы сыгранных матчей:</h5>
+        </div>
 
         {% for match in ended_matches %}
 
 
-            <div class="col-2" style="margin-top: 2%; background: #0dcaf0">
+            <div class="col-3" style="margin-top:2%;background: #0dcaf0">
                 <a href="{% url 'Протокол' match.id %}" target="_blank" style="color:black">{{ match.name }}</a>
             </div>
         {% endfor %}
