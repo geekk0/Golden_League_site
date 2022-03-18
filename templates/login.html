@@ -44,7 +44,8 @@
                 {% for match in ended_matches %}
 
                     <div class="col-sm-12 col-md-3" style="margin-top:2%;background: #0dcaf0">
-                        <a href="{% url 'Протокол' match.id %}" target="_blank" style="color:black">{{ match.name }}</a>
+                        <a href="{% url 'Протокол' match.id %}" target="_blank"
+                           style="color:black">{{ match.name }}<br> {{ match.red_set_score }} : {{ match.blue_set_score }}</a>
                     </div>
 
                 {% endfor %}
