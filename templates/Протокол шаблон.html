@@ -20,7 +20,16 @@
 <body>
 
             <script type="application/javascript">
-                document.addEventListener("DOMContentLoaded", refresh_3_sec)
+                /*document.addEventListener("DOMContentLoaded", refresh_3_sec)*/
+
+                document.addEventListener("DOMContentLoaded", get_orientation)
+
+                function get_orientation() {
+
+                    if (window.innerWidth < 550 ) {
+                        alert("Пожалуйста, используйте горизонтальную ориентацию устройства");
+                    }
+                }
 
                 function refresh_3_sec() {
                     setTimeout(refresh, 3000)
@@ -40,12 +49,12 @@
                         <div class="col-5 score_tables container" style="margin-top:5%">
                             <div class="row">
                                     <div class="col-3">
-                                        <table id="table_set_1" class="table table-bordered col-3" style="font-size: 12pt;">
+                                        <table id="table_set_1" class="table table-bordered" style="font-size: 12pt;">
                                             <thead>
                                                 <tr>
                                                     <td colspan="2" style="text-align: center;font-size: 16px">1 партия</td>
                                                 </tr>
-                                                <tr class="row_content">
+                                                <tr class="row_content" style="text-align: center">
                                                     <td>А</td>
                                                     <td>Б</td>
                                                 </tr>
@@ -63,8 +72,8 @@
                                         </table>
                                     </div>
 
-                                    <div class="col-3">
-                                        <table id="table_set_2" class="table table-bordered col-3"
+                                    <div class="col-3 offset-1">
+                                        <table id="table_set_2" class="table table-bordered"
                                                style=" font-size: 12px;white-space: pre">
                                         <thead>
                                             <tr>
@@ -91,8 +100,8 @@
                                     </table>
                                     </div>
 
-                                    <div class="col-3">
-                                        <table id="table_set_3" class="table table-bordered col-3" style="font-size: 12px">
+                                    <div class="col-3 offset-1">
+                                        <table id="table_set_3" class="table table-bordered offset-2" style="font-size: 12px">
                                         <thead>
                                             <tr>
                                                 <td colspan="2" style="text-align: center;font-size: 16px">3 партия</td>
