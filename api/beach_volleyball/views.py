@@ -7,7 +7,7 @@ from api.beach_volleyball.serializer import MatchSerializer
 class GetMatchData(viewsets.ModelViewSet):
     def get_queryset(self):
 
-        queryset = Match.objects.all()
+        queryset = Match.objects.filter(active="Активный")
 
         return queryset
 

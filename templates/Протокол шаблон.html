@@ -40,27 +40,27 @@
                         <div class="col-5 score_tables container" style="margin-top:5%">
                             <div class="row">
                                     <div class="col-3">
-                                        <table id="table_set_1" class="table table-bordered col-3" style="font-size: 12px">
-                                        <thead>
-                                            <tr>
-                                                <td colspan="2" style="text-align: center;font-size: 16px">1 партия</td>
-                                            </tr>
-                                            <tr class="row_content">
-                                                <td>А</td>
-                                                <td>Б</td>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody style="text-align: center;">
-
-                                            {% for point in inning_points_1 %}
-                                                <tr class="row_content">
-                                                    <td colspan="2">{{ point }}</td>
+                                        <table id="table_set_1" class="table table-bordered col-3" style="font-size: 12pt;">
+                                            <thead>
+                                                <tr>
+                                                    <td colspan="2" style="text-align: center;font-size: 16px">1 партия</td>
                                                 </tr>
-                                            {% endfor %}
-                                        </tbody>
+                                                <tr class="row_content">
+                                                    <td>А</td>
+                                                    <td>Б</td>
+                                                </tr>
+                                            </thead>
 
-                                    </table>
+                                            <tbody style="text-align: center;">
+
+                                                {% for point in inning_points_1 %}
+                                                    <tr class="row_content">
+                                                        <td colspan="2">{{ point }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+
+                                        </table>
                                     </div>
 
                                     <div class="col-3">
@@ -285,43 +285,7 @@
                                 <p>Б</p>
                             {% endif %}
 
-                            <!--<div class="referee_table" style="margin-top:15%">
-                                <div class="row">
-                                    <table class="table table-bordered mx-auto col-12">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="col-md-2">Должность</th>
-                                            <th scope="col" class="col-md-5">Подпись</th>
-                                            <th scope="col" class="col-md-5">Фамилия</th>
-                                        </tr>
-                                    </thead>
 
-                                    <tbody>
-                                        <tr style="text-align: center;" class="row_content">
-                                            <td>1-й судья</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>2-й судья</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Капитан А</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Капитан Б</td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-
-                                    </tbody>
-                                </table>
-                                </div>
-                            </div>-->
                         </div>
 
                 </div>

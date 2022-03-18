@@ -382,10 +382,10 @@ def statistic_view(request, match_id, pdf=None):
             context["inning_points_1"] = inning_points_1[1:]
         if match.inning_points_2:
             inning_points_2 = match.inning_points_2.split(" ")
-            context["inning_points_2"] = inning_points_2
+            context["inning_points_2"] = inning_points_2[1:]
         if match.inning_points_3:
             inning_points_3 = match.inning_points_3.split(" ")
-            context["inning_points_3"] = inning_points_3
+            context["inning_points_3"] = inning_points_3[1:]
 
     if pdf:
         return context
@@ -402,18 +402,18 @@ def html_to_pdf(template_src, context_dict={}):
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 
 
 class GeneratePdf(View):
-    def get(self, request, match_id, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         # getting the template
-        statistic_view(request, match_id=match_id)
+        # statistic_view(request, match_id=match_id)
 
-        pdf = html_to_pdf('Протокол шаблон.html')
+        pdf = html_to_pdf('test.html')
 
         # rendering the template
         return HttpResponse(pdf, content_type='application/pdf')
