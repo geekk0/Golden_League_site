@@ -35,3 +35,11 @@
 #test_table{
     line-height: 12px;
 }
+
+@media (min-width:300px) and (max-width:1200px) {
+    body{font-size: 10pt;}
+    li{font-size: 10pt;}
+/*    .row{margin-left: 0px;
+        margin-right: 0px;}*/
+}
+

@@ -3,31 +3,20 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
 
+{% block breadcrumb %}
+{% endblock %}
+
 {%  block content %}
 
 
-<div class='' style="margin-top:30px; text-align: center">
+<div class='container' style="margin-top:30px; text-align: center">
 
-    <div class="col-md-4 offset-md-4">
+    <div class="row">
+        <div class="auth col-xs-8 offset-xs-2 col-md-4 offset-md-4 ">
 
-        <div class="auth col-md-6 offset-md-3">
-
-            <h3 style="" class="text-center">Golden League</h3>
-            <br>
-            <br>
+            <img src="{% static 'images/golden-league_logo.jpg' %}" style="width:50%">
+                <br>
             <h5 style="" class="text-center">Авторизация</h5>
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li style="width:max-content;display:block;font-size: 16pt;color:white;margin-top:6%;
-                            background: #a21919;margin-left:auto; margin-right:auto;overflow: visible;padding: 0.7%;"
-                            class="{{ message.tags }}">
-                            {{ message|safe }}
-                            <a href="" class="close" style="color:white;font-size: 16pt">✖</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
 
             <form style="" action ='' method="POST">
                 {% csrf_token %}
@@ -35,27 +24,33 @@
                 <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Войти">
             </form>
 
-        </div>
+
+
 
     </div>
-
+    </div>
 
 </div>
 
-<div class="col-md-10 offset-1" style="text-align: center;margin-top: 3%">
+<div class="container" style="margin-top: 5%">
     <div class="row">
+        <div class="col-xs-8 offset-xs-2 col-md-10 offset-md-1" style="text-align: center;margin-top: 3%">
+            <div class="row">
 
-        <div class="col-6-offset-3">
-            <h5>Протколы сыгранных матчей:</h5>
-        </div>
+                <div class="col-6-offset-3">
+                    <h5>Протколы сыгранных матчей:</h5>
+                </div>
 
-        {% for match in ended_matches %}
+                {% for match in ended_matches %}
 
+                    <div class="col-sm-12 col-md-3" style="margin-top:2%;background: #0dcaf0">
+                        <a href="{% url 'Протокол' match.id %}" target="_blank" style="color:black">{{ match.name }}</a>
+                    </div>
 
-            <div class="col-3" style="margin-top:2%;background: #0dcaf0">
-                <a href="{% url 'Протокол' match.id %}" target="_blank" style="color:black">{{ match.name }}</a>
+                {% endfor %}
+
             </div>
-        {% endfor %}
+</div>
     </div>
 </div>
 {%  endblock %}

@@ -18,15 +18,15 @@
 </head>
 <body>
 
-    <header class="container-xs">
+    <header class="container">
             <div class="row align-bottom">
 
                 {% if request.user.is_authenticated %}
                     {% block breadcrumb %}
-                        <nav class="navbar navbar-expand-sm bg-info col-12">
-                            <div class="collapse navbar-collapse col-md-10 offset-1 ">
+                        <nav class="navbar navbar-expand bg-info col-xs-12 col-md-12">
+                            <div class="collapse navbar-collapse col-xs-12 col-md-12 offset-md-1 ">
                                 <ul class="navbar-nav mr-auto">
-                                    <li class="navbar-brand"><a href="/" style="color:black">Панель управления судейской бригады</a></li>
+                                    <li class="navbar-brand d-none d-sm-block"><a href="/" style="color:black">Панель управления судейской бригады</a></li>
                                 </ul>
                                 <a href="{% url 'user_logout' %}" style="margin-left:auto; margin-right: 10%; color:black">Выйти</a>
                          </div>
