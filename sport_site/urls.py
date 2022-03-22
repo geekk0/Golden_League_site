@@ -16,6 +16,7 @@ urlpatterns = [
     path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч"),
     path('pdf/', views.GeneratePdf.as_view()),
     path("Трансляция", views.show_stream, name="Трансляция"),
-    path("Пересоздать", views.ended_to_match, name="Пересоздать")
+    path("Пересоздать", views.ended_to_match, name="Пересоздать"),
+    path("Главная", views.landing_page, name="Главная")
 
 ]

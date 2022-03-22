@@ -434,3 +434,11 @@ class GeneratePdf(View):
         raise"""
 
 """path("get_pdf", views.html_to_pdf, name="get_pdf")"""
+
+
+def landing_page(request):
+    matches = Match.objects.filter(active=False)
+
+    context = {"matches": matches}
+
+    return render(request, "page26283709body.html", context)
