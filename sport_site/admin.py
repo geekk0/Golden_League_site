@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sports, Match, EndedMatches
+from .models import Sports, Match, EndedMatches, MatchDay, ScheduledMatches
 
 
 class SportsAdmin(admin.ModelAdmin):
@@ -40,7 +40,22 @@ class EndedMatchesAdmin(admin.ModelAdmin):
         ordering = ["-date"]
 
 
+class MatchDayAdmin(admin.ModelAdmin):
+    fields = ["day"]
+
+    class Meta:
+        ordering = ["-day"]
+
+
+class ScheduledMatchesAdmin(admin.ModelAdmin):
+    fields = [field.name for field in ScheduledMatches._meta.get_fields()]
+    fields.remove("id")
+
+    class Meta:
+        ordering = ["-time"]
 
 
 admin.site.register(Sports, SportsAdmin)
 admin.site.register(Match, MatchAdmin)
+admin.site.register(ScheduledMatches, ScheduledMatchesAdmin)
+admin.site.register(MatchDay, MatchDayAdmin)

@@ -100,3 +100,28 @@ class EndedMatches(models.Model):
     class Meta:
         verbose_name = "Сыгранный матч"
         verbose_name_plural = "Сыгранные матчи"
+
+
+class MatchDay(models.Model):
+    day = models.DateField(verbose_name="Дата матча", null=True, blank=True)
+
+    def __str__(self):
+        return str(self.day)
+
+    class Meta:
+        verbose_name = "Игровой день"
+        verbose_name_plural = "Игровые дни"
+
+
+class ScheduledMatches(models.Model):
+    day = models.ForeignKey(MatchDay, verbose_name="День", on_delete=models.CASCADE)
+    time = models.TimeField(verbose_name="Время матча", null=True, blank=True)
+    red_team = models.CharField(verbose_name="Красная команда", null=True, blank=True, max_length=128)
+    blue_team = models.CharField(verbose_name="Синяя команда", null=True, blank=True, max_length=128)
+
+    def __str__(self):
+        return str(self.time) + " " + str(self.red_team) + ":" + str(self.blue_team)
+
+    class Meta:
+        verbose_name = "Запланированный матч"
+        verbose_name_plural = "Запланированные матчи"

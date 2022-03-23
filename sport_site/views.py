@@ -8,7 +8,7 @@ import pdfcrowd
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from .models import Sports, Match, EndedMatches
+from .models import Sports, Match, EndedMatches, MatchDay, ScheduledMatches
 from django.views.generic import DetailView, View
 from .forms import LoginForm, SquadForm
 from django.contrib.auth.decorators import login_required
@@ -437,8 +437,15 @@ class GeneratePdf(View):
 
 
 def landing_page(request):
-    matches = Match.objects.filter(active=False)
 
-    context = {"matches": matches}
+    last_matches = Match.objects.filter(active="Завершенный").order_by("-date")[:5]
+
+    archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
+
+    schedule_days = MatchDay.objects.all()
+
+    context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days}
 
     return render(request, "page26283709body.html", context)
+
+
