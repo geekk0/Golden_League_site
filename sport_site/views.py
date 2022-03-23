@@ -308,7 +308,7 @@ def end_match(request):
 
     match.save()
 
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect("/Личный кабинет")
 
 
 def kill_match(request, match_id):
