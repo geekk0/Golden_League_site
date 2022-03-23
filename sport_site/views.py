@@ -440,6 +440,11 @@ def landing_page(request):
 
     last_matches = Match.objects.filter(active="Завершенный").order_by("-date")[:5]
 
+    for day in MatchDay.objects.all():
+        if day.day < datetime.date.today():
+            print("old")
+            day.delete()
+
     archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
 
     schedule_days = MatchDay.objects.all()
