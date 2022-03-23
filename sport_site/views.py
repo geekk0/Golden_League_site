@@ -316,7 +316,7 @@ def kill_match(request, match_id):
 
     match.delete()
 
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect("/Личный кабинет")
 
 
 def ended_to_match(request):
