@@ -445,11 +445,18 @@ def landing_page(request):
             print("old")
             day.delete()
 
+    closest_schedule_days = MatchDay.objects.all().order_by("day")
+
+    schedule_days = MatchDay.objects.all().order_by("day")[:5]
+
+    earliest_match_day = closest_schedule_days.earliest("day").day
+
+    latest_match_day = earliest_match_day + datetime.timedelta(days=len(schedule_days)-1)
+
     archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
 
-    schedule_days = MatchDay.objects.all()
-
-    context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days}
+    context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days,
+               "earliest_match_day": earliest_match_day, "latest_match_day": latest_match_day}
 
     return render(request, "page26283709body.html", context)
 
