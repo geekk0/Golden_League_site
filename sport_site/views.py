@@ -451,7 +451,7 @@ def landing_page(request):
 
     earliest_match_day = closest_schedule_days.earliest("day").day
 
-    latest_match_day = earliest_match_day + datetime.timedelta(days=len(schedule_days)-1)
+    latest_match_day = earliest_match_day + datetime.timedelta(days=len(schedule_days))
 
     archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
 
