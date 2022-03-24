@@ -72,7 +72,7 @@ if (typeof t228_setWidth !== 'undefined') { t228_setWidth('424238104');
 
                 <div class="t431__data-part2" data-auto-correct-mobile-width="false" style="display: none">
                     {% for match in archived_matches %}
-                    {{ match.date|date:"d.m.Y" }}, {{ match.date|time:"G.i" }}; {{ match.red_squad }}/{{ match.blue_squad }}; {{ match.red_points_set_1 }}:{{ match.blue_points_set_1 }} {{ match.red_points_set_2 }}:{{ match.blue_points_set_2 }} {{ match.red_points_set_3 }}:{{ match.blue_points_set_3 }}; {{ match.red_set_score }}:{{ match.blue_set_score }}; {% if match.red_set_score > match.blue_set_score %} {{ match.red_squad }} {% else %} {{ match.blue_squad }} {% endif %}
+                    {{ match.date|date:"d.m.Y" }}, {{ match.date|time:"G.i" }}; {{ match.red_squad }}-{{ match.blue_squad }}; {{ match.red_points_set_1 }}:{{ match.blue_points_set_1 }} {{ match.red_points_set_2 }}:{{ match.blue_points_set_2 }} {{ match.red_points_set_3 }}:{{ match.blue_points_set_3 }}; {{ match.red_set_score }}:{{ match.blue_set_score }}; {% if match.red_set_score > match.blue_set_score %} {{ match.red_squad }} {% else %} {{ match.blue_squad }} {% endif %}
                     {% endfor %}</div>
 
 
