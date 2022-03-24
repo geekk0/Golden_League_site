@@ -43,7 +43,7 @@ class LoginView(View):
             if user:
                 login(request, user)
 
-                return HttpResponseRedirect('/')
+                return HttpResponseRedirect('/Личный кабинет')
 
         return render(request, 'login.html', {'form': form})
 
@@ -52,7 +52,7 @@ def user_logout(request):
     request.user.set_unusable_password()
     logout(request)
 
-    return HttpResponseRedirect("/")
+    return HttpResponseRedirect("/Личный кабинет")
 
 
 class SquadRegister(View):
@@ -97,11 +97,11 @@ def enter_match(request, sport_name):
         if request.user.is_staff:
             return render(request, "beach_volleyball.html", context)
         else:
-            return HttpResponseRedirect("/")
+            return HttpResponseRedirect("/Личный кабинет")
     elif user_is_referee:
         return HttpResponseRedirect("/Регистрация команд/%s" % sport_name)
     else:
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect("/Личный кабинет")
 
 
 def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
@@ -445,13 +445,11 @@ def landing_page(request):
             print("old")
             day.delete()
 
-    closest_schedule_days = MatchDay.objects.all().order_by("day")
+    earliest_match_day = MatchDay.objects.all().order_by("day").earliest("day").day
 
-    schedule_days = MatchDay.objects.all().order_by("day")[:5]
+    schedule_days = MatchDay.objects.filter(day__lte=earliest_match_day + datetime.timedelta(days=5)).order_by("day")
 
-    earliest_match_day = closest_schedule_days.earliest("day").day
-
-    latest_match_day = earliest_match_day + datetime.timedelta(days=len(schedule_days))
+    latest_match_day = schedule_days.latest("day").day
 
     archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
 
