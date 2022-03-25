@@ -447,7 +447,15 @@ class GeneratePdf(View):
 
 def landing_page(request):
 
-    last_matches = Match.objects.filter(active="Завершенный").order_by("-date")[:5]
+    context = {}
+
+    if Match.objects.filter(active="Завершенный").exists():
+        last_matches = Match.objects.filter(active="Завершенный").order_by("-date")[:7]
+
+        archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[7:]
+
+        context["archived_matches"] = archived_matches
+        context["last_matches"] = last_matches
 
     if MatchDay.objects.all().exists():
         for day in MatchDay.objects.all():
@@ -457,17 +465,14 @@ def landing_page(request):
 
         earliest_match_day = MatchDay.objects.all().order_by("day").earliest("day").day
 
-        schedule_days = MatchDay.objects.filter(day__lte=earliest_match_day + datetime.timedelta(days=5)).order_by("day")
+        schedule_days = MatchDay.objects.filter(day__lte=earliest_match_day + datetime.timedelta(days=5))\
+            .order_by("day")
 
         latest_match_day = schedule_days.latest("day").day
 
-        archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
-
-        context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days,
-                   "earliest_match_day": earliest_match_day, "latest_match_day": latest_match_day}
-
-    else:
-        context = None
+        context["schedule_days"] = schedule_days
+        context["earliest_match_day"] = earliest_match_day
+        context["latest_match_day"] = latest_match_day
 
     return render(request, "page26283709body.html", context)
 
