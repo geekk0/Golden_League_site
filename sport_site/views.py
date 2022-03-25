@@ -3,6 +3,7 @@ import itertools
 import ast
 import json
 import sys
+import os
 
 import pdfcrowd
 from django.contrib.auth import authenticate, login, logout
@@ -16,6 +17,8 @@ from django.utils import timezone
 from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from django.conf import settings
+
 
 
 class LoginView(View):
@@ -398,11 +401,17 @@ def show_stream(request):
     return render(request, "stream.html")
 
 
-def html_to_pdf(template_src, context_dict={}):
+
+
+"""def html_to_pdf(template_src, context_dict={}):
+
+    pdfmetrics.registerFont(TTFont('Arial', "arialmt.ttf"))
     template = get_template(template_src)
     html = template.render(context_dict)
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    p = canvas.Canvas(result)
+    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding='utf-8', show_error_as_pdf=True,
+                            link_callback=fetch_pdf_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
@@ -416,7 +425,7 @@ class GeneratePdf(View):
         pdf = html_to_pdf('test.html')
 
         # rendering the template
-        return HttpResponse(pdf, content_type='application/pdf')
+        return HttpResponse(pdf, content_type='application/pdf')"""
 
 """def html_to_pdf(request):
     try:
@@ -440,22 +449,29 @@ def landing_page(request):
 
     last_matches = Match.objects.filter(active="Завершенный").order_by("-date")[:5]
 
-    for day in MatchDay.objects.all():
-        if day.day < datetime.date.today():
-            print("old")
-            day.delete()
+    if MatchDay.objects.all().exists():
+        for day in MatchDay.objects.all():
+            if day.day < datetime.date.today():
+                print("old")
+                day.delete()
 
-    earliest_match_day = MatchDay.objects.all().order_by("day").earliest("day").day
+        earliest_match_day = MatchDay.objects.all().order_by("day").earliest("day").day
 
-    schedule_days = MatchDay.objects.filter(day__lte=earliest_match_day + datetime.timedelta(days=5)).order_by("day")
+        schedule_days = MatchDay.objects.filter(day__lte=earliest_match_day + datetime.timedelta(days=5)).order_by("day")
 
-    latest_match_day = schedule_days.latest("day").day
+        latest_match_day = schedule_days.latest("day").day
 
-    archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
+        archived_matches = Match.objects.filter(active="Завершенный").order_by("-date")[5:]
 
-    context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days,
-               "earliest_match_day": earliest_match_day, "latest_match_day": latest_match_day}
+        context = {"archived_matches": archived_matches, "last_matches": last_matches, "schedule_days": schedule_days,
+                   "earliest_match_day": earliest_match_day, "latest_match_day": latest_match_day}
+
+    else:
+        context = None
 
     return render(request, "page26283709body.html", context)
+
+
+
 
 

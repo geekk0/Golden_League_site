@@ -12,6 +12,18 @@
     {% block css %}
     {% endblock %}
 
+    <style>
+        @font-face {
+        font-family: "Alice-Regular";
+        src: url({% static 'fonts/Alice-Regular.ttf' %}) format("truetype");
+        }
+
+        body {
+            font-family: "Alice-Regular", serif;
+        font-size: 20px
+        }
+    </style>
+
     {% block title %}
         <title>Протокол матча</title>
     {% endblock %}
