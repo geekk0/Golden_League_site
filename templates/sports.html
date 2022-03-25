@@ -1,27 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset=utf-8 />
-<title>Золотая лига</title>
+{% extends "base.html" %}
 
+{% block title %}
+    <title>Виды спорта</title>
+{% endblock %}
 
-  <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
-  <script type="text/javascript" src="/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=gfnEjtrXKNalxjyky5gLZTJZV3tdrEoUsMsZmu3yd27Mx8U874LClZn-KNDhW94f5tz53WGYyeDFhlk44DAkMfCbHdBqN4tFAUM73smdX5jltPjaMDBSquzlx-TKXwf_1uWjpya-t73mdR0M7C1lQA" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9nb2xkZW4tbGVhZ3VlLnByby8lRDAlQTIlRDElODAlRDAlQjAlRDAlQkQlRDElODElRDAlQkIlRDElOEYlRDElODYlRDAlQjglRDElOEY"/><script src="https://unpkg.com/video.js/dist/video.js"></script>
-  <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
+ <nav class="navbar navbar-expand col-12 col-xs-12 ">
+     <div class="collapse navbar-collapse col-xs-12 col-md-10 offset-1 ">
+         <ul class="navbar-nav mr-auto">
+             <li class="navbar-brand"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады</a></li>
 
-</head>
-<body>
-    <div style="max-width:100%; width: 768px; height: 432px; margin-left: auto; margin-right: auto; margin-top: 5%">
-        <video id="my_video_1" class="video-js vjs-fluid vjs-default-skin" controls preload="auto"
-            data-setup='{}'>
-            <source src="http://golden-league.pro:8080/hls/stream.m3u8" type="application/x-mpegURL">
-        </video>
+         </ul>
+     </div>
+ </nav>
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            {% for sport in sports %}
+                <div class="container" style="margin-top:5%" >
+                    <ul class="list-inline col-md-10 offset-1">
+                        <li class="list-inline-item" style="width:30%;margin-left: 2%;margin-top:3%;background:
+                            #0dcaf0;text-align: center; "><a style="color:black" href = {% url "Матч" sport.name %}>{{ sport.name }}</a></li>
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-<script>
-var player = videojs('my_video_1');
-player.play();
-</script>
-
-
-</body>
-</html>
+{% endblock %}
