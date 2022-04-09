@@ -322,7 +322,7 @@ def kill_match(request, match_id):
     return HttpResponseRedirect("/Личный кабинет")
 
 
-def ended_to_match(request):
+"""def ended_to_match(request):
 
     for ended_match in EndedMatches.objects.all():
 
@@ -354,7 +354,7 @@ def ended_to_match(request):
 
         match.save()
 
-    return HttpResponse(status=204)
+    return HttpResponse(status=204) """
 
 @login_required
 def main(request):

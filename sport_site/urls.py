@@ -15,7 +15,7 @@ urlpatterns = [
     path("Закончить матч", views.end_match, name="Закончить матч"),
     path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч"),
     path("Трансляция", views.show_stream, name="Трансляция"),
-    path("Пересоздать", views.ended_to_match, name="Пересоздать"),
+    # path("Пересоздать", views.ended_to_match, name="Пересоздать"),
     path("", views.landing_page, name="")
 
 ]

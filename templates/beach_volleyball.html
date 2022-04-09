@@ -319,7 +319,7 @@
                         </div>
 
                         <div class="row m-0">
-                                <a class="col-3 offset-1" href="http://golden-league.pro:8080/" target="_blank">Трансляция матча</a>
+                                <a class="col-3 offset-1" href="{% url "Трансляция"  %}" target="_blank">Трансляция матча</a>
         {% if user_is_referee == True %}
                                 <button style="" type="button" class="btn btn-success col-4"
                                         id="end_set">Партия закончена</button>
