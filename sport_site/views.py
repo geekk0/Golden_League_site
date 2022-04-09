@@ -410,7 +410,7 @@ def detect_user_agent(request, stream_name):
 
     else:
         response = HttpResponse()
-        response['X-Accel-Redirect'] = '/stream/hdn_url/'
+        response['X-Accel-Redirect'] = '/stream/hdn_url/' + stream_name
         return response
 
 
