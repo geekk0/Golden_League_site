@@ -9,9 +9,9 @@ import pdfcrowd
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from .models import Sports, Match, EndedMatches, MatchDay, ScheduledMatches
+from .models import Sports, Match, MatchDay, ScheduledMatches
 from django.views.generic import DetailView, View
-from .forms import LoginForm, SquadForm
+from .forms import LoginForm, SquadForm, ScheduleForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from io import BytesIO
@@ -472,7 +472,6 @@ def landing_page(request):
     if MatchDay.objects.all().exists():
         for day in MatchDay.objects.all():
             if day.day < datetime.date.today():
-                print("old")
                 day.delete()
 
         earliest_match_day = MatchDay.objects.all().order_by("day").earliest("day").day
@@ -489,6 +488,42 @@ def landing_page(request):
     return render(request, "page26283709body.html", context)
 
 
+def schedule_list(request):
+    scheduled_days = MatchDay.objects.all()
+
+    for day in scheduled_days:
+        if day.day < datetime.date.today():
+            day.delete()
+
+    context = {"scheduled_days": scheduled_days}
+
+    return render(request, "schedule.html", context)
 
 
+class AddScheduledMatch(View):
 
+    def get(self, request, *args, **kwargs):
+        form = ScheduleForm(request.POST or None)
+        context = {"form": form}
+        return render(request, "schedule_match.html", context)
+
+    def post(self, request, *args, **kwargs):
+        form = ScheduleForm(request.POST or None)
+        day = form["date"]
+        time = form["time"]
+        red_team = form["red_team"]
+        blue_team = form["blue_team"]
+        schedule_day_and_match(day.value(), time.value(), red_team.value(), blue_team.value())
+        return HttpResponseRedirect("/Расписание")
+
+
+def schedule_day_and_match(day, time, red_team, blue_team):
+    if MatchDay.objects.filter(day=day).count() < 1:
+        new_match_day = MatchDay.objects.create(day=day)
+        new_match_day.save()
+    new_scheduled_match = ScheduledMatches.objects.create()
+    new_scheduled_match.day = MatchDay.objects.get(day=day)
+    new_scheduled_match.time = time
+    new_scheduled_match.red_team = red_team
+    new_scheduled_match.blue_team = blue_team
+    new_scheduled_match.save()

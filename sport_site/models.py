@@ -63,45 +63,6 @@ class Match(models.Model):
         verbose_name_plural = "Матчи"
 
 
-class EndedMatches(models.Model):
-    sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
-    date = models.DateTimeField(verbose_name="Дата матча", null=True, blank=True)
-    name = models.CharField(verbose_name="Название матча", max_length=128, null=True, blank=True)
-    red_squad = models.CharField(verbose_name="Состав красной команды", max_length=128)
-    blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=128)
-    red_set_score = models.IntegerField(verbose_name="Выигранные партии красной команды", default=0)
-    blue_set_score = models.IntegerField(verbose_name="Выигранные партии синей команды", default=0)
-    red_points_set_1 = models.IntegerField(verbose_name="Очки красных в 1 партии", default=0)
-    red_points_set_2 = models.IntegerField(verbose_name="Очки красных во 2 партии", default=0)
-    red_points_set_3 = models.IntegerField(verbose_name="Очки красных в 3 партии", default=0)
-    blue_points_set_1 = models.IntegerField(verbose_name="Очки синих в 1 партии", default=0)
-    blue_points_set_2 = models.IntegerField(verbose_name="Очки синих во 2 партии", default=0)
-    blue_points_set_3 = models.IntegerField(verbose_name="Очки синих в 3 партии", default=0)
-    active_set = models.IntegerField(verbose_name="Текущая партия", default=1)
-    total_current_set = models.IntegerField(verbose_name="Тотал текущей партии", default=0)
-    red_team_total = models.IntegerField(verbose_name="Тотал красной команды", default=0)
-    blue_team_total = models.IntegerField(verbose_name="Тотал синей команды", default=0)
-    match_total = models.IntegerField(verbose_name="Тотал матча", default=0)
-    inning_points_1 = models.CharField(verbose_name="Очки подач 1 сет", null=True, blank=True, max_length=1024,
-                                       default="")
-    inning_points_2 = models.CharField(verbose_name="Очки подач 2 сет", null=True, blank=True, max_length=1024,
-                                       default="")
-    inning_points_3 = models.CharField(verbose_name="Очки подач 3 сет", null=True, blank=True, max_length=1024,
-                                       default="")
-
-    def __str__(self):
-        return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
-               + " (" + str(self.id) + ")"
-
-    def get_name(self):
-        self.name = str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
-            + " (" + str(self.id) + ")"
-
-    class Meta:
-        verbose_name = "Сыгранный матч"
-        verbose_name_plural = "Сыгранные матчи"
-
-
 class MatchDay(models.Model):
     day = models.DateField(verbose_name="Дата матча", null=True, blank=True)
 
@@ -114,7 +75,8 @@ class MatchDay(models.Model):
 
 
 class ScheduledMatches(models.Model):
-    day = models.ForeignKey(MatchDay, verbose_name="День", on_delete=models.CASCADE)
+    day = models.ForeignKey(MatchDay, verbose_name="День", on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateField(verbose_name="Дата матча", null=True, blank=True)
     time = models.TimeField(verbose_name="Время матча", null=True, blank=True)
     red_team = models.CharField(verbose_name="Красная команда", null=True, blank=True, max_length=128)
     blue_team = models.CharField(verbose_name="Синяя команда", null=True, blank=True, max_length=128)

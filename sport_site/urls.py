@@ -17,6 +17,8 @@ urlpatterns = [
     path("Трансляция", views.show_stream, name="Трансляция"),
     # path("Пересоздать", views.ended_to_match, name="Пересоздать"),
     path("", views.landing_page, name=""),
-    path("hls_stream/<str:stream_name>", views.detect_user_agent, name="check_user_agent")
+    path("hls_stream/<str:stream_name>", views.detect_user_agent, name="check_user_agent"),
+    path("Расписание", views.schedule_list, name="Расписание"),
+    path("Запланировать матч", views.AddScheduledMatch.as_view(), name="Запланировать матч")
 
 ]

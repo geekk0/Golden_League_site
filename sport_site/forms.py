@@ -1,5 +1,6 @@
 from django import forms
-from .models import Match, Sports
+from django.db import models
+from .models import Match, Sports, ScheduledMatches, MatchDay
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib import messages
@@ -81,6 +82,27 @@ class SquadForm(forms.ModelForm):
     class Meta:
         model = Match
         fields = ["red_squad", "blue_squad"]
+
+
+class ScheduleForm(forms.ModelForm):
+
+    class Meta:
+        model = ScheduledMatches
+
+        fields = ["date", "time", "red_team", "blue_team"]
+
+        widgets = {
+            'date': forms.DateInput(
+                format='%d/%m/%Y',
+                attrs={'class': 'form-control',
+                       'placeholder': 'Select a date',
+                       'type': 'date'  # <--- IF I REMOVE THIS LINE, THE INITIAL VALUE IS DISPLAYED
+                       }),
+            "time": forms.TimeInput(
+                attrs={'placeholder': "Формат 12:00"}
+            )
+        }
+
 
 
 class SendScore(forms.ModelForm):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Sports, Match, EndedMatches, MatchDay, ScheduledMatches
+from .models import Sports, Match, MatchDay, ScheduledMatches
 
 
 class SportsAdmin(admin.ModelAdmin):

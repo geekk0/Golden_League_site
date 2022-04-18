@@ -1,0 +1,56 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block breadcrumb %}
+ <nav class="navbar navbar-expand-sm bg-info col-12">
+     <div class="collapse navbar-collapse col-md-10 offset-1 ">
+         <ul class="navbar-nav mr-auto">
+             <ul class="navbar-nav mr-auto">
+                 <li class="navbar-brand d-none d-sm-block"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады </a>  - Расписание</li>
+             </ul>
+
+         </ul>
+     </div>
+ </nav>
+{% endblock %}
+
+{%  block content %}
+
+    <div class="container">
+        <div class='row' style="margin-top:3%; text-align: center">
+
+            <div class="col-md-4 offset-md-4">
+
+                <h3>Расписание матчей:</h3>
+
+            </div>
+
+            <div class="col-md-2 offset-1">
+                <a href="{% url 'Запланировать матч' %}"><img style="width:22.5%;" src="{% static 'images/plus4.png' %}" alt="Добавить матч"></a>
+            </div>
+
+            <div class="col-md-6 offset-3" style="margin-top:3%;text-align: center;">
+
+               {% for day in scheduled_days %}
+
+                   <div style="border: #0dcaf0 solid; margin-top:5%">
+
+                       <h4 >{{ day.day }}</h4>
+
+                       {% for ScheduledMatches in day.scheduledmatches_set.all %}
+
+                           <p style="margin-top: 2%">{{ ScheduledMatches.time }} —  {{ ScheduledMatches.red_team }} - {{ ScheduledMatches.blue_team }}</p>
+
+                       {% endfor %}
+
+                   </div>
+
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

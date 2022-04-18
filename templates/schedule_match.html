@@ -26,14 +26,17 @@
 
                 <div class="auth col-md-6 offset-md-3">
 
-                    <h3 style="" class="text-center">Регистрация команд</h3>
+                    <h3 style="" class="text-center">Запланировать матч</h3>
                     <br>
                     <h5 style="" class="text-center"></h5>
 
                     <form style="" action ='' method="POST">
                         {% csrf_token %}
-                        {{ form|crispy }}
-                        <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Войти">
+                        {{ form.date|as_crispy_field }}
+                        {{ form.time|as_crispy_field }}
+                        {{ form.red_team|as_crispy_field }}
+                        {{ form.blue_team|as_crispy_field }}
+                        <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Сохранить">
                     </form>
 
                 </div>
