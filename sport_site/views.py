@@ -497,7 +497,13 @@ def schedule_list(request):
 
     context = {"scheduled_days": scheduled_days}
 
-    return render(request, "schedule.html", context)
+    if request.user.username == "admin" or "Referee":
+
+        return render(request, "schedule.html", context)
+
+    else:
+
+        return HttpResponseRedirect("")
 
 
 class AddScheduledMatch(View):

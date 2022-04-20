@@ -5,10 +5,10 @@
 
 {% block breadcrumb %}
  <nav class="navbar navbar-expand-sm bg-info col-12">
-     <div class="collapse navbar-collapse col-md-10 offset-1 ">
+     <div class="navbar-collapse col-10 offset-1 ">
          <ul class="navbar-nav mr-auto">
              <ul class="navbar-nav mr-auto">
-                 <li class="navbar-brand d-none d-sm-block"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады </a>  - Расписание</li>
+                 <li class="navbar-brand-collapse"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады </a>  - Расписание</li>
              </ul>
 
          </ul>
@@ -21,17 +21,17 @@
     <div class="container">
         <div class='row' style="margin-top:3%; text-align: center">
 
-            <div class="col-md-4 offset-md-4">
+            <div class="col-4-md-offset-4 col-6-sm-offset-3">
 
                 <h3>Расписание матчей:</h3>
 
             </div>
 
-            <div class="col-md-2 offset-1">
-                <a href="{% url 'Запланировать матч' %}"><img style="width:22.5%;" src="{% static 'images/plus4.png' %}" alt="Добавить матч"></a>
+            <div class="col-2-md-offset-1 col-1-sm-offset-1">
+                <a href="{% url 'Запланировать матч' %}"><img style="margin-top:2%;width:12%;" src="{% static 'images/plus4.png' %}" alt="Добавить матч"></a>
             </div>
 
-            <div class="col-md-6 offset-3" style="margin-top:3%;text-align: center;">
+            <div class="col-10 offset-1" style="margin-top:1%;text-align: center;">
 
                {% for day in scheduled_days %}
 
