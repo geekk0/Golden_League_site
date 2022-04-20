@@ -35,9 +35,11 @@
 
                {% for day in scheduled_days %}
 
-                   <div style="border: #0dcaf0 solid; margin-top:5%">
+                   <div style="border: #0dcaf0 solid; margin-top:5%" class="row">
 
-                       <h4 >{{ day.day }}</h4>
+                       <h4 style="text-align: center" class="col-8 offset-2">{{ day.day }}</h4>
+
+                       <a href="{% url 'Удалить игровой день' day.id %}" style="color: red; text-decoration: none;" class="col-1">X</a>
 
                        {% for ScheduledMatches in day.scheduledmatches_set.all %}
 

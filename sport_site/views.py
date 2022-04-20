@@ -489,7 +489,7 @@ def landing_page(request):
 
 
 def schedule_list(request):
-    scheduled_days = MatchDay.objects.all()
+    scheduled_days = MatchDay.objects.all().order_by('day')
 
     for day in scheduled_days:
         if day.day < datetime.date.today():
@@ -533,3 +533,10 @@ def schedule_day_and_match(day, time, red_team, blue_team):
     new_scheduled_match.red_team = red_team
     new_scheduled_match.blue_team = blue_team
     new_scheduled_match.save()
+
+
+def delete_matchday(request, matchday_id):
+    matchday = MatchDay.objects.filter(id=matchday_id)
+    matchday.delete()
+
+    return HttpResponseRedirect("/Расписание")
