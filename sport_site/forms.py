@@ -1,9 +1,11 @@
 from django import forms
 from django.db import models
+from django.forms import modelformset_factory
 from .models import Match, Sports, ScheduledMatches, MatchDay
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib import messages
+from crispy_forms.helper import FormHelper, Layout
 
 
 class RegistrationForm(forms.ModelForm):
@@ -95,7 +97,7 @@ class ScheduleForm(forms.ModelForm):
             'date': forms.DateInput(
                 format='%d/%m/%Y',
                 attrs={'class': 'form-control',
-                       'placeholder': 'Select a date',
+                       'placeholder': 'Выберите дату',
                        'type': 'date'  # <--- IF I REMOVE THIS LINE, THE INITIAL VALUE IS DISPLAYED
                        }),
             "time": forms.TimeInput(
@@ -103,6 +105,11 @@ class ScheduleForm(forms.ModelForm):
             )
         }
 
+        def clean_date(self):
+            date = self.cleaned_data['date']
+            if date < datetime.date.today():
+                raise forms.ValidationError("The date cannot be in the past!")
+            return date
 
 
 class SendScore(forms.ModelForm):
@@ -118,3 +125,18 @@ class SendScore(forms.ModelForm):
         fields = '__all__'
 
 
+ScheduleFormSet = modelformset_factory(ScheduledMatches, form=ScheduleForm, extra=10)
+
+
+class ScheduleFormSetHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super(ScheduleFormSetHelper, self).__init__(*args, **kwargs)
+        self.layout = Layout(
+            'date',
+            'time',
+            'red_team',
+            'blue_team'
+        )
+        self.render_required_fields = True
+        self.form_method = "POST"
+        # self.template = "schedule_match.html"

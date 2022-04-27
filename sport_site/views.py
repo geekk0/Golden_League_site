@@ -10,14 +10,16 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from .models import Sports, Match, MatchDay, ScheduledMatches
-from django.views.generic import DetailView, View
-from .forms import LoginForm, SquadForm, ScheduleForm
+from django.views.generic import DetailView, View, ListView, TemplateView
+from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, ScheduleFormSetHelper
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.conf import settings
+from crispy_forms.layout import Submit, Layout, Field
+
 
 
 
@@ -508,18 +510,56 @@ def schedule_list(request):
 
 class AddScheduledMatch(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         form = ScheduleForm(request.POST or None)
         context = {"form": form}
         return render(request, "schedule_match.html", context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         form = ScheduleForm(request.POST or None)
         day = form["date"]
         time = form["time"]
         red_team = form["red_team"]
         blue_team = form["blue_team"]
         schedule_day_and_match(day.value(), time.value(), red_team.value(), blue_team.value())
+        return HttpResponseRedirect("/Расписание")
+
+
+class ScheduledMatchesView(ListView):
+    model = ScheduledMatches
+    template_name = "schedule.html"
+
+
+class ScheduleMatchAddView(TemplateView):
+    template_name = "schedule_match.html"
+
+    def get(self, *args, **kwargs):
+        formset = ScheduleFormSet(queryset=ScheduledMatches.objects.none())
+        helper = ScheduleFormSetHelper()
+
+        helper.form_method = 'POST'
+        helper.add_input(Submit('submit', 'Сохранить', css_class='btn btn-success'))
+
+        return self.render_to_response({"formset": formset, "helper": helper})
+
+    def post(self, *args, **kwargs):
+
+        formset = ScheduleFormSet(data=self.request.POST)
+        helper = ScheduleFormSetHelper()
+
+        helper.form_method = 'POST'
+
+        for form in formset:
+
+            try:
+                day = form["date"].value()
+                time = form["time"].value()
+                red_team = form["red_team"].value()
+                blue_team = form["blue_team"].value()
+                schedule_day_and_match(day, time, red_team, blue_team)
+            except:
+                HttpResponseRedirect("/Добавить матч в расписание")
+
         return HttpResponseRedirect("/Расписание")
 
 

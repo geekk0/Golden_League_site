@@ -30,13 +30,17 @@
                     <br>
                     <h5 style="" class="text-center"></h5>
 
-                    <form style="" action ='' method="POST">
+                    <form style="margin-top: 3%" action ='' method="POST" id="formset">
                         {% csrf_token %}
-                        {{ form.date|as_crispy_field }}
-                        {{ form.time|as_crispy_field }}
-                        {{ form.red_team|as_crispy_field }}
-                        {{ form.blue_team|as_crispy_field }}
-                        <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Сохранить">
+                        {% crispy formset helper %}
+                        {% if forloop.first %}Message displayed only in the first form of a formset forms list{% endif %}
+                        <div class="form-actions">
+                            <button style="margin-top: 2%;" id="add-form" class="btn btn-success"
+                                    type="button" onclick="add_form()">Добавить еще матч</button>
+                            <!--<input style="margin-top: 6%;" type="submit" class="btn btn-success" value="Сохранить"
+                                id="submit-save">-->
+                        </div>
+
                     </form>
 
                 </div>
@@ -45,5 +49,28 @@
 
         </div>
     </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let formset = document.getElementById("formset");
+            formset.setAttribute('form_visible', '0')
+        })
+
+        function add_form() {
+            let form_visible = parseInt(document.getElementById("formset").getAttribute("form_visible"))
+            let selector = "div_id_form-" + (form_visible + 1).toString()
+            let new_form_fields = document.querySelectorAll("[id^=" + CSS.escape(selector) +"]");
+
+            new_form_fields.forEach(function (ele) {
+                ele.style.display = "block";
+            document.getElementById("formset").setAttribute('form_visible', (form_visible+1).toString())
+
+            })
+
+        }
+
+
+    </script>
 
 {% endblock %}

@@ -53,3 +53,19 @@
     font-family: Arial, fantasy;
     }
 
+div[id$='-date']{
+    margin-top: 15%;
+    background: #0dcaf0;
+}
+
+div[id^='div_id_form']:not(#div_id_form-0-date, #div_id_form-0-time, #div_id_form-0-red_team, #div_id_form-0-blue_team) {
+    display: none;
+}
+
+.form-group:not(#div_id_red_squad, #div_id_blue_squad) {
+    border: solid #0dcaf0;
+}
+
+.form-actions{
+    margin-top: 5%;
+}
