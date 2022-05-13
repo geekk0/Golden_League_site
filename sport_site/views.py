@@ -273,16 +273,17 @@ def end_set(request, match_id):
     if match.red_set_score > 2 or match.blue_set_score > 2:
         match.save()
 
-    if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
-        match.red_set_score += 1
-    elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
-        match.blue_set_score += 1
+    if int(set) < 4:
+        if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
+            match.red_set_score += 1
+        elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
+            match.blue_set_score += 1
 
-    match.active_set += 1
+        match.active_set += 1
 
-    match.current_inning = "blank"
+        match.current_inning = "blank"
 
-    match.save()
+        match.save()
 
 
 
