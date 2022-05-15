@@ -273,7 +273,7 @@ def end_set(request, match_id):
     if match.red_set_score > 2 or match.blue_set_score > 2:
         match.save()
 
-    if int(set) < 4:
+    if not getattr(match, "red_points_set_" + set) == getattr(match, "blue_points_set_" + set):
         if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
             match.red_set_score += 1
         elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
@@ -285,9 +285,14 @@ def end_set(request, match_id):
 
         match.save()
 
+        return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+    else:
+        return HttpResponse(status=204)
 
 
-    return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
 
 
 def create_match(sport, red_team, blue_team):
