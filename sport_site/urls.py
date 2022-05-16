@@ -3,7 +3,8 @@ from sport_site import views
 urlpatterns = [
     path("Личный кабинет", views.main, name="Личный кабинет"),
     path('<str:sport_name>/Матч', views.enter_match, name="Матч"),
-    path("Регистрация команд/<str:sport_name>", views.SquadRegister.as_view(), name="Регистрация команд"),
+    path("Регистрация команд/<str:sport_name>", views.register_dp, name="Регистрация команд"),
+    path("Регистрация", views.SquadRegister.as_view(), name="Регистрация"),
     path("Завершение матча", views.end_match, name="Завершение матча"),
     path("Протокол/<int:match_id>", views.statistic_view, name="Протокол"),
     path("Изменить счет/<str:match_id>/<str:team>/<str:action>", views.change_points, name="Изменить счет"),

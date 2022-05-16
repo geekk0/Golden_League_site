@@ -61,7 +61,6 @@ def user_logout(request):
 
 
 class SquadRegister(View):
-
     def get(self, request, *args, **kwargs):
         form = SquadForm(request.POST or None)
         context = {"form": form}
@@ -74,6 +73,16 @@ class SquadRegister(View):
         sport = 1
         create_match(sport, red_team, blue_team)
         return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+@login_required
+def register_dp(request, sport_name):
+    matches = Match.objects.filter(sport__name=sport_name, active="Активный")
+
+    if matches.exists():
+        return HttpResponseRedirect("/Личный кабинет")
+    else:
+        return HttpResponseRedirect("/Регистрация")
 
 
 def enter_match(request, sport_name):
