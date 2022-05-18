@@ -19,6 +19,7 @@ urlpatterns = [
     # path("Пересоздать", views.ended_to_match, name="Пересоздать"),
     path("", views.landing_page, name=""),
     path("hls_stream/<str:stream_name>", views.detect_user_agent, name="check_user_agent"),
+    path("hls/<str:stream_name>", views.get_rtmp_stream, name="get_rtmp_stream"),
     path("Расписание", views.schedule_list, name="Расписание"),
     path("Запланировать матч", views.ScheduleMatchAddView.as_view(), name="Запланировать матч"),
     path("Удалить игровой день/<int:matchday_id>", views.delete_matchday, name="Удалить игровой день"),

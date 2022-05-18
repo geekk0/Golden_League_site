@@ -431,6 +431,19 @@ def detect_user_agent(request, stream_name):
         return response
 
 
+def get_rtmp_stream(request, stream_name):
+    user_agent = request.META['HTTP_USER_AGENT']
+    print(user_agent)
+
+    if "VLC" in user_agent:
+        raise PermissionDenied()
+
+    else:
+        response = HttpResponse()
+        response['X-Accel-Redirect'] = '/stream/rtmp/' + stream_name
+        return response
+
+
 
 """def html_to_pdf(template_src, context_dict={}):
 
