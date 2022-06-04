@@ -9,18 +9,18 @@ import pdfcrowd
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from .models import Sports, Match, MatchDay, ScheduledMatches
+from .models import Sports, Match, MatchDay, ScheduledMatches, Team, Player
 from django.views.generic import DetailView, View, ListView, TemplateView
-from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, ScheduleFormSetHelper
+from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, ScheduleFormSetHelper, TeamForm, AddPlayerForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control, never_cache
 from django.utils import timezone
 from io import BytesIO
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.conf import settings
 from crispy_forms.layout import Submit, Layout, Field
-
-
+from django.contrib import messages
 
 
 class LoginView(View):
@@ -62,17 +62,116 @@ def user_logout(request):
 
 class SquadRegister(View):
     def get(self, request, *args, **kwargs):
-        form = SquadForm(request.POST or None)
+        players = Player.objects.all()
+        form = SquadForm(request.GET or None, data_list=players)
         context = {"form": form}
         return render(request, "team_registration.html", context)
 
     def post(self, request, *args, **kwargs):
         form = SquadForm(request.POST or None)
-        red_team = form["red_squad"]
-        blue_team = form["blue_squad"]
+        red_team_name = form["red_team_name"].value()
+        blue_team_name = form["blue_team_name"].value()
+
         sport = 1
-        create_match(sport, red_team, blue_team)
-        return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+        red_team_player_one = form["red_team_player_one"].value()
+        red_team_player_two = form["red_team_player_two"].value()
+        blue_team_player_one = form["blue_team_player_one"].value()
+        blue_team_player_two = form["blue_team_player_two"].value()
+
+        wrong_players = self.wrong_player_fields(red_team_player_one, red_team_player_two, blue_team_player_one,
+                                                 blue_team_player_two)
+        if wrong_players is False:
+            current_red_team = get_or_create_team(red_team_player_one, red_team_player_two)
+            current_blue_team = get_or_create_team(blue_team_player_one, blue_team_player_two)
+            create_match(sport, red_team_name, blue_team_name, current_red_team, current_blue_team)
+            return HttpResponseRedirect("/Пляжный волейбол/Матч")
+        else:
+            for player in wrong_players:
+                messages.error(request, "Игрока " + player + " нет в базе")
+            return HttpResponseRedirect("/Регистрация")
+
+    def wrong_player_fields(self, red_team_player_one, red_team_player_two, blue_team_player_one, blue_team_player_two):
+        form_players = []
+        error_form_players = []
+        form_players.append(red_team_player_one)
+        form_players.append(red_team_player_two)
+        form_players.append(blue_team_player_one)
+        form_players.append(blue_team_player_two)
+
+        for player in form_players:
+
+            if player not in list(Player.objects.all().values_list("name", flat=True)):
+                error_form_players.append(player)
+        if error_form_players:
+            return error_form_players
+        else:
+            return False
+
+
+def get_or_create_team(team_player_one, team_player_two):
+    if Team.objects.filter(name=team_player_one + "/" + team_player_two).exists():
+        team_object = Team.objects.get(name=team_player_one + "/" + team_player_two)
+    elif Team.objects.filter(name=team_player_two + "/" + team_player_one).exists():
+        team_object = Team.objects.get(name=team_player_two + "/" + team_player_one)
+    else:
+        team_object = Team.objects.create(name=team_player_one + "/" + team_player_two)
+
+    assign_players(team_player_one, team_player_two, team_object)
+    return team_object
+
+
+def assign_players(first_player, second_player, team_object):
+    first_player_object = Player.objects.get(name=first_player)
+    first_player_object.number = 1
+    second_player_object = Player.objects.get(name=second_player)
+    second_player_object.number = 2
+
+    first_player_object.team.add(team_object.id)
+    first_player_object.save()
+    second_player_object.team.add(team_object.id)
+    second_player_object.save()
+
+
+def create_match(sport, red_team_name, blue_team_name, red_team_object, blue_team_object):
+    sport_type = Sports.objects.get(id=sport)
+    match = Match.objects.create(sport=sport_type, red_squad=red_team_name, blue_squad=blue_team_name,
+                                 date=timezone.now(), active="Активный")
+    match.name = str(match.date.strftime("%d.%m.%y %H:%M ")) + red_team_object.name + " - " + blue_team_object.name \
+            + " (" + str(match.id) + ")"
+    match.red_team = red_team_object
+    match.blue_team = blue_team_object
+
+    match.save()
+
+    match.__str__()
+
+    return match
+
+
+class AddPlayer(View):
+    def get(self, request, *args, **kwargs):
+        form = AddPlayerForm(request.GET or None)
+        context = {"form": form}
+        return render(request, "add_player.html", context)
+
+    def post(self, request, *args, **kwargs):
+        form = AddPlayerForm(request.POST or None)
+        name = form["name"].value()
+        create_player(name)
+        return HttpResponseRedirect("/Регистрация")
+
+
+def create_player(name):
+    player_object = Player.objects.filter(name=name)
+    if not player_object.exists():
+        new_player_object = Player.objects.create(name=name)
+        new_player_object.save()
+        return HttpResponseRedirect("/Регистрация")
+
+    else:
+        messages.error(request=request, message="Игрок " + name + " уже присутствует в базе")
+        return HttpResponseRedirect("/")
 
 
 @login_required
@@ -95,18 +194,22 @@ def enter_match(request, sport_name):
 
     if matches.exists():
 
-        for match in matches:
-            expire_time = datetime.timedelta(seconds=4)
+        match = matches.first()
 
-            if match.ace_out_time is not None:
-                if timezone.now() - match.ace_out_time > expire_time:
-                    match.red_ace_out = " "
-                    match.blue_ace_out = " "
-                    match.ace_out_time = None
+        red_team = Player.objects.filter(team=match.red_team)
+        blue_team = Player.objects.filter(team=match.blue_team)
+
+        expire_time = datetime.timedelta(seconds=4)
+
+        if match.ace_out_time is not None:
+            if timezone.now() - match.ace_out_time > expire_time:
+                match.red_ace_out = " "
+                match.blue_ace_out = " "
+                match.ace_out_time = None
 
         match.save()
 
-        context = {"matches": matches, "user_is_referee": user_is_referee}
+        context = {"matches": matches, "user_is_referee": user_is_referee, "red_team": red_team, "blue_team": blue_team}
 
         if request.user.is_staff:
             return render(request, "beach_volleyball.html", context)
@@ -147,20 +250,25 @@ def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
             blue_ace_out_value = blue_ace_out
             ace_out_time_value = None
 
-
-
     return red_ace_out_value, blue_ace_out_value, ace_out_time_value
 
 
-def change_points(request, match_id, team, action, ace_out=""):
+def change_points(request, match_id, team, action, player_id, ace_out=""):
 
     match = Match.objects.get(id=match_id)
 
+    player_object = Player.objects.get(id=player_id)
+
     set = str(match.active_set)
 
-    print(ace_out)
+    remove_ace = request.POST.get("remove_Ace")
+
+    print(remove_ace)
 
     if action == "plus":
+
+        update_player_stat(player_object, action="plus_point")
+
         points = getattr(match, team+"_points_set_"+set)
         setattr(match, team+"_points_set_"+set, points + 1)
 
@@ -169,6 +277,9 @@ def change_points(request, match_id, team, action, ace_out=""):
         list_inning_points = getattr(match, "inning_points_" + set).split(" ")
 
         if ace_out == "Ace":
+
+            update_player_stat(player_object, action="ace")
+
             if team == "red":
 
                 list_inning_points.append("(A)" + str(getattr(match, "red_points_set_" + set)) + "—" +
@@ -178,6 +289,9 @@ def change_points(request, match_id, team, action, ace_out=""):
                                           str(getattr(match, "blue_points_set_" + set)) + "(A)")
 
         elif ace_out == "Out":
+
+            update_player_stat(player_object, action="out")
+
             if team == "red":
                 list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "—" +
                                           str(getattr(match, "blue_points_set_" + set)) + "(O)")
@@ -186,20 +300,17 @@ def change_points(request, match_id, team, action, ace_out=""):
                                           str(getattr(match, "blue_points_set_" + set)))
 
         else:
-
             list_inning_points.append(str(getattr(match, "red_points_set_" + set)) +
                                       "—" + str(getattr(match, "blue_points_set_" + set)))
 
-        print(list_inning_points)
-
         inning_points_str = " ".join(list_inning_points)
-
-        print(inning_points_str)
 
         setattr(match, "inning_points_"+set, inning_points_str)
 
-
     else:
+
+        update_player_stat(player_object, action="minus_point")
+
         points = getattr(match, team + "_points_set_" + set)
         if points == 0:
             points = 0
@@ -212,7 +323,6 @@ def change_points(request, match_id, team, action, ace_out=""):
         inning_points_str = " ".join(list_inning_points)
 
         setattr(match, "inning_points_" + set, inning_points_str)
-
 
     match.total_current_set = getattr(match, "red_points_set_"+set) + getattr(match, "blue_points_set_"+set)
     match.red_team_total = match.red_points_set_1 + match.red_points_set_2 + match.red_points_set_3
@@ -249,7 +359,7 @@ def swap_controls(request, match_id):
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
 
-def ace_out(request, match_id, team, action):
+def ace_out(request, match_id, team, action, player_id):
 
     match = Match.objects.get(id=match_id)
 
@@ -260,16 +370,14 @@ def ace_out(request, match_id, team, action):
     match.save()
 
     if action == "Ace":
-        change_points(request, match_id=match_id, team=team, action="plus", ace_out="Ace")
+        change_points(request, match_id=match_id, team=team, action="plus", player_id=player_id, ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
 
     if action == "Out":
         if team == "red":
-            change_points(request, match_id=match_id, team="blue", action="plus", ace_out="Out")
+            change_points(request, match_id=match_id, team="blue", action="plus", player_id=player_id, ace_out="Out")
         if team == "blue":
-            change_points(request, match_id=match_id, team="red", action="plus", ace_out="Out")
-
-
+            change_points(request, match_id=match_id, team="red", action="plus", player_id=player_id, ace_out="Out")
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -285,9 +393,10 @@ def end_set(request, match_id):
     if not getattr(match, "red_points_set_" + set) == getattr(match, "blue_points_set_" + set):
         if getattr(match, "red_points_set_" + set) > getattr(match, "blue_points_set_" + set):
             match.red_set_score += 1
+            update_set_stat(match_id, "red")
         elif getattr(match, "blue_points_set_" + set) > getattr(match, "red_points_set_" + set):
             match.blue_set_score += 1
-
+            update_set_stat(match_id, "blue")
         match.active_set += 1
 
         match.current_inning = "blank"
@@ -300,29 +409,11 @@ def end_set(request, match_id):
         return HttpResponse(status=204)
 
 
-
-
-
-
-def create_match(sport, red_team, blue_team):
-    sport_type = Sports.objects.get(id=sport)
-    match = Match.objects.create(sport=sport_type, red_squad=red_team.value(), blue_squad=blue_team.value(),
-                                 date=timezone.now(), active="Активный")
-    match.get_name()
-    print(timezone.now())
-    match.save()
-    match.__str__()
-
-
-
-    """statistic_file = open("Протокол по пляжному волейболу "+str(match.id)+".html", 'w', encoding="utf-8")
-    statistic_file.close()"""
-
-    return match
-
-
 def end_match(request):
     match = Match.objects.all().get(active="Активный")
+
+    finalize_match_team_stats(match_id=match.id)
+    finalize_match_player_stats(match_id=match.id)
 
     match.active = "Завершенный"
 
@@ -334,44 +425,67 @@ def end_match(request):
 def kill_match(request, match_id):
     match = Match.objects.get(id=match_id)
 
+    red_team_object = match.red_team
+    blue_team_object = match.blue_team
+
+    red_team_object.sets_won -= match.red_set_score
+    blue_team_object.sets_won -= match.blue_set_score
+
+    for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
+        player_stats_rollback(player)
+
+    if Match.objects.filter(red_team=red_team_object).count() == 1:
+        red_team_object.delete()
+    if Match.objects.filter(blue_team=blue_team_object).count() == 1:
+        blue_team_object.delete()
+
+    else:
+        team_stats_rollback(match, red_team_object, blue_team_object)
+
     match.delete()
 
     return HttpResponseRedirect("/Личный кабинет")
 
 
-"""def ended_to_match(request):
+def player_stats_rollback(player):
+    player.points_total_season -= player.current_match_points
+    player.innings -= player.current_match_innings
+    player.aces_total_season -= player.current_match_aces
+    player.outs_total_season -= player.current_match_outs
+    player_stats_zeroing(player)
+    player.save()
 
-    for ended_match in EndedMatches.objects.all():
 
-        match = Match.objects.create(id=ended_match.id, sport=ended_match.sport, date=ended_match.date, name=ended_match.name,
-                                     red_squad=ended_match.red_squad, blue_squad=ended_match.blue_squad)
+def player_stats_zeroing(player):
+    player.current_match_points = 0
+    player.current_match_innings = 0
+    player.current_match_aces = 0
+    player.current_match_outs = 0
+    player.save()
 
-        match.red_set_score = ended_match.red_set_score
-        match.blue_set_score = ended_match.blue_set_score
-        match.red_points_set_1 = ended_match.red_points_set_1
-        match.red_points_set_2 = ended_match.red_points_set_2
-        match.red_points_set_3 = ended_match.red_points_set_3
-        match.blue_points_set_1 = ended_match.blue_points_set_1
-        match.blue_points_set_2 = ended_match.blue_points_set_2
-        match.blue_points_set_3 = ended_match.blue_points_set_3
-        match.inning_points_1 = ended_match.inning_points_1
-        match.inning_points_2 = ended_match.inning_points_2
-        match.inning_points_3 = ended_match.inning_points_3
-        match.name = ended_match.name
-        match.sport = ended_match.sport
-        match.date = ended_match.date
-        match.red_squad = ended_match.red_squad
-        match.blue_squad = ended_match.blue_squad
-        match.active_set = ended_match.active_set
-        match.total_current_set = ended_match.total_current_set
-        match.red_team_total = ended_match.red_team_total
-        match.blue_team_total = ended_match.blue_team_total
-        match.match_total = ended_match.match_total
-        match.active = "Завершенный"
 
-        match.save()
+def team_stats_rollback(match, red_team, blue_team):
+    red_team.sets_played -= match.active_set - 1
+    red_team.sets_won -= match.red_set_score
+    red_team.total_points -= match.blue_team_total
+    current_match_red_team_aces = sum(Player.objects.filter(team=red_team).values_list("current_match_aces", flat=True))
+    red_team.aces -= current_match_red_team_aces
+    current_match_red_team_outs = sum(Player.objects.filter(team=red_team).values_list("current_match_outs", flat=True))
+    red_team.outs -= current_match_red_team_outs
 
-    return HttpResponse(status=204) """
+    blue_team.sets_played -= match.active_set - 1
+    blue_team.sets_won -= match.blue_set_score
+    blue_team.total_points -= match.blue_team_total
+    current_match_blue_team_aces = sum(Player.objects.filter(team=blue_team).values_list("current_match_aces",
+                                                                                         flat=True))
+    blue_team.aces -= current_match_blue_team_aces
+    current_match_blue_team_outs = sum(Player.objects.filter(team=blue_team).values_list("current_match_outs",
+                                                                                         flat=True))
+    blue_team.outs -= current_match_blue_team_outs
+
+    red_team.save()
+    blue_team.save()
+
 
 @login_required
 def main(request):
@@ -420,7 +534,6 @@ def show_stream(request):
 
 def detect_user_agent(request, stream_name):
     user_agent = request.META['HTTP_USER_AGENT']
-    print(user_agent)
 
     if "VLC" in user_agent:
         raise PermissionDenied()
@@ -433,7 +546,6 @@ def detect_user_agent(request, stream_name):
 
 def get_rtmp_stream(request, stream_name):
     user_agent = request.META['HTTP_USER_AGENT']
-    print(user_agent)
 
     if "VLC" in user_agent:
         raise PermissionDenied()
@@ -442,49 +554,6 @@ def get_rtmp_stream(request, stream_name):
         response = HttpResponse()
         response['X-Accel-Redirect'] = '/stream/rtmp/' + stream_name
         return response
-
-
-
-"""def html_to_pdf(template_src, context_dict={}):
-
-    pdfmetrics.registerFont(TTFont('Arial', "arialmt.ttf"))
-    template = get_template(template_src)
-    html = template.render(context_dict)
-    result = BytesIO()
-    p = canvas.Canvas(result)
-    pdf = pisa.pisaDocument(BytesIO(html.encode("utf-8")), result, encoding='utf-8', show_error_as_pdf=True,
-                            link_callback=fetch_pdf_resources)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return None
-
-
-class GeneratePdf(View):
-    def get(self, request, *args, **kwargs):
-        # getting the template
-        # statistic_view(request, match_id=match_id)
-
-        pdf = html_to_pdf('test.html')
-
-        # rendering the template
-        return HttpResponse(pdf, content_type='application/pdf')"""
-
-"""def html_to_pdf(request):
-    try:
-        # create the API client instance
-        client = pdfcrowd.HtmlToPdfClient('demo', 'ce544b6ea52a5621fb9d55f8b542d14d')
-
-        # run the conversion and write the result to a file
-        client.convertUrlToFile("http://185.18.202.239/%D0%A1%D1%82%D0%B0%D1%82%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0/36",
-                                "test_static")
-    except pdfcrowd.Error as why:
-        # report the error
-        sys.stderr.write('Pdfcrowd Error: {}\n'.format(why))
-
-        # rethrow or handle the exception
-        raise"""
-
-"""path("get_pdf", views.html_to_pdf, name="get_pdf")"""
 
 
 def landing_page(request):
@@ -608,3 +677,96 @@ def delete_matchday(request, matchday_id):
     matchday.delete()
 
     return HttpResponseRedirect("/Расписание")
+
+
+def finalize_match_team_stats(match_id):
+    match_object = Match.objects.get(id=match_id)
+    red_team_object = Team.objects.get(id=match_object.red_team.id)
+    blue_team_object = Team.objects.get(id=match_object.blue_team.id)
+    if match_object.red_set_score > match_object.blue_set_score:
+        red_team_object.games_won += 1
+        if match_object.blue_set_score == 0:
+            red_team_object.dry_wins += 1
+    else:
+        blue_team_object.games_won += 1
+        if match_object.red_set_score == 0:
+            blue_team_object.dry_wins += 1
+    red_team_object.games_played += 1
+    blue_team_object.games_played += 1
+
+    red_team_object.get_win_percentage()
+    blue_team_object.get_win_percentage()
+    red_team_object.save()
+    blue_team_object.save()
+
+
+def finalize_match_player_stats(match_id):
+    match_object = Match.objects.get(id=match_id)
+    red_team_object = Team.objects.get(id=match_object.red_team.id)
+    blue_team_object = Team.objects.get(id=match_object.blue_team.id)
+
+    for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
+        if (match_object.red_set_score > match_object.blue_set_score and player.team is red_team_object) or \
+                (match_object.blue_set_score > match_object.red_set_score and player.team is blue_team_object):
+            player.games_won += 1
+
+        player.current_match_points = 0
+        player.current_match_innings = 0
+        player.current_match_aces = 0
+        player.current_match_outs = 0
+        player.save()
+
+
+def update_set_stat(match_id, team):
+    match_object = Match.objects.get(id=match_id)
+    if team == "red":
+        red_team_object = Team.objects.get(id=match_object.red_team.id)
+        red_team_object.sets_won += 1
+        red_team_object.save()
+    else:
+        blue_team_object = Team.objects.get(id=match_object.blue_team.id)
+        blue_team_object.sets_won += 1
+        blue_team_object.save()
+
+
+def update_player_stat(player, action):
+    player.get_best_teammate()
+    player.get_worst_teammate()
+    if action is "plus_point":
+        player.points_total_season += 1
+        player.current_match_points += 1
+    elif action is "minus_point":
+        player.points_total_season -= 1
+        player.current_match_points -= 1
+    elif action is "ace":
+        player.aces_total_season += 1
+        player.current_match_aces += 1
+    elif action is "out":
+        if player.current_match_points is not 0:
+            player.current_match_points -= 1
+        player.outs_total_season += 1
+        player.current_match_outs += 1
+    player.save()
+
+
+def stats(request):
+    teams = Team.objects.all().order_by("name")
+    players = Player.objects.all().order_by("name")
+    context = {"teams": teams, "players": players}
+    return render(request, "statistics.html", context)
+
+
+def team_stats(request):
+    teams = Team.objects.all().order_by("name")
+    context["teams"] = teams
+    return render(request, "statistics.html", context)
+
+
+def player_stats(request):
+    players = Player.objects.all().order_by("name")
+    context["players"] = players
+    return render(request, "statistics.html")
+
+
+def h2h_stats(request):
+    return render(request, "statistics.html")

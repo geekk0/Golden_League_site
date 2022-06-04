@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.contrib import messages
 from crispy_forms.helper import FormHelper, Layout
+from sport_site.fields import ListTextWidget
+from .models import Player
+from django.core.exceptions import ValidationError
 
 
 class RegistrationForm(forms.ModelForm):
@@ -80,10 +83,31 @@ class LoginForm(forms.ModelForm):
         fields = ['username', 'password']
 
 
-class SquadForm(forms.ModelForm):
-    class Meta:
-        model = Match
-        fields = ["red_squad", "blue_squad"]
+class SquadForm(forms.Form):
+
+    red_team_name = forms.CharField(required=True)
+    red_team_name.label = "Название красной команды"
+
+    red_team_player_one = forms.CharField(required=True)
+    red_team_player_one.label = "Игрок 1"
+    red_team_player_two = forms.CharField(required=True)
+    red_team_player_two.label = "Игрок 2"
+
+    blue_team_name = forms.CharField(required=True)
+    blue_team_name.label = "Название синей команды"
+
+    blue_team_player_one = forms.CharField(required=True)
+    blue_team_player_one.label = "Игрок 1"
+    blue_team_player_two = forms.CharField(required=True)
+    blue_team_player_two.label = "Игрок 2"
+
+    def __init__(self, *args, **kwargs):
+        _players = kwargs.pop('data_list', None)
+        super(SquadForm, self).__init__(*args, **kwargs)
+        self.fields['red_team_player_one'].widget = ListTextWidget(data_list=_players, name='players')
+        self.fields['red_team_player_two'].widget = ListTextWidget(data_list=_players, name='players')
+        self.fields['blue_team_player_one'].widget = ListTextWidget(data_list=_players, name='players')
+        self.fields['blue_team_player_two'].widget = ListTextWidget(data_list=_players, name='players')
 
 
 class ScheduleForm(forms.ModelForm):
@@ -140,3 +164,20 @@ class ScheduleFormSetHelper(FormHelper):
         self.render_required_fields = True
         self.form_method = "POST"
         # self.template = "schedule_match.html"
+
+
+class TeamForm(forms.Form):
+    char_field_with_list = forms.CharField(required=True)
+    char_field_with_list.label = "Название команды"
+
+    def __init__(self, *args, **kwargs):
+        _country_list = kwargs.pop('data_list', None)
+        super(TeamForm, self).__init__(*args, **kwargs)
+        self.fields['char_field_with_list'].widget = ListTextWidget(data_list=_country_list, name='country-list')
+
+
+class AddPlayerForm(forms.ModelForm):
+    class Meta:
+        model = Player
+        fields = ('name',)
+

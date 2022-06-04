@@ -2,7 +2,9 @@ import time
 import datetime
 
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
+PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 
 
 class Sports(models.Model):
@@ -16,13 +18,37 @@ class Sports(models.Model):
         verbose_name_plural = "Виды спорта"
 
 
+class Team(models.Model):
+    name = models.CharField(verbose_name="Название команды", max_length=64, null=True, blank=True)
+    games_played = models.IntegerField(verbose_name="Количество сыгранных матчей", default=0)
+    sets_played = models.IntegerField(verbose_name="Количество сыгранных партий", default=0)
+    dry_wins = models.IntegerField(verbose_name='Побед "всухую"', default=0)
+    games_won = models.IntegerField(verbose_name="Количество выигранных матчей", default=0)
+    total_points = models.IntegerField(verbose_name="Общее количество очков", default=0)
+    win_percentage = models.IntegerField(verbose_name="% побед", default=0.0)
+    sets_won = models.IntegerField(verbose_name="Количество выигранных партий", default=0)
+    aces = models.IntegerField(verbose_name="Результативные подачи", default=0)
+    outs = models.IntegerField(verbose_name="Ауты", default=0)
+
+    def __str__(self):
+        return self.name
+
+    def get_win_percentage(self):
+        percentage = self.games_won / self.games_played * 100
+        self.win_percentage = round(percentage, 2)
+
+    class Meta:
+        verbose_name = "Команда"
+        verbose_name_plural = "Команды"
+
+
 class Match(models.Model):
     sport = models.ForeignKey(Sports, on_delete=models.CASCADE, verbose_name="Вид спорта")
     date = models.DateTimeField(verbose_name="Дата матча", null=True, blank=True)
     active = models.CharField(verbose_name="Активный/Завершенный", default="Завершенный", max_length=128)
     name = models.CharField(verbose_name="Название матча", max_length=128, null=True, blank=True)
-    red_squad = models.CharField(verbose_name="Состав красной команды",  max_length=10)
-    blue_squad = models.CharField(verbose_name="Состав синей команды",  max_length=10)
+    red_squad = models.CharField(verbose_name="Название красной команды",  max_length=10)
+    blue_squad = models.CharField(verbose_name="Название синей команды",  max_length=10)
     red_set_score = models.IntegerField(verbose_name="Выигранные партии красной команды", default=0)
     blue_set_score = models.IntegerField(verbose_name="Выигранные партии синей команды", default=0)
     red_points_set_1 = models.IntegerField(verbose_name="Очки красных в 1 партии", default=0)
@@ -49,6 +75,10 @@ class Match(models.Model):
                                        default="")
     inning_points_3 = models.CharField(verbose_name="Очки подач 3 сет", null=True, blank=True, max_length=1024,
                                        default="")
+    red_team = models.ForeignKey(Team, verbose_name="Команда красных", related_name="red_team", blank=True, null=True,
+                                 on_delete=models.SET_NULL)
+    blue_team = models.ForeignKey(Team, verbose_name="Команда синих", related_name="blue_team", blank=True, null=True,
+                                  on_delete=models.SET_NULL)
 
     def __str__(self):
         return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
@@ -87,3 +117,47 @@ class ScheduledMatches(models.Model):
     class Meta:
         verbose_name = "Запланированный матч"
         verbose_name_plural = "Запланированные матчи"
+
+
+class Player(models.Model):
+    name = models.CharField(verbose_name="Имя игрока", max_length=128, null=True, blank=True)
+    team = models.ManyToManyField(Team, null=True, blank=True)
+    number = models.IntegerField(verbose_name="Номер", null=True, blank=True)
+    games = models.IntegerField(verbose_name="Сыграно матчей", default=0)
+    sets = models.IntegerField(verbose_name="Сыграно партий", default=0)
+    points_total_season = models.IntegerField(verbose_name="Набрано очков", default=0)
+    games_won = models.IntegerField(verbose_name="Выиграно матчей", default=0)
+    innings = models.IntegerField(verbose_name="Количество подач", default=0)
+    best_teammate = models.CharField(verbose_name="Лучший партнер по команде", max_length=128, default="Не определен")
+    worst_teammate = models.CharField(verbose_name="Худший партнер по команде", max_length=128, default="Не определен")
+    aces_total_season = models.IntegerField(verbose_name="Количество Ace", default=0)
+    outs_total_season = models.IntegerField(verbose_name="Количество Out", default=0)
+    current_match_points = models.IntegerField(verbose_name="Очков в текущей игре", default=0)
+    current_match_innings = models.IntegerField(verbose_name="Подач в текущем матче", default=0)
+    current_match_aces = models.IntegerField(verbose_name="Ace в текущем матче", default=0)
+    current_match_outs = models.IntegerField(verbose_name="Out в текущем матче", default=0)
+
+    def __str__(self):
+        return self.name
+
+    def get_best_teammate(self):
+        team = Team.objects.filter(player=self).order_by("-win_percentage").first()
+        teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
+        self.best_teammate = teammate.name
+
+    def get_worst_teammate(self):
+        team = Team.objects.filter(player=self).order_by("win_percentage").first()
+        teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
+        self.worst_teammate = teammate.name
+
+    class Meta:
+        verbose_name = "Игрок"
+        verbose_name_plural = "Игроки"
+
+
+
+
+
+
+
+
