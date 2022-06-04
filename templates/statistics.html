@@ -1,0 +1,160 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block breadcrumb %}
+ <nav class="navbar navbar-expanad-sm bg-info col-12">
+     <div class="navbar-collapse col-10 offset-1 ">
+         <ul class="navbar-nav mr-auto">
+             <ul class="navbar-nav mr-auto">
+                 <li class="navbar-brand-collapse"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады </a>  - Статистика</li>
+             </ul>
+
+         </ul>
+     </div>
+ </nav>
+{% endblock %}
+
+{%  block content %}
+
+    <script type="text/javascript">
+
+        function show_team_stats(element) {
+            let team_stats_id = element.querySelector('#team-selector').innerHTML
+            let team_stats = document.getElementById(team_stats_id)
+            hide_team_stats()
+            team_stats.style.display = "block"
+            element.style.backgroundColor = "rgb(13, 202, 240)"
+        }
+
+        function show_player_stats(element) {
+            let player_stats_id = element.querySelector('#player-selector').innerHTML
+            let player_stats = document.getElementById(player_stats_id)
+            hide_player_stats()
+            player_stats.style.display = "block"
+            element.style.backgroundColor = "rgb(13, 202, 240)"
+        }
+
+        function hide_team_stats() {
+            let visible_stats = document.getElementsByClassName("team_stats")
+            for (let i = 0; i < visible_stats.length; i += 1) {
+                visible_stats[i].style.display = "none"
+            }
+            let visible_teams = document.getElementsByClassName("visible_teams")
+            for (let i = 0; i < visible_teams.length; i += 1) {
+                visible_teams[i].style.backgroundColor = "rgb(255,255,255)"
+            }
+
+        }
+
+        function hide_team_list() {
+            let team_list = document.getElementById("team_list")
+            team_list.style.display = "none"
+        }
+
+        function show_team_list() {
+            let team_list = document.getElementById("team_list")
+            team_list.style.display = "block"
+            hide_player_stats()
+            hide_player_list()
+
+        }
+
+        function show_player_list() {
+            let player_link = document.getElementById("player_link")
+            player_link.style.marginTop = "8%"
+            let player_list = document.getElementById("player_list")
+            player_list.style.display = "block"
+            let h2h_link = document.getElementById("h2h_link")
+            h2h_link.style.marginTop = "7%"
+            hide_team_stats()
+            hide_team_list()
+        }
+
+        function hide_player_list() {
+            let player_list = document.getElementById("player_list")
+            player_list.style.display = "none"
+        }
+
+        function hide_player_stats() {
+            let visible_stats = document.getElementsByClassName("player_stats")
+            for (let i = 0; i < visible_stats.length; i += 1) {
+                visible_stats[i].style.display = "none"
+            }
+            let visible_players = document.getElementsByClassName("visible_players")
+            for (let i = 0; i < visible_players.length; i += 1) {
+                visible_players[i].style.backgroundColor = "rgb(255,255,255)"
+            }
+        }
+
+    </script>
+
+    <div class="container">
+        <div class='row' style="margin-top:3%; text-align: center">
+
+            <div class="col-4-md-offset-4 col-6-sm-offset-3">
+
+                <h3>Статистика:</h3>
+
+            </div>
+
+                <div class="col-md-4" style="text-align: center; margin-top:5%">
+                    <h3 onclick="show_team_list()">Команды</h3>
+                    <div class="col-md-4 offset-4" style="display: none" id="team_list">
+                    {% for team in teams %}
+                        <div onclick="show_team_stats(this)" class="visible_teams">
+                            <p style="display: none" id="team-selector" >{{ team.id }}</p>
+                            <p style="font-size: 13pt">{{ team.name }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                    <h3 onclick="show_player_list()" id="player_link">Игроки</h3>
+                    <div class="col-md-4 offset-4" style="display: none" id="player_list">
+                    {% for player in players %}
+                        <div onclick="show_player_stats(this)" class="visible_players">
+                            <p style="display: none" id="player-selector">{{ player.id }}</p>
+                            <p style="font-size: 13pt">{{ player.name }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+
+                    <h3 onclick="show_h2h_list()" id="h2h_link">H2H</h3>
+
+                </div>
+
+                <div class="col-md-4" style="margin-top:4%;text-align: center;font-size: 14pt" id="team_stats">
+                    {% for team in teams %}
+                        <div class="team_stats" style="display: none" id={{ team.id }}>
+                            <p style="">Сыграно матчей : {{ team.games_played }}</p>
+                            <p>Выиграно матчей: {{ team.games_won }}</p>
+                            <p>Процент выигранных матчей: {{ team.win_percentage }}%</p>
+                            <p>Сыграно партий: {{ team.sets_played }}</p>
+                            <p>Выиграно партий: {{ team.sets_won }}</p>
+                            <p>Общее количество Ace: {{ team.aces }}</p>
+                            <p>Общее количество Out: {{ team.outs }}</p>
+                        </div>
+                    {% endfor %}
+
+                    {% for player in players %}
+                        <div class="player_stats" style="display: none" id={{ player.id }}>
+                            <p>Сыграно матчей : {{ player.games }}</p>
+                            <p>Выиграно матчей: {{ player.games_won }}</p>
+                            <p>Набрано очков {{ player.points_total_season }}</p>
+                            <p>Сыграно партий: {{ player.sets }}</p>
+                            <p>Лучший тиммэйт: {{ player.best_teammate }}</p>
+                            <p>Худший тиммэйт: {{ player.worst_teammate }}</p>
+                            <p>Общее количество Ace: {{ player.aces_total_season }}</p>
+                            <p>Общее количество Out: {{ player.outs_total_season }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+
+
+
+        </div>
+    </div>
+
+{% endblock %}
