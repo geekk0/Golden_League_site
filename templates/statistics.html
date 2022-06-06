@@ -58,6 +58,9 @@
             team_list.style.display = "block"
             hide_player_stats()
             hide_player_list()
+            hide_h2h_list()
+            hide_h2h_matches()
+
 
         }
 
@@ -70,6 +73,8 @@
             h2h_link.style.marginTop = "7%"
             hide_team_stats()
             hide_team_list()
+            hide_h2h_list()
+            hide_h2h_matches()
         }
 
         function hide_player_list() {
@@ -85,6 +90,100 @@
             let visible_players = document.getElementsByClassName("visible_players")
             for (let i = 0; i < visible_players.length; i += 1) {
                 visible_players[i].style.backgroundColor = "rgb(255,255,255)"
+            }
+        }
+
+        function show_h2h_list() {
+            hide_player_list()
+            hide_team_list()
+            hide_player_stats()
+            hide_team_stats()
+
+            let first_team_list = document.getElementsByClassName("first_team_list")
+            for (let i = 0; i < first_team_list.length; i += 1) {
+                first_team_list[i].style.display = "block"
+            }
+            let second_team_list = document.getElementsByClassName("second_team_list")
+            for (let i = 0; i < second_team_list.length; i += 1) {
+                second_team_list[i].style.display = "block"
+            }
+        }
+
+        function hide_h2h_list() {
+            let first_team_list = document.getElementsByClassName("first_team_list")
+            for (let i = 0; i < first_team_list.length; i += 1) {
+                first_team_list[i].style.display = "none"
+            }
+            let second_team_list = document.getElementsByClassName("second_team_list")
+            for (let i = 0; i < second_team_list.length; i += 1) {
+                second_team_list[i].style.display = "none"
+            }
+        }
+
+        function show_h2h_matches(element) {
+            hide_team_stats()
+            hide_player_stats()
+            hide_h2h_matches()
+            if (element.classList.contains("first_team_list")) {
+                selection_h2h_team_1(element)
+            }
+            else {
+                selection_h2h_team_2(element)
+            }
+            element.style.backgroundColor = "rgb(13, 202, 240)"
+            let matches = document.getElementsByClassName("matches")
+            for (let i = 0; i < matches.length; i += 1) {
+                matches[i].style.display = "block"
+            }
+            let stats_div = document.getElementById("stats")
+            stats_div.style.width = "50%"
+            show_last_matches(element)
+        }
+
+        function hide_h2h_matches() {
+            let matches = document.getElementsByClassName("matches")
+            for (let i = 0; i < matches.length; i += 1) {
+                matches[i].style.display = "none"
+            }
+            let stats_div = document.getElementById("stats")
+            stats_div.style.width = ""
+        }
+
+        function selection_h2h_team_1(element) {
+            let visible_teams_1 = document.getElementsByClassName("first_team_list")
+            for (let i = 0; i < visible_teams_1.length; i += 1) {
+                visible_teams_1[i].style.backgroundColor = "rgb(255,255,255)"
+            }
+        }
+
+        function selection_h2h_team_2() {
+            let visible_teams_2 = document.getElementsByClassName("second_team_list")
+            for (let i = 0; i < visible_teams_2.length; i += 1) {
+                visible_teams_2[i].style.backgroundColor = "rgb(255,255,255)"
+            }
+        }
+
+        function show_last_matches(element) {
+
+            let last_matches_selector = document.getElementById("last_matches_selector")
+
+            if (element.classList.contains("first_team_list")){
+                let left_selector_value = element.querySelector('#team-1-selector').innerHTML
+                last_matches_selector.setAttribute("left_selected", left_selector_value )
+                console.log(element.querySelector('#team-1-selector'))
+            }
+
+            if (element.classList.contains("second_team_list")){
+                let right_selector_value = element.querySelector('#team-2-selector').innerHTML
+                last_matches_selector.setAttribute("right_selected", right_selector_value )
+                console.log(element.querySelector('#team-2-selector'))
+            }
+
+            if (last_matches_selector.hasAttribute("left_selected") && (last_matches_selector.hasAttribute("right_selected"))) {
+                let left_team_id = last_matches_selector.getAttribute("left_selected").toString()
+                let right_team_id = last_matches_selector.getAttribute("right_selected").toString()
+                window.location.href='{% url 'Статистика H2H' 123 321 %}'.replace(/123/, left_team_id)
+                    .replace(/321/, right_team_id)
             }
         }
 
@@ -121,10 +220,33 @@
                     </div>
 
                     <h3 onclick="show_h2h_list()" id="h2h_link">H2H</h3>
+                    <div class="row" id="last_matches_selector">
+                        {% for team in teams %}
+                            {% if selected == "False" %}
+                                <div class="col-md-6 first_team_list" style="display: none" onclick="show_h2h_matches(this)">
+                            {% else %}
+                                <div class="col-md-6 first_team_list" style="" onclick="show_h2h_matches(this)">
+                            {% endif %}
+                                    <p style="display: none" id="team-1-selector" >{{ team.id }}</p>
+                                    <p>{{ team.name }}</p>
+                                </div>
+                            {% if selected == "False" %}
+                                <div class="col-md-6 second_team_list" style="display: none" onclick="show_h2h_matches(this)">
+                            {% else %}
+                                <div class="col-md-6 second_team_list" style="" onclick="show_h2h_matches(this)">
+                            {% endif %}
+                                    <p style="display: none" id="team-2-selector" >{{ team.id }}</p>
+                                    <p>{{ team.name }}</p>
+                                </div>
+                        {% endfor %}
+                    </div>
 
                 </div>
-
-                <div class="col-md-4" style="margin-top:4%;text-align: center;font-size: 14pt" id="team_stats">
+                {% if selected == "False" %}
+                    <div class="col-md-4" style="margin-top:4%;text-align: center;font-size: 14pt" id="stats">
+                {% else %}
+                    <div class="col-md-8" style="margin-top:4%;text-align: center;font-size: 14pt" id="stats">
+                {% endif %}
                     {% for team in teams %}
                         <div class="team_stats" style="display: none" id={{ team.id }}>
                             <p style="">Сыграно матчей : {{ team.games_played }}</p>
@@ -149,6 +271,35 @@
                             <p>Общее количество Out: {{ player.outs_total_season }}</p>
                         </div>
                     {% endfor %}
+
+                    {% if selected == "True" %}
+                        <div class="" style="">
+                            <h4>Последние матчи:</h4>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6" id="left_matches_column">
+                                {% for match in left_team_matches %}
+                                    <div class="matches" id="last_matches_left">
+
+                                        <p>{{ match.id }} {{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                            {{ match.red_team }} - {{ match.blue_team }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+
+                            <div class="col-md-6" id="right_matches_column">
+                                {% for match in right_team_matches %}
+                                    <div class="matches" id="last_matches_right">
+                                        <p>{{ match.id }} {{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                            {{ match.red_team }} - {{ match.blue_team }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
                 </div>
 
 

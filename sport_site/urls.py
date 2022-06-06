@@ -28,7 +28,5 @@ urlpatterns = [
     path("Смотреть расписание", views.ScheduledMatchesView.as_view(), name="Смотреть расписание"),
     path("Добавить игрока", views.AddPlayer.as_view(), name="Добавить игрока"),
     path("Статистика", views.stats, name="Статистика"),
-    path("Статистика команд", views.team_stats, name="Статистика команд"),
-    path("Статистика игроков", views.player_stats, name="Статистика команд"),
-    path("Статистика H2H", views.h2h_stats, name="Статистика команд")
+    path("Статистика H2H/<int:left_team_id>/<int:right_team_id>", views.stats_h2h, name="Статистика H2H")
 ]

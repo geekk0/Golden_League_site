@@ -17,7 +17,7 @@ class MatchAdmin(admin.ModelAdmin):
     fields.remove("name")
     fields.remove("current_inning")
 
-    list_filter = ("active",)
+    list_filter = ("active", "red_team", "blue_team")
 
     class Meta:
         ordering = ["-date"]
