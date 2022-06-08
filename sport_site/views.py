@@ -21,7 +21,7 @@ from xhtml2pdf import pisa
 from django.conf import settings
 from crispy_forms.layout import Submit, Layout, Field
 from django.contrib import messages
-
+from django.db.models import Avg, Count, Min, Sum
 
 class LoginView(View):
 
@@ -430,7 +430,7 @@ def kill_match(request, match_id):
     blue_team_object.sets_won -= match.blue_set_score
 
     for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
-        player_stats_rollback(player)
+        player_stats_rollback(player, match)
 
     if Match.objects.filter(red_team=red_team_object).count() == 1:
         red_team_object.delete()
@@ -445,11 +445,12 @@ def kill_match(request, match_id):
     return HttpResponseRedirect("/Личный кабинет")
 
 
-def player_stats_rollback(player):
+def player_stats_rollback(player, match):
     player.points_total_season -= player.current_match_points
     player.innings -= player.current_match_innings
     player.aces_total_season -= player.current_match_aces
     player.outs_total_season -= player.current_match_outs
+    player.sets -= (match.active_set - 1)
     player_stats_zeroing(player)
     player.save()
 
@@ -694,6 +695,15 @@ def finalize_match_team_stats(match_id):
 
     red_team_object.get_win_percentage()
     blue_team_object.get_win_percentage()
+
+    red_players = Player.objects.filter(team=red_team_object)
+    blue_players = Player.objects.filter(team=blue_team_object)
+
+    red_team_object.aces += sum(item.current_match_aces for item in red_players)
+    blue_team_object.aces += sum(item.current_match_aces for item in blue_players)
+    red_team_object.outs += sum(item.current_match_outs for item in red_players)
+    blue_team_object.outs += sum(item.current_match_outs for item in blue_players)
+
     red_team_object.save()
     blue_team_object.save()
 
@@ -704,10 +714,14 @@ def finalize_match_player_stats(match_id):
     blue_team_object = Team.objects.get(id=match_object.blue_team.id)
 
     for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
-        if (match_object.red_set_score > match_object.blue_set_score and player.team is red_team_object) or \
-                (match_object.blue_set_score > match_object.red_set_score and player.team is blue_team_object):
+
+        if (match_object.red_set_score > match_object.blue_set_score and
+            player.team.values_list("id", flat=True).first() is red_team_object.id) or \
+                (match_object.blue_set_score > match_object.red_set_score and
+                 player.team.values_list("id", flat=True).first() is blue_team_object):
             player.games_won += 1
 
+        player.games += 1
         player.current_match_points = 0
         player.current_match_innings = 0
         player.current_match_aces = 0
@@ -717,14 +731,22 @@ def finalize_match_player_stats(match_id):
 
 def update_set_stat(match_id, team):
     match_object = Match.objects.get(id=match_id)
+    red_team_object = Team.objects.get(id=match_object.red_team.id)
+    blue_team_object = Team.objects.get(id=match_object.blue_team.id)
+
     if team == "red":
-        red_team_object = Team.objects.get(id=match_object.red_team.id)
         red_team_object.sets_won += 1
-        red_team_object.save()
+
     else:
-        blue_team_object = Team.objects.get(id=match_object.blue_team.id)
         blue_team_object.sets_won += 1
-        blue_team_object.save()
+
+    red_team_object.sets_played += 1
+    blue_team_object.sets_played += 1
+    red_team_object.save()
+    blue_team_object.save()
+
+    for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
+        update_player_stat(player, "plus_set")
 
 
 def update_player_stat(player, action):
@@ -740,10 +762,13 @@ def update_player_stat(player, action):
         player.aces_total_season += 1
         player.current_match_aces += 1
     elif action is "out":
-        if player.current_match_points is not 0:
+        if player.current_match_points > 0:
             player.current_match_points -= 1
+            player.points_total_season -= 1
         player.outs_total_season += 1
         player.current_match_outs += 1
+    elif action is "plus_set":
+        player.sets += 1
     player.save()
 
 

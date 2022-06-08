@@ -141,14 +141,16 @@ class Player(models.Model):
         return self.name
 
     def get_best_teammate(self):
-        team = Team.objects.filter(player=self).order_by("-win_percentage").first()
-        teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
-        self.best_teammate = teammate.name
+        if self.games > 0:
+            team = Team.objects.filter(player=self).order_by("-win_percentage").first()
+            teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
+            self.best_teammate = teammate.name
 
     def get_worst_teammate(self):
-        team = Team.objects.filter(player=self).order_by("win_percentage").first()
-        teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
-        self.worst_teammate = teammate.name
+        if self.games > 0:
+            team = Team.objects.filter(player=self).order_by("win_percentage").first()
+            teammate = Player.objects.filter(team=team).exclude(id=self.id).first()
+            self.worst_teammate = teammate.name
 
     class Meta:
         verbose_name = "Игрок"

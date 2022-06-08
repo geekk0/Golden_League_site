@@ -170,6 +170,7 @@
             for (let i = 0; i < visible_teams_1.length; i += 1) {
                 visible_teams_1[i].style.backgroundColor = "rgb(255,255,255)"
             }
+
         }
 
         function selection_h2h_team_2() {
@@ -228,10 +229,10 @@
                     right_team_labels[i].parentElement.style.backgroundColor = "rgb(13, 202, 240)"
                 }
                 }
-                extend()
+                extend_vertical_interval()
         }
 
-        function extend(){
+        function extend_vertical_interval(){
             let h2h_link = document.getElementById("h2h_link")
             h2h_link.style.marginTop = "7%"
             let team_list = document.getElementById("last_matches_selector")
@@ -342,7 +343,7 @@
                                 {% for match in left_team_matches|slice:":5" %}
                                     <div class="matches" id="last_matches_left">
 
-                                        <p>{{ match.id }} {{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                        <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
                                             {{ match.red_team }} - {{ match.blue_team }}</p>
                                     </div>
                                 {% endfor %}
@@ -352,7 +353,7 @@
                             <div class="col-md-6" id="right_matches_column" style="margin-top: 2%">
                                 {% for match in right_team_matches|slice:":5" %}
                                     <div class="matches" id="last_matches_right">
-                                        <p>{{ match.id }} {{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                        <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
                                             {{ match.red_team }} - {{ match.blue_team }}</p>
                                     </div>
                                 {% endfor %}
@@ -366,7 +367,7 @@
                             <div class="" style="margin-top: 2%">
                                 {% for match in rival_matches|slice:":5" %}
                                     <div class="matches" id="last_matches_right">
-                                            <p>{{ match.id }} {{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                            <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
                                                 {{ match.red_team }} - {{ match.blue_team }}</p>
                                         </div>
                                 {% endfor %}
