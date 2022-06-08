@@ -263,8 +263,6 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
 
     remove_ace = request.POST.get("remove_Ace")
 
-    print(remove_ace)
-
     if action == "plus":
 
         update_player_stat(player_object, action="plus_point")
@@ -767,25 +765,28 @@ def stats(request):
 
 
 def stats_h2h(request, left_team_id=None, right_team_id=None):
-    print(left_team_id, right_team_id)
     teams = Team.objects.all().order_by("name")
     players = Player.objects.all().order_by("name")
     matches = Match.objects.all().order_by("-date")
     left_team_object = Team.objects.get(id=left_team_id)
     right_team_object = Team.objects.get(id=right_team_id)
-    left_team_matches = Match.objects.filter(red_team=left_team_object).order_by("-date") or Match.objects.\
-        filter(blue_team=left_team_object).order_by("-date")
-    right_team_matches = Match.objects.filter(red_team=right_team_object).order_by("-date") or Match.objects.\
+    left_team_matches = Match.objects.filter(red_team=left_team_object).order_by("-date") | Match.objects.filter(blue_team=left_team_object).order_by("-date")
+    right_team_matches = Match.objects.filter(red_team=right_team_object).order_by("-date") | Match.objects.\
         filter(blue_team=right_team_object).order_by("-date")
+    rival_matches = Match.objects.filter(red_team=left_team_object).filter(blue_team=right_team_object).order_by("-date") | Match.objects.\
+        filter(red_team=right_team_object).filter(blue_team=left_team_object).order_by("-date")
     if left_team_matches.exists() or right_team_matches.exists():
         selected = "True"
-        active_teams = [left_team_id, left_team_id]
+        # active_teams = Team.objects.filter(id=left_team_id) | Team.objects.filter(id=right_team_id)
+        active_teams = [str(left_team_id), str(right_team_id)]
+        print(active_teams)
     else:
         selected = "False"
         active_teams = None
 
-    context = {"teams": teams, "players": players, "matches": matches, "left_team_matches": left_team_matches.distinct(),
-               "right_team_matches": right_team_matches.distinct(), "selected": selected, "active_teams": active_teams}
+    context = {"teams": teams, "players": players, "matches": matches, "left_team_matches": left_team_matches,
+               "right_team_matches": right_team_matches, "selected": selected, "active_teams": active_teams,
+               "rival_matches": rival_matches}
     return render(request, "statistics.html", context)
 
 
