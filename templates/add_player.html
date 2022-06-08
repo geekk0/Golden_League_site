@@ -1,0 +1,59 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block css %}
+        <meta http-equiv="Cache-Control" content="private">
+{% endblock %}
+
+
+{% block breadcrumb %}
+ <nav class="navbar navbar-expand-sm bg-info col-12">
+     <div class="navbar-expand col-md-10 offset-1 ">
+         <ul class="navbar-nav mr-auto">
+             <ul class="navbar-nav mr-auto">
+                 <li class="navbar-brand-collapse"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады</a></li>
+             </ul>
+             <a class="navbar-brand-collapse" href="{% url 'Расписание' %}" style="text-decoration: underline; margin-left:20%; margin-right: 10%; color:black">Расписание</a>
+
+         </ul>
+     </div>
+ </nav>
+{% endblock %}
+
+{%  block content %}
+
+    <div class="container">
+        <div class='row' style="margin-top:3%; text-align: center">
+
+            <div class="col-md-4 offset-md-4">
+
+                <h3 style="" class="text-center">Новый игрок</h3>
+
+                {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                <div class="auth col-md-6 offset-md-3">
+
+                    <h5 style="" class="text-center"></h5>
+
+                    <form style="" action ='' method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <input style="margin-top: 4%" type="submit" class="btn btn-success" value="Добавить">
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
