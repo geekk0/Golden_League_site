@@ -22,6 +22,8 @@
 
         document.addEventListener("DOMContentLoaded", active_teams_bgd)
 
+        document.addEventListener("DOMContentLoaded", color_score)
+
         function show_team_stats(element) {
             let team_stats_id = element.querySelector('#team-selector').innerHTML
             let team_stats = document.getElementById(team_stats_id)
@@ -131,12 +133,8 @@
             hide_team_stats()
             hide_player_stats()
             hide_h2h_matches()
-            if (element.classList.contains("first_team_list")) {
-                selection_h2h_team_1(element)
-            }
-            else {
-                selection_h2h_team_2(element)
-            }
+
+            blank_team_list()
 
             element.style.backgroundColor = "rgb(13, 202, 240)"
             let matches = document.getElementsByClassName("matches")
@@ -165,20 +163,18 @@
             close_labels()
         }
 
-        function selection_h2h_team_1(element) {
+        function blank_team_list() {
             let visible_teams_1 = document.getElementsByClassName("first_team_list")
             for (let i = 0; i < visible_teams_1.length; i += 1) {
                 visible_teams_1[i].style.backgroundColor = "rgb(255,255,255)"
             }
-
-        }
-
-        function selection_h2h_team_2() {
             let visible_teams_2 = document.getElementsByClassName("second_team_list")
             for (let i = 0; i < visible_teams_2.length; i += 1) {
                 visible_teams_2[i].style.backgroundColor = "rgb(255,255,255)"
             }
+
         }
+
 
         function show_last_matches(element) {
 
@@ -213,8 +209,6 @@
             let left_selected_team_id = active_teams_list[0]
             let left_team_labels = document.getElementsByClassName("team-1-selector")
             for (let i = 0; i < left_team_labels.length; i += 1) {
-                console.log(left_team_labels[i])
-                console.log(left_selected_team_id)
                 if (left_team_labels[i].innerHTML === left_selected_team_id) {
                     left_team_labels[i].parentElement.style.backgroundColor = "rgb(13, 202, 240)"
                 }
@@ -223,8 +217,6 @@
             let right_selected_team_id = active_teams_list[1]
             let right_team_labels = document.getElementsByClassName("team-2-selector")
             for (let i = 0; i < right_team_labels.length; i += 1) {
-                console.log(typeof right_team_labels[i])
-                console.log(typeof right_selected_team_id)
                 if (right_team_labels[i].innerHTML === right_selected_team_id) {
                     right_team_labels[i].parentElement.style.backgroundColor = "rgb(13, 202, 240)"
                 }
@@ -239,6 +231,36 @@
             team_list.style.marginTop = "7%"
             let player_link = document.getElementById("player_link")
             player_link.style.marginTop = "8%"
+        }
+
+        function color_score() {
+            let active_teams_list = {{ active_teams|safe }};
+            let left_selected_team_id = active_teams_list[0]
+            let right_selected_team_id = active_teams_list[1]
+
+            let score_left_elements = document.getElementsByClassName("score_left")
+
+            for (let i = 0; i < score_left_elements.length; i += 1) {
+                if (score_left_elements[i].innerHTML === "2" && score_left_elements[i].id === left_selected_team_id+"_left_score") {
+                    let score_string = score_left_elements[i].parentNode.querySelectorAll('.score_left')
+                    for (let i = 0; i < score_string.length; i += 1){
+                        score_string[i].style.color = "#26e026"
+                    }
+                }
+            }
+
+            let score_right_elements = document.getElementsByClassName("score_right")
+
+            for (let i = 0; i < score_right_elements.length; i += 1) {
+                if (score_right_elements[i].innerHTML === "2" && score_right_elements[i].id === right_selected_team_id+"_right_score") {
+                    let score_string = score_right_elements[i].parentNode.querySelectorAll('.score_right')
+                    for (let i = 0; i < score_string.length; i += 1){
+                        score_string[i].style.color = "#26e026"
+                    }
+                }
+            }
+
+
         }
 
 
@@ -342,8 +364,9 @@
                             <div class="col-md-6" id="left_matches_column" style="margin-top: 2%">
                                 {% for match in left_team_matches|slice:":5" %}
                                     <div class="matches" id="last_matches_left">
-
-                                        <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                        <p>{{ match.date|date:"d.m.y" }} <span class="score_left" style="font-size: 18pt;
+                                        font-weight: bold" id={{ match.red_team.id }}_left_score>{{ match.red_set_score }}</span ><span class="score_left" style="font-size: 18pt; font-weight: bold">:</span><span class="score_left" style="font-size: 18pt; font-weight: bold"
+                                                  id={{ match.blue_team.id }}_left_score >{{ match.blue_set_score }}</span>
                                             {{ match.red_team }} - {{ match.blue_team }}</p>
                                     </div>
                                 {% endfor %}
@@ -353,7 +376,9 @@
                             <div class="col-md-6" id="right_matches_column" style="margin-top: 2%">
                                 {% for match in right_team_matches|slice:":5" %}
                                     <div class="matches" id="last_matches_right">
-                                        <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
+                                        <p>{{ match.date|date:"d.m.y" }} <span class="score_right" style="font-size: 18pt;
+                                        font-weight: bold" id={{ match.red_team.id }}_right_score>{{ match.red_set_score }}</span ><span class="score_right" style="font-size: 18pt; font-weight: bold">:</span><span class="score_right" style="font-size: 18pt; font-weight: bold"
+                                                  id={{ match.blue_team.id }}_right_score >{{ match.blue_set_score }}</span>
                                             {{ match.red_team }} - {{ match.blue_team }}</p>
                                     </div>
                                 {% endfor %}
@@ -366,10 +391,17 @@
 
                             <div class="" style="margin-top: 2%">
                                 {% for match in rival_matches|slice:":5" %}
-                                    <div class="matches" id="last_matches_right">
-                                            <p>{{ match.date|date:"d.m.y" }} {{ match.red_set_score }}:{{ match.blue_set_score }}
-                                                {{ match.red_team }} - {{ match.blue_team }}</p>
+                                    {% if match.red_set_score > match.blue_set_score %}
+                                        <div class="matches" id="last_matches_right">
+                                                <p>{{ match.date|date:"d.m.y" }} <span style="font-size: 18pt; font-weight: bold">{{ match.red_set_score }}:{{ match.blue_set_score }}</span>
+                                                    <span style="color:#26e026">{{ match.red_team }}</span> - {{ match.blue_team }}</p>
                                         </div>
+                                    {% else %}
+                                        <div class="matches" id="last_matches_right">
+                                            <p>{{ match.date|date:"d.m.y" }} <span style="font-size: 18pt; font-weight: bold">{{ match.red_set_score }}:{{ match.blue_set_score }}</span>
+                                                    {{ match.red_team }} - <span style="color:#26e026">{{ match.blue_team }}</span></p>
+                                        </div>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </div>

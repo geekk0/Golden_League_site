@@ -108,3 +108,7 @@ div[id^='div_id_form']:not(#div_id_form-0-date, #div_id_form-0-time, #div_id_for
 
 }
 
+.score_left{
+    font-size: 18pt;
+    font-weight: bold
+}

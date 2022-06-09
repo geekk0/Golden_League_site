@@ -776,8 +776,8 @@ def stats(request):
     teams = Team.objects.all().order_by("name")
     players = Player.objects.all().order_by("name")
     matches = Match.objects.all().order_by("-date")
-    left_team_matches = Match.objects.filter(red_team_id=0)
-    right_team_matches = Match.objects.filter(red_team_id=0)
+    left_team_matches = Match.objects.filter(red_team_id=0).filter(active="Завершенный")
+    right_team_matches = Match.objects.filter(red_team_id=0).filter(active="Завершенный")
     if left_team_matches.exists() or right_team_matches.exists():
         selected = "True"
         active_teams = [left_team_id, left_team_id]
@@ -792,14 +792,14 @@ def stats(request):
 def stats_h2h(request, left_team_id=None, right_team_id=None):
     teams = Team.objects.all().order_by("name")
     players = Player.objects.all().order_by("name")
-    matches = Match.objects.all().order_by("-date")
+    matches = Match.objects.all().order_by("-date").filter(active="Завершенный")
     left_team_object = Team.objects.get(id=left_team_id)
     right_team_object = Team.objects.get(id=right_team_id)
-    left_team_matches = Match.objects.filter(red_team=left_team_object).order_by("-date") | Match.objects.filter(blue_team=left_team_object).order_by("-date")
-    right_team_matches = Match.objects.filter(red_team=right_team_object).order_by("-date") | Match.objects.\
-        filter(blue_team=right_team_object).order_by("-date")
-    rival_matches = Match.objects.filter(red_team=left_team_object).filter(blue_team=right_team_object).order_by("-date") | Match.objects.\
-        filter(red_team=right_team_object).filter(blue_team=left_team_object).order_by("-date")
+    left_team_matches = Match.objects.filter(red_team=left_team_object).order_by("-date").filter(active="Завершенный") | Match.objects.filter(blue_team=left_team_object).order_by("-date").filter(active="Завершенный")
+    right_team_matches = Match.objects.filter(red_team=right_team_object).order_by("-date").filter(active="Завершенный") | Match.objects.\
+        filter(blue_team=right_team_object).order_by("-date").filter(active="Завершенный")
+    rival_matches = Match.objects.filter(red_team=left_team_object).filter(blue_team=right_team_object).order_by("-date").filter(active="Завершенный") | Match.objects.\
+        filter(red_team=right_team_object).filter(blue_team=left_team_object).order_by("-date").filter(active="Завершенный")
     if left_team_matches.exists() or right_team_matches.exists():
         selected = "True"
         # active_teams = Team.objects.filter(id=left_team_id) | Team.objects.filter(id=right_team_id)
