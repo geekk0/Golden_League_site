@@ -121,7 +121,7 @@ class ScheduledMatches(models.Model):
 
 class Player(models.Model):
     name = models.CharField(verbose_name="Имя игрока", max_length=128, null=True, blank=True)
-    team = models.ManyToManyField(Team, null=True, blank=True)
+    team = models.ManyToManyField(Team, blank=True)
     number = models.IntegerField(verbose_name="Номер", null=True, blank=True)
     games = models.IntegerField(verbose_name="Сыграно матчей", default=0)
     sets = models.IntegerField(verbose_name="Сыграно партий", default=0)
@@ -136,6 +136,7 @@ class Player(models.Model):
     current_match_innings = models.IntegerField(verbose_name="Подач в текущем матче", default=0)
     current_match_aces = models.IntegerField(verbose_name="Ace в текущем матче", default=0)
     current_match_outs = models.IntegerField(verbose_name="Out в текущем матче", default=0)
+    inning = models.CharField(verbose_name="Очередность подачи в текущем матче", max_length=128, default="False")
 
     def __str__(self):
         return self.name

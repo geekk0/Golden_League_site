@@ -209,7 +209,21 @@ def enter_match(request, sport_name):
 
         match.save()
 
-        context = {"matches": matches, "user_is_referee": user_is_referee, "red_team": red_team, "blue_team": blue_team}
+        left_inning = "not set"
+        for player in Player.objects.filter(team=match.red_team):
+
+            if not player.inning == "False":
+                left_inning = "set"
+
+        right_inning = "not set"
+        for player in Player.objects.filter(team=match.blue_team):
+            if not player.inning == "False":
+                right_inning = "set"
+
+        innings_set = [left_inning, right_inning]
+
+        context = {"matches": matches, "user_is_referee": user_is_referee, "red_team": red_team, "blue_team": blue_team,
+                   "innings_set": innings_set}
 
         if request.user.is_staff:
             return render(request, "beach_volleyball.html", context)
@@ -265,6 +279,9 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
 
     if action == "plus":
 
+        if check_scoring_team(player_object, match):
+            rotation(match, player_object, action="scored")
+
         update_player_stat(player_object, action="plus_point")
 
         points = getattr(match, team+"_points_set_"+set)
@@ -288,6 +305,7 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
 
         elif ace_out == "Out":
 
+            rotation(match, player_object, action="out")
             update_player_stat(player_object, action="out")
 
             if team == "red":
@@ -332,13 +350,38 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
 
-def set_inning(request, match_id, team):
+def set_inning(request, match_id, team, player_name):
 
     match = Match.objects.get(id=match_id)
 
     match.current_inning = team
 
     match.save()
+
+    player_object = Player.objects.get(name=player_name)
+
+    player_object.inning = "Active"
+
+    player_team_qs = player_object.team.filter(name=match.red_team)
+
+    if player_team_qs.exists():
+        player_team = player_team_qs.first()
+        opposite_team = Team.objects.get(name=match.blue_team)
+    else:
+        player_team = player_object.team.get(name=match.blue_team)
+        opposite_team = Team.objects.get(name=match.red_team)
+
+    for player in Player.objects.filter(team=opposite_team):
+        if player.inning == "Active":
+            player.inning = "second"
+        player.save()
+
+    teammate = Player.objects.filter(team=player_team).exclude(id=player_object.id).first()
+
+    teammate.inning = "first"
+
+    player_object.save()
+    teammate.save()
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -460,6 +503,7 @@ def player_stats_zeroing(player):
     player.current_match_innings = 0
     player.current_match_aces = 0
     player.current_match_outs = 0
+    player.inning = "False"
     player.save()
 
 
@@ -802,9 +846,7 @@ def stats_h2h(request, left_team_id=None, right_team_id=None):
         filter(red_team=right_team_object).filter(blue_team=left_team_object).order_by("-date").filter(active="Завершенный")
     if left_team_matches.exists() or right_team_matches.exists():
         selected = "True"
-        # active_teams = Team.objects.filter(id=left_team_id) | Team.objects.filter(id=right_team_id)
         active_teams = [str(left_team_id), str(right_team_id)]
-        print(active_teams)
     else:
         selected = "False"
         active_teams = None
@@ -815,3 +857,81 @@ def stats_h2h(request, left_team_id=None, right_team_id=None):
     return render(request, "statistics.html", context)
 
 
+def rotation(match_object, player_object, action):
+
+    player_team_qs = player_object.team.filter(name=match_object.red_team)
+
+    if player_team_qs.exists():
+        player_team = player_team_qs.first()
+        opposite_team = Team.objects.get(name=match_object.blue_team)
+    else:
+        player_team = player_object.team.get(name=match_object.blue_team)
+        opposite_team = Team.objects.get(name=match_object.red_team)
+
+    if action == "scored":
+
+        teammate = Player.objects.filter(team=player_team).exclude(id=player_object.id).first()
+
+        if player_object.inning == "first":
+            player_object.inning = "Active"
+            teammate.inning = "first"
+        elif player_object.inning == "second":
+            player_object.inning = "first"
+            teammate.inning = "Active"
+
+        player_object.save()
+        teammate.save()
+
+        active_player_opp_id = Player.objects.filter(team=opposite_team.id).filter(inning="Active")
+        if active_player_opp_id.exists():
+            active_player = Player.objects.get(id=active_player_opp_id[0].id)
+            active_player.inning = "second"
+            active_player.save()
+
+    if action == "out":
+
+        teammate = Player.objects.filter(team=player_team).exclude(id=player_object.id).first()
+
+        if player_object.inning == "Active":
+            player_object.inning = "second"
+            teammate.inning = "first"
+
+            player_object.save()
+            teammate.save()
+
+            for player in Player.objects.filter(team=opposite_team):
+                if player.inning == "first":
+                    player.inning = "Active"
+                elif player.inning == "second":
+                    player.inning = "first"
+
+                    player.save()
+
+        elif teammate.inning == "Active":
+            teammate.inning = "second"
+            player_object.inning = "first"
+
+            player_object.save()
+            teammate.save()
+
+            for player in Player.objects.filter(team=opposite_team):
+                if player.inning == "first":
+                    player.inning = "Active"
+                elif player.inning == "second":
+                    player.inning = "first"
+
+                player.save()
+
+
+def check_scoring_team(player, match):
+    player_team_qs = player.team.filter(name=match.red_team)
+
+    if player_team_qs.exists():
+        player_team = player_team_qs.first()
+    else:
+        player_team = player.team.get(name=match.blue_team)
+
+    active_inning_player_same_team = Player.objects.filter(team=player_team).filter(inning="Active")
+
+    if not active_inning_player_same_team.exists():
+        return True

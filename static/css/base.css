@@ -112,3 +112,10 @@ div[id^='div_id_form']:not(#div_id_form-0-date, #div_id_form-0-time, #div_id_for
     font-size: 18pt;
     font-weight: bold
 }
+
+.player_list li{
+    list-style: none;
+    text-align: center;
+    font-size: 12pt;
+    line-height: 2;
+}

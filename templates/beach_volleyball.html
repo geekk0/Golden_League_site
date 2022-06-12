@@ -27,12 +27,49 @@
 
         document.addEventListener("DOMContentLoaded", check_match_is_over)
 
+        document.addEventListener("DOMContentLoaded", modal_set_first_inning_player)
+
         function change_href() {
             let href_element = document.getElementById("btn_plus_one_blue")
-            console.log(document.getElementById("remove_Ace").checked)
-            console.log(href_element.href)
             href_element.href="zyx.ru"
-            console.log(href_element.href)
+        }
+
+        function modal_inning_red() {
+            let modal = document.getElementById("modal_inning_red")
+            modal.style.display = "block"
+        }
+
+        function modal_inning_blue() {
+            let modal = document.getElementById("modal_inning_blue")
+            modal.style.display = "block"
+        }
+
+        function modal_set_first_inning_player() {
+            let modal_red = document.getElementById("modal_set_first_inning_player_red")
+            let modal_blue = document.getElementById("modal_set_first_inning_player_blue")
+            let inning_set_list = {{ innings_set|safe }};
+            let left_inning_set = inning_set_list[0]
+            let right_inning_set = inning_set_list[1]
+            let inning_icon_red = document.getElementById("red_inning_icon")
+            let inning_icon_blue = document.getElementById("red_inning_icon")
+            let current_set = document.getElementById("total_current_set")
+            let red_inning_set = document.getElementById("red_inning_set")
+            let blue_inning_set = document.getElementById("blue_inning_set")
+            let active_set = document.getElementById("active_set")
+
+            let red_points = document.getElementById("red_points_set_"+active_set.innerHTML)
+            let blue_points = document.getElementById("blue_points_set_"+active_set.innerHTML)
+
+            console.log(left_inning_set)
+            console.log(right_inning_set)
+            console.log("blue_points_set_"+active_set.innerHTML)
+
+            if (left_inning_set === "not set" && red_points.innerHTML === "1"){
+                modal_red.style.display = "block"
+                }
+            if (right_inning_set === "not set" && blue_points.innerHTML === "1"){
+                modal_blue.style.display = "block"
+                }
         }
 
         function modal_plus_point_red() {
@@ -199,6 +236,7 @@
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_1">{{ match.blue_points_set_1 }}</th>
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_2">{{ match.blue_points_set_2 }}</th>
                             <th scope="row" class="col-2" style="font-weight: normal" id="blue_points_set_3">{{ match.blue_points_set_3 }}</th>
+                            <th id="active_set" style="display: none">{{ match.active_set }}</th>
                             <th scope="row" >
                                 {% if match.current_inning == "blue" %}
                                 <img class="col-2" id="blue_inning_icon" src="{% static 'images/ball.png' %}"
@@ -225,8 +263,20 @@
                             {% if match.current_inning == "blank" %}
                                 <a  type="" id = "btn_set_inning_red" style="background: #bd1313; border:black;
                                 margin-left: auto"
-                                    href="{% url 'Подача' match.id "red" %}" class="btn btn-success">Подача</a>
+                                    onclick="modal_inning_red()" class="btn btn-success">Подача</a>
                             {% endif %}
+
+                            <div class="col-md-8 offset-1 player_list" style="margin-top:60%">
+                                <ul>
+                                    {% for player in red_team %}
+                                        {% if player.inning == "Active" %}
+                                            <li style="border: solid #bd1313;">{{ player.name }}</li>
+                                        {% else %}
+                                            <li>{{ player.name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
 
                         </div>
 
@@ -274,7 +324,7 @@
                         <div style="" class = "blue_first_inning col-2 text-center">
                             {% if match.current_inning == "blank" %}
                                 <a type="" id = "btn_set_inning_blue" style="background: blue; border:black"
-                                        href="{% url 'Подача' match.id "blue" %}" class="btn btn-success">Подача</a>
+                                        onclick="modal_inning_blue()" class="btn btn-success">Подача</a>
                             {% endif %}
 
                             <br>
@@ -282,6 +332,18 @@
                                     href ="{% url 'Поменять стороны' match.id %}" class="btn">
                                 <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
                                      style="width:30%"></a>
+
+                            <div class="col-md-8 offset-1 player_list" style="margin-top:10%">
+                                <ul>
+                                    {% for player in blue_team %}
+                                        {% if player.inning == "Active" %}
+                                            <li style="border: solid blue;">{{ player.name }}</li>
+                                        {% else %}
+                                            <li>{{ player.name }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
 
                     </div>
@@ -294,7 +356,7 @@
                         <div style="" class = "blue_first_inning col-2 text-center">
                             {% if match.current_inning == "blank" %}
                                 <a type="" id = "btn_set_inning_blue" style="background: blue; border:black"
-                                        href="{% url 'Подача' match.id "blue" %}" class="btn btn-success">Подача</a>
+                                        href="{% url 'Подача' match.id "blue" "кр1" %}" class="btn btn-success">Подача</a>
                             {% endif %}
                         </div>
                         <div class="blue_ace_out col-1">
@@ -341,7 +403,7 @@
                             {% if match.current_inning == "blank" %}
                                 <a  type="" id = "btn_set_inning_red" style="background: #bd1313; border:black;
                                 margin-left: auto"
-                                    href="{% url 'Подача' match.id "red" %}" class="btn btn-success">Подача</a>
+                                    href="{% url 'Подача' match.id "red" "кр1" %}" class="btn btn-success">Подача</a>
                             {% endif %}
                                 <br>
 
@@ -497,6 +559,50 @@
                                     <div class="modal-footer">
                                         {% for player in blue_team %}
                                             <button onclick="window.location.href='{% url 'Ace/Out' match.id "blue" "Out" player.id%}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
+                                        {% endfor %}
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_inning_red">
+                            <div class="modal-content">
+                                <p>Первым подает игрок:</p>
+                                    <div class="modal-footer">
+                                        {% for player in red_team %}
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                        {% endfor %}
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_inning_blue">
+                            <div class="modal-content">
+                                <p>Первым подает игрок:</p>
+                                    <div class="modal-footer">
+                                        {% for player in blue_team %}
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
+                                        {% endfor %}
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_set_first_inning_player_red">
+                            <div class="modal-content">
+                                <p>Первым подает игрок:</p>
+                                    <div class="modal-footer">
+                                        {% for player in red_team %}
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                        {% endfor %}
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_set_first_inning_player_blue">
+                            <div class="modal-content">
+                                <p>Первым подает игрок:</p>
+                                    <div class="modal-footer">
+                                        {% for player in blue_team %}
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>

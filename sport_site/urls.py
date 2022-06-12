@@ -11,7 +11,7 @@ urlpatterns = [
     path("Протокол/<int:match_id>", views.statistic_view, name="Протокол"),
     path("Изменить счет/<str:match_id>/<str:team>/<str:action>/<int:player_id>", views.change_points, name="Изменить счет"),
     path("Закончить партию/<int:match_id>", views.end_set, name="Закончить партию"),
-    path("Подача/<int:match_id>/<str:team>", views.set_inning, name="Подача"),
+    path("Подача/<int:match_id>/<str:team>/<str:player_name>", views.set_inning, name="Подача"),
     path("Поменять стороны/<int:match_id>", views.swap_controls, name="Поменять стороны"),
     path("Ace/Out/<int:match_id>/<str:team>/<str:action>/<int:player_id>", views.ace_out, name="Ace/Out"),
     path("user_logout/", views.user_logout, name="user_logout"),
@@ -28,5 +28,5 @@ urlpatterns = [
     path("Смотреть расписание", views.ScheduledMatchesView.as_view(), name="Смотреть расписание"),
     path("Добавить игрока", views.AddPlayer.as_view(), name="Добавить игрока"),
     path("Статистика", views.stats, name="Статистика"),
-    path("Статистика H2H/<int:left_team_id>/<int:right_team_id>", views.stats_h2h, name="Статистика H2H")
+    path("Статистика H2H/<int:left_team_id>/<int:right_team_id>", views.stats_h2h, name="Статистика H2H"),
 ]
