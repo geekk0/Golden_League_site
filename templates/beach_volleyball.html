@@ -282,7 +282,7 @@
 
                         <div class="red_ace_out col-1">
                             <a type="" id = "btn_red_ace" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto"
-                                    onclick="modal_red_ace()">Ace</a>
+                                    href='{% url 'Ace/Out' match.id "red" "Ace" 20%}'>Ace</a>
                             <br>
                             <a type="" id = "btn_red_out" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto; margin-top:40%"
                                     onclick="modal_red_out()">Out</a>                        </div>
@@ -525,7 +525,7 @@
                                 <p>Ace игрока:</p>
                                     <div class="modal-footer">
                                         {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "red" "Ace" player.id%}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "red" "Ace" 20%}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>

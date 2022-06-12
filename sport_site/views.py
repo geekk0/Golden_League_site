@@ -400,7 +400,7 @@ def swap_controls(request, match_id):
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
 
-def ace_out(request, match_id, team, action, player_id):
+def ace_out(request, match_id, team, action, player_id=20):
 
     match = Match.objects.get(id=match_id)
 
@@ -411,7 +411,10 @@ def ace_out(request, match_id, team, action, player_id):
     match.save()
 
     if action == "Ace":
-        change_points(request, match_id=match_id, team=team, action="plus", player_id=player_id, ace_out="Ace")
+
+        player = Player.objects.filter(team=match.red_team.id).filter(inning="Active")
+
+        change_points(request, match_id=match_id, team=team, action="plus", player_id=player.first().id, ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
 
     if action == "Out":
@@ -900,12 +903,13 @@ def rotation(match_object, player_object, action):
             teammate.save()
 
             for player in Player.objects.filter(team=opposite_team):
+                print(player.name)
                 if player.inning == "first":
                     player.inning = "Active"
                 elif player.inning == "second":
                     player.inning = "first"
 
-                    player.save()
+                player.save()
 
         elif teammate.inning == "Active":
             teammate.inning = "second"
@@ -915,6 +919,7 @@ def rotation(match_object, player_object, action):
             teammate.save()
 
             for player in Player.objects.filter(team=opposite_team):
+                print(player.name)
                 if player.inning == "first":
                     player.inning = "Active"
                 elif player.inning == "second":
