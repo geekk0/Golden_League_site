@@ -93,18 +93,8 @@
             modal.style.display = "block"
         }
 
-        function modal_red_ace() {
-            let modal = document.getElementById("modal_red_ace")
-            modal.style.display = "block"
-        }
-
         function modal_red_out() {
             let modal = document.getElementById("modal_red_out")
-            modal.style.display = "block"
-        }
-
-        function modal_blue_ace() {
-            let modal = document.getElementById("modal_blue_ace")
             modal.style.display = "block"
         }
 
@@ -314,7 +304,7 @@
 
                         <div class="blue_ace_out col-1">
                             <a type="" id = "btn_blue_ace" class="btn btn-success"  style="background: blue; border:black;margin-left: auto"
-                                    onclick="modal_blue_ace()">Ace</a>
+                                    href='{% url 'Ace/Out' match.id "blue" "Ace" 20%}'>Ace</a>
                             <br>
                             <a type="" id = "btn_blue_out" class="btn btn-success"  style="background: blue; border:black;margin-left: auto; margin-top:40%"
                                     onclick="modal_blue_out()">Out</a>
@@ -537,17 +527,6 @@
                                     <div class="modal-footer">
                                         {% for player in red_team %}
                                             <button onclick="window.location.href='{% url 'Ace/Out' match.id "red" "Out" player.id%}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="modal" id="modal_blue_ace">
-                            <div class="modal-content">
-                                <p>Ace игрока:</p>
-                                    <div class="modal-footer">
-                                        {% for player in blue_team %}
-                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "blue" "Ace" player.id%}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>

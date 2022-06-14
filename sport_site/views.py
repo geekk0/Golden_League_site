@@ -269,6 +269,8 @@ def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
 
 def change_points(request, match_id, team, action, player_id, ace_out=""):
 
+    print("plus")
+
     match = Match.objects.get(id=match_id)
 
     player_object = Player.objects.get(id=player_id)
@@ -279,7 +281,7 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
 
     if action == "plus":
 
-        if check_scoring_team(player_object, match):
+        if check_scoring_team(player_object, match) and ace_out == "":
             rotation(match, player_object, action="scored")
 
         update_player_stat(player_object, action="plus_point")
@@ -304,7 +306,6 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
                                           str(getattr(match, "blue_points_set_" + set)) + "(A)")
 
         elif ace_out == "Out":
-
             rotation(match, player_object, action="out")
             update_player_stat(player_object, action="out")
 
@@ -412,7 +413,9 @@ def ace_out(request, match_id, team, action, player_id=20):
 
     if action == "Ace":
 
-        player = Player.objects.filter(team=match.red_team.id).filter(inning="Active")
+        player = Player.objects.filter(team=match.red_team.id).filter(inning="Active") | \
+                 Player.objects.filter(team=match.blue_team.id).filter(inning="Active")
+        print(player)
 
         change_points(request, match_id=match_id, team=team, action="plus", player_id=player.first().id, ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
@@ -893,7 +896,14 @@ def rotation(match_object, player_object, action):
 
     if action == "out":
 
+        print(check_scoring_team(player_object, match_object))
+
         teammate = Player.objects.filter(team=player_team).exclude(id=player_object.id).first()
+
+        """print(player_object.name)
+        print(player_object.inning)
+        print(teammate.name)
+        print(teammate.inning)"""
 
         if player_object.inning == "Active":
             player_object.inning = "second"
@@ -903,7 +913,6 @@ def rotation(match_object, player_object, action):
             teammate.save()
 
             for player in Player.objects.filter(team=opposite_team):
-                print(player.name)
                 if player.inning == "first":
                     player.inning = "Active"
                 elif player.inning == "second":
@@ -919,7 +928,6 @@ def rotation(match_object, player_object, action):
             teammate.save()
 
             for player in Player.objects.filter(team=opposite_team):
-                print(player.name)
                 if player.inning == "first":
                     player.inning = "Active"
                 elif player.inning == "second":
@@ -940,3 +948,5 @@ def check_scoring_team(player, match):
 
     if not active_inning_player_same_team.exists():
         return True
+    else:
+        return False
