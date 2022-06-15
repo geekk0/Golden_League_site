@@ -267,11 +267,11 @@ def check_ace_out(red_ace_out, blue_ace_out, ace_out_time):
     return red_ace_out_value, blue_ace_out_value, ace_out_time_value
 
 
-def change_points(request, match_id, team, action, player_id, ace_out=""):
-
-    print("plus")
+def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
     match = Match.objects.get(id=match_id)
+
+    team_name = match.red_team.name
 
     player_object = Player.objects.get(id=player_id)
 
@@ -280,6 +280,11 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
     remove_ace = request.POST.get("remove_Ace")
 
     if action == "plus":
+
+        point_back_list = [team_name, action, str(player_id), ace_out]
+
+        match.point_back_value = json.dumps(point_back_list)
+        match.save()
 
         if check_scoring_team(player_object, match) and ace_out == "":
             rotation(match, player_object, action="scored")
@@ -326,7 +331,15 @@ def change_points(request, match_id, team, action, player_id, ace_out=""):
 
     else:
 
-        update_player_stat(player_object, action="minus_point")
+        print(json.loads(match.point_back_value))
+
+        player_object = Player.objects.get(id=json.loads(match.point_back_value)[2])
+
+        print(player_object.name)
+
+        update_player_stat(player_object, action="minus_point", match_id=match_id)
+
+        recall_last_rotation(match)
 
         points = getattr(match, team + "_points_set_" + set)
         if points == 0:
@@ -415,7 +428,6 @@ def ace_out(request, match_id, team, action, player_id=20):
 
         player = Player.objects.filter(team=match.red_team.id).filter(inning="Active") | \
                  Player.objects.filter(team=match.blue_team.id).filter(inning="Active")
-        print(player)
 
         change_points(request, match_id=match_id, team=team, action="plus", player_id=player.first().id, ace_out="Ace")
         # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
@@ -799,13 +811,17 @@ def update_set_stat(match_id, team):
         update_player_stat(player, "plus_set")
 
 
-def update_player_stat(player, action):
+def update_player_stat(player, action, match_id=300):
     player.get_best_teammate()
     player.get_worst_teammate()
     if action is "plus_point":
         player.points_total_season += 1
         player.current_match_points += 1
     elif action is "minus_point":
+        match = Match.objects.get(id=match_id)
+        if "Ace" in json.loads(match.point_back_value):
+            player.current_match_aces -= 1
+            player.aces_total_season -= 1
         player.points_total_season -= 1
         player.current_match_points -= 1
     elif action is "ace":
@@ -865,6 +881,8 @@ def stats_h2h(request, left_team_id=None, right_team_id=None):
 
 def rotation(match_object, player_object, action):
 
+    save_last_rotation(match_object)
+
     player_team_qs = player_object.team.filter(name=match_object.red_team)
 
     if player_team_qs.exists():
@@ -896,14 +914,7 @@ def rotation(match_object, player_object, action):
 
     if action == "out":
 
-        print(check_scoring_team(player_object, match_object))
-
         teammate = Player.objects.filter(team=player_team).exclude(id=player_object.id).first()
-
-        """print(player_object.name)
-        print(player_object.inning)
-        print(teammate.name)
-        print(teammate.inning)"""
 
         if player_object.inning == "Active":
             player_object.inning = "second"
@@ -950,3 +961,40 @@ def check_scoring_team(player, match):
         return True
     else:
         return False
+
+
+def save_last_rotation(match):
+
+    inning_list = []
+
+    for red_player in Player.objects.filter(team=match.red_team).order_by("number"):
+        inning_list.append(red_player.inning)
+    for blue_player in Player.objects.filter(team=match.blue_team).order_by("number"):
+        inning_list.append(blue_player.inning)
+    match.last_inning = json.dumps(inning_list)
+    match.save()
+
+
+def recall_last_rotation(match):
+
+    inning_list = json.loads(match.last_inning)
+
+    red_team_first_player = Player.objects.filter(team=match.red_team).filter(number=1).first()
+    red_team_first_player.inning = inning_list[0]
+    red_team_first_player.save()
+
+    red_team_second_player = Player.objects.filter(team=match.red_team).filter(number=2).first()
+    red_team_second_player.inning = inning_list[1]
+    red_team_second_player.save()
+
+    blue_team_first_player = Player.objects.filter(team=match.blue_team).filter(number=1).first()
+    blue_team_first_player.inning = inning_list[2]
+    blue_team_first_player.save()
+
+    blue_team_second_player = Player.objects.filter(team=match.blue_team).filter(number=2).first()
+    blue_team_second_player.inning = inning_list[3]
+    blue_team_second_player.save()
+
+
+
+

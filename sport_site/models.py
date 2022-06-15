@@ -79,6 +79,9 @@ class Match(models.Model):
                                  on_delete=models.SET_NULL)
     blue_team = models.ForeignKey(Team, verbose_name="Команда синих", related_name="blue_team", blank=True, null=True,
                                   on_delete=models.SET_NULL)
+    point_back_value = models.TextField(verbose_name="Последнее набранное очко (для отката)", blank=True, null=True)
+
+    last_inning = models.TextField(verbose_name="Последние подачи", blank=True, null=True)
 
     def __str__(self):
         return str(self.date.strftime("%d.%m.%y %H:%M ")) + self.red_squad + " - " + self.blue_squad \
