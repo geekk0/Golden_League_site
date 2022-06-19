@@ -110,6 +110,21 @@ class SquadForm(forms.Form):
         self.fields['blue_team_player_two'].widget = ListTextWidget(data_list=_players, name='players')
 
 
+class H2HSelectForm(forms.Form):
+
+    left_team = forms.CharField(required=True)
+    left_team.label = "Первая команда"
+
+    right_team = forms.CharField(required=True)
+    right_team.label = "Вторая команда"
+
+    def __init__(self, *args, **kwargs):
+        _teams = kwargs.pop('data_list', None)
+        super(H2HSelectForm, self).__init__(*args, **kwargs)
+        self.fields['left_team'].widget = ListTextWidget(data_list=_teams, name='teams')
+        self.fields['right_team'].widget = ListTextWidget(data_list=_teams, name='teams')
+
+
 class ScheduleForm(forms.ModelForm):
 
     class Meta:

@@ -113,9 +113,39 @@ div[id^='div_id_form']:not(#div_id_form-0-date, #div_id_form-0-time, #div_id_for
     font-weight: bold
 }
 
+.player_list {
+    margin-top:30%;
+    border: thin solid black;
+}
+
 .player_list li{
     list-style: none;
     text-align: center;
     font-size: 12pt;
     line-height: 2;
+}
+
+.links{
+    text-align: center;
+
+}
+
+.links a{
+    color:gray;
+}
+
+.modal-content{
+    width:20%!important;
+}
+
+#div_id_left_team{
+    width:30%;
+    display: inline-block;
+}
+
+#div_id_right_team{
+    margin-left:10%;
+    width:30%;
+    display: inline-block;
+
 }

@@ -9,7 +9,7 @@
 
 
 {% block title %}
-    <title>Пляжный воллейбол</title>
+    <title>Пляжный волейбол</title>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -29,19 +29,27 @@
 
         document.addEventListener("DOMContentLoaded", modal_set_first_inning_player)
 
-        function change_href() {
-            let href_element = document.getElementById("btn_plus_one_blue")
-            href_element.href="zyx.ru"
-        }
 
         function modal_inning_red() {
             let modal = document.getElementById("modal_inning_red")
             modal.style.display = "block"
+            move_button_1()
         }
 
         function modal_inning_blue() {
             let modal = document.getElementById("modal_inning_blue")
             modal.style.display = "block"
+            move_button_1()
+        }
+
+        function modal_confirm_delete_match() {
+            let modal = document.getElementById("modal_confirm_delete_match")
+            modal.style.display = "block"
+        }
+
+        function close_confirm_delete(){
+            let modal = document.getElementById("modal_confirm_delete_match")
+            modal.style.display = "none"
         }
 
         function modal_set_first_inning_player() {
@@ -62,7 +70,6 @@
 
             console.log(left_inning_set)
             console.log(right_inning_set)
-            console.log("blue_points_set_"+active_set.innerHTML)
 
             if (left_inning_set === "not set" && red_points.innerHTML === "1"){
                 modal_red.style.display = "block"
@@ -70,37 +77,29 @@
             if (right_inning_set === "not set" && blue_points.innerHTML === "1"){
                 modal_blue.style.display = "block"
                 }
+            move_button_1()
         }
 
         function modal_plus_point_red() {
             let modal = document.getElementById("modal_red_plus_point")
             modal.style.display = "block"
-        }
-
-        function modal_minus_point_red() {
-            let modal = document.getElementById("modal_red_minus_point")
-            modal.style.display = "block"
+            move_button_1()
         }
 
         function modal_plus_point_blue() {
             let modal = document.getElementById("modal_blue_plus_point")
             modal.style.display = "block"
-            document.getElementById("remove_Ace").addEventListener("click", change_href)
+            move_button_1()
         }
 
-        function modal_minus_point_blue() {
-            let modal = document.getElementById("modal_blue_minus_point")
-            modal.style.display = "block"
-        }
-
-        function modal_red_out() {
-            let modal = document.getElementById("modal_red_out")
-            modal.style.display = "block"
-        }
-
-        function modal_blue_out() {
-            let modal = document.getElementById("modal_blue_out")
-            modal.style.display = "block"
+        function move_button_1() {
+            let modal_points = document.getElementsByClassName("modal_points")
+            modal_points.item(0).style.marginRight = "auto"
+            modal_points.item(2).style.marginRight = "auto"
+            modal_points.item(4).style.marginRight = "auto"
+            modal_points.item(6).style.marginRight = "auto"
+            modal_points.item(8).style.marginRight = "auto"
+            modal_points.item(10).style.marginRight = "auto"
         }
 
         function get_orientation() {
@@ -256,11 +255,12 @@
                                     onclick="modal_inning_red()" class="btn btn-success">Подача</a>
                             {% endif %}
 
-                            <div class="col-md-8 offset-1 player_list" style="margin-top:60%">
-                                <ul>
+                            <div class="col-md-8 row offset-2 player_list" style="margin-left: 25%;">
+                                <p style="color: #bd1313">Подачи красных:</p>
+                                <ul class="col-12">
                                     {% for player in red_team %}
                                         {% if player.inning == "Active" %}
-                                            <li style="border: solid #bd1313;">{{ player.name }}</li>
+                                            <li style="border: solid #bd1313;;border-width: thin">{{ player.name }}</li>
                                         {% else %}
                                             <li>{{ player.name }}</li>
                                         {% endif %}
@@ -270,25 +270,26 @@
 
                         </div>
 
-                        <div class="red_ace_out col-1">
-                            <a type="" id = "btn_red_ace" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto"
-                                    href='{% url 'Ace/Out' match.id "red" "Ace" 20%}'>Ace</a>
-                            <br>
-                            <a type="" id = "btn_red_out" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto; margin-top:40%"
-                                    onclick="modal_red_out()">Out</a>                        </div>
-
                             <div class = "red_team_controls col-3 text-center">
 
                                 <a style="" type="" class="" onclick="modal_plus_point_red()"
                                         id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
                                                                       alt="+1 Красной команде"></a>
                                 <h6 style="">Красная команда</h6>
-                                <a style="" type="" class="" onclick="modal_minus_point_red()"
+                                <a style="" type="" class="" href="{% url 'Изменить счет' match.id "red" "minus" 33 %}"
                                         id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
                                                                        src="{% static 'images/minus 2.png' %}"
                                                                        alt="-1 Красной команде"></a>
-                        </div>
+                            </div>
 
+
+                        <div class="blue_ace_out col-2 " style="text-align: center;margin-top: 3%">
+                            <a type="" id = "btn_blue_ace" class="btn btn-dark"  style="color:black;background:none; border: solid black;margin-left: auto"
+                                    href='{% url 'Ace/Out' match.id "Ace" %}'>Ace</a>
+                            <br>
+                            <a type="" id = "btn_blue_out" class="btn btn-dark"  style="color:black;background:none;border: solid black;margin-left: auto; margin-top:40%"
+                                    href="{% url 'Ace/Out' match.id "Out" %}">Out</a>
+                        </div>
 
                         <div class = "blue_team_controls col-3 text-center">
                                 <a style="" type="" class="" onclick="modal_plus_point_blue()"
@@ -296,38 +297,29 @@
                                                                        src="{% static 'images/plus4.png' %}"
                                                                       alt="+1 Синей команде"></a>
                                 <h6 style="">Синяя команда</h6>
-                                <a style=";" type="" class="" onclick="modal_minus_point_blue()"
+                                <a style=";" type="" class="" href="{% url 'Изменить счет' match.id "blue" "minus" 33 %}"
                                         id="team_blue_minus_point"><img class="controls-images" style="width:30%;
                                         background: blue;" src="{% static 'images/minus 2.png' %}"
                                                                        alt="-1 Синей команде"></a>
                         </div>
 
-                        <div class="blue_ace_out col-1">
-                            <a type="" id = "btn_blue_ace" class="btn btn-success"  style="background: blue; border:black;margin-left: auto"
-                                    href='{% url 'Ace/Out' match.id "blue" "Ace" 20%}'>Ace</a>
-                            <br>
-                            <a type="" id = "btn_blue_out" class="btn btn-success"  style="background: blue; border:black;margin-left: auto; margin-top:40%"
-                                    onclick="modal_blue_out()">Out</a>
-                        </div>
-
-
-                        <div style="" class = "blue_first_inning col-2 text-center">
+                            <div style="" class = "blue_first_inning col-2 text-center">
                             {% if match.current_inning == "blank" %}
                                 <a type="" id = "btn_set_inning_blue" style="background: blue; border:black"
                                         onclick="modal_inning_blue()" class="btn btn-success">Подача</a>
                             {% endif %}
 
-                            <br>
-                            <a type="" id = "btn_swap" style="background: none; border:black; margin-top:10%"
+                            <!--<a type="" id = "btn_swap" style="background: none; border:black; margin-top:10%"
                                     href ="{% url 'Поменять стороны' match.id %}" class="btn">
                                 <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                                     style="width:30%"></a>
+                                     style="width:30%"></a>-->
 
-                            <div class="col-md-8 offset-1 player_list" style="margin-top:10%">
-                                <ul>
+                            <div class="col-md-8 row offset-1 player_list" style="margin-right: 25%;">
+                                <p style="color: blue">Подачи синих:</p>
+                                <ul class="col-12" style="">
                                     {% for player in blue_team %}
                                         {% if player.inning == "Active" %}
-                                            <li style="border: solid blue;">{{ player.name }}</li>
+                                            <li style="border: solid blue;border-width: thin">{{ player.name }}</li>
                                         {% else %}
                                             <li>{{ player.name }}</li>
                                         {% endif %}
@@ -349,11 +341,12 @@
                                         href="{% url 'Подача' match.id "blue" "кр1" %}" class="btn btn-success">Подача</a>
                             {% endif %}
 
-                            <div class="col-md-8 offset-1 player_list" style="margin-top:60%">
-                                <ul>
+                            <div class="col-md-8 row offset-1 player_list" style="margin-left: 25%;">
+                                <p style="color: blue">Подачи синих:</p>
+                                <ul class="col-12" style="">
                                     {% for player in blue_team %}
                                         {% if player.inning == "Active" %}
-                                            <li style="border: solid blue;">{{ player.name }}</li>
+                                            <li style="border: solid blue;border-width: thin">{{ player.name }}</li>
                                         {% else %}
                                             <li>{{ player.name }}</li>
                                         {% endif %}
@@ -361,13 +354,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="blue_ace_out col-1">
-                            <a type="" id = "btn_blue_ace" class="btn btn-success"  style="background: blue; border:black;margin-left: auto"
-                                    href='{% url 'Ace/Out' match.id "blue" "Ace" 20%}'>Ace</a>
-                            <br>
-                            <a type="" id = "btn_blue_out" class="btn btn-success"  style="background: blue; border:black;margin-left: auto; margin-top:40%"
-                                    onclick="modal_blue_out()">Out</a>
-                        </div>
+
 
                         <div class = "blue_team_controls col-3 text-center">
                                 <a style="" type="" class="" onclick="modal_plus_point_blue()"
@@ -375,10 +362,18 @@
                                                                        src="{% static 'images/plus4.png' %}"
                                                                       alt="+1 Синей команде"></a>
                                 <h6 style="">Синяя команда</h6>
-                                <a style=";" type="" class="" onclick="modal_minus_point_blue()"
+                                <a style=";" type="" class="" href="{% url 'Изменить счет' match.id "blue" "minus" 33 %}"
                                         id="team_blue_minus_point"><img class="controls-images" style="width:30%;
                                         background: blue;" src="{% static 'images/minus 2.png' %}"
                                                                        alt="-1 Синей команде"></a>
+                        </div>
+
+                        <div class="blue_ace_out col-2 " style="text-align: center;margin-top: 3%">
+                            <a type="" id = "btn_blue_ace" class="btn btn-dark"  style="color:black;background:none; border: solid black;margin-left: auto"
+                                    href='{% url 'Ace/Out' match.id "Ace" %}'>Ace</a>
+                            <br>
+                            <a type="" id = "btn_blue_out" class="btn btn-dark"  style="color:black;background:none;border: solid black;margin-left: auto; margin-top:40%"
+                                    href="{% url 'Ace/Out' match.id "Out" %}">Out</a>
                         </div>
 
                         <div class = "red_team_controls col-3 text-center">
@@ -387,18 +382,12 @@
                                         id="team_red_plus_point"><img class="controls-images" src="{% static 'images/plus4.png' %}"
                                                                       alt="+1 Красной команде"></a>
                                 <h6 style="">Красная команда</h6>
-                                <a style="" type="" class="" onclick="modal_minus_point_red()"
+                                <a style="" type="" class="" href="{% url 'Изменить счет' match.id "red" "minus" 33 %}"
                                         id="team_red_minus_point"><img class="controls-images" style="width:30%;margin-top:0;"
                                                                        src="{% static 'images/minus 2.png' %}"
                                                                        alt="-1 Красной команде"></a>
                         </div>
-                        <div class="red_ace_out col-1">
-                            <a type="" id = "btn_red_ace" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto"
-                                    href='{% url 'Ace/Out' match.id "red" "Ace" 20%}'>Ace</a>
-                            <br>
-                            <a type="" id = "btn_red_out" class="btn btn-success"  style="background: #bd1313; border:black;margin-left: auto; margin-top:40%"
-                                    onclick="modal_red_out()">Out</a>
-                        </div>
+
 
                         <div style="" class = "red_first_inning col-2 text-center">
 
@@ -408,12 +397,12 @@
                                     href="{% url 'Подача' match.id "red" "кр1" %}" class="btn btn-success">Подача</a>
                             {% endif %}
 
-
-                            <div class="col-md-8 offset-1 player_list" style="margin-top:60%">
-                                <ul>
+                            <div class="col-md-8 row offset-1 player_list" style="margin-right: 25%">
+                                <p style="color: #bd1313">Подачи красных:</p>
+                                <ul class="col-12">
                                     {% for player in red_team %}
                                         {% if player.inning == "Active" %}
-                                            <li style="border: solid #bd1313;">{{ player.name }}</li>
+                                            <li style="border: solid #bd1313;;border-width: thin">{{ player.name }}</li>
                                         {% else %}
                                             <li>{{ player.name }}</li>
                                         {% endif %}
@@ -423,10 +412,7 @@
 
                                 <br>
 
-                                <a type="" id = "btn_swap" style="background: none; border:black; margin-top:10%"
-                                    href ="{% url 'Поменять стороны' match.id %}" class="btn">
-                                <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
-                                     style="width:30%"></a>
+
 
 
                         </div>
@@ -437,18 +423,41 @@
         {% endif %}
                     <div class="container-xs" style="margin-top: 1%">
                         <div class="row m-0">
-                            <div class="col-3 offset-1">
+                            <!--<div class="col-3 offset-1">
                                 <a class="" href="{% url 'Протокол' match.id %}" target="_blank" style="">Протокол матча</a>
+                            </div>-->
+                        </div>
+
+                        <div class="row m-0">
+                                <!--<a class="col-3 offset-1" href="{% url "Трансляция"  %}" target="_blank">Трансляция матча</a>-->
+        {% if user_is_referee == True %}
+                                <button style="margin-top: 2%" type="button" class="btn btn-success col-4 offset-4"
+                                        id="end_set">Партия закончена</button>
+                                <a onclick="modal_confirm_delete_match()" type="button"
+                                   class="btn btn-success col-2 offset" style="background: #bd1313; margin-left:11%;margin-top: 2%">Удалить матч</a>
+                        </div>
+
+                        <div class="row m-0">
+                            <div class="col-2 offset-5" style="margin-top:0">
+                                <a type="" id = "btn_swap" style="background: none; border:grey; margin-top:10%"
+                                            href ="{% url 'Поменять стороны' match.id %}" class="btn">
+                                        <img class="" src="{% static 'images/swap.png' %}" alt="Поменять местами команды"
+                                             style="width:35%"></a>
                             </div>
                         </div>
 
                         <div class="row m-0">
-                                <a class="col-3 offset-1" href="{% url "Трансляция"  %}" target="_blank">Трансляция матча</a>
-        {% if user_is_referee == True %}
-                                <button style="" type="button" class="btn btn-success col-4"
-                                        id="end_set">Партия закончена</button>
-                                <a href="{% url 'Удалить матч' match.id %}" type="button"
-                                   class="btn btn-success col-3 offset" style="background: #bd1313; margin-left:6%">Удалить матч</a>
+                            <div class="links col-10 offset-1 row" style="margin-top: 2%;">
+                                <div class="col-4" style="border: solid white 1px; border-right-color:gray">
+                                    <a class="" href="{% url 'Протокол' match.id %}" target="_blank" style="">Протокол матча</a>
+                                </div>
+                                <div class="col-4" style="border: solid white 1px;border-right-color: gray;border-left-color:gray">
+                                    <a class="" href="{% url "Трансляция"  %}" target="_blank">Трансляция матча</a>
+                                </div>
+                                <div class="col-4" style="border: solid white 1px;border-left-color:gray">
+                                    <a class="" href="{% url "Статистика"  %}" target="_blank">Статистика</a>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="modal">
@@ -472,109 +481,34 @@
 
                         <div class="modal" id="modal_red_plus_point">
                             <div class="modal-content">
-                                <p>+1</p>
-                                    <div class="modal-footer">
+                                <p style="text-align: center">+1</p>
+                                    <div class="modal-footer" >
                                         {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Изменить счет' match.id "red" "plus" player.id %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Изменить счет' match.id "red" "plus" player.id %}'" class="btn btn-primary modal_points" id="yes_button" style="background: #bd1313; text-align: justify-all  ">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>
                         </div>
 
-                        <div class="modal" id="modal_red_minus_point">
-                            <div class="modal-content">
-                                <p>-1</p>
-                                    <div class="modal-footer">
-                                        {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Изменить счет' match.id "red" "minus" player.id %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
+
 
                         <div class="modal" id="modal_blue_plus_point">
                             <div class="modal-content">
-                                <p>+1</p>
-                                <!--<div class="form-check">
-                                  <input class="form-check-input" type="checkbox" value="True" id="remove_Ace" name="remove_Ace">
-                                  <label class="form-check-label" for="remove_Ace">
-                                    Убрать Ace
-                                  </label>
+                                <p style="text-align: center">+1</p>
+                                <div class="modal-footer">
+                                        {% for player in blue_team %}
+                                            <button id="btn_plus_one_blue" onclick="window.location.href='{% url 'Изменить счет' match.id "blue" "plus" player.id %}'" class="btn btn-primary modal_points" id="yes_button" style="background: blue">{{ player.number }}</button>
+                                        {% endfor %}
                                 </div>
-                                <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" value="" id="remove_Out" name="remove_Out">
-                                  <label class="form-check-label" for="remove_Out">
-                                    Убрать Out другой команды
-                                  </label>
-                                </div>-->
-                                    <div class="modal-footer">
-                                        {% for player in blue_team %}
-                                            <button id="btn_plus_one_blue" onclick="window.location.href='{% url 'Изменить счет' match.id "blue" "plus" player.id %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="modal" id="modal_blue_minus_point">
-                            <div class="modal-content">
-                                <p>-1</p>
-                                <!--<div class="form-check">
-                                    <input type="radio" class="form-check-input" value="" id="remove_Ace_blue_team" name="remove_Ace" >
-                                    <label class="form-check-label" for="remove_Ace_blue_team">Убрать Ace</label>
-                                </div>
-                                <div class="form-check">
-                                    <input checked class="form-check-input" type="radio" value="" id="remove_Out" name="remove_Out" >
-                                    <label class="form-check-label" for="remove_Out">Убрать Out</label>
-
-                                </div>-->
-
-                                    <div class="modal-footer">
-                                        {% for player in blue_team %}
-                                            <button onclick="window.location.href='{% url 'Изменить счет' match.id "blue" "minus" player.id %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="modal" id="modal_red_ace">
-                            <div class="modal-content">
-                                <p>Ace игрока:</p>
-                                    <div class="modal-footer">
-                                        {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "red" "Ace" 20%}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="modal" id="modal_red_out">
-                            <div class="modal-content">
-                                <p>Out игрока:</p>
-                                    <div class="modal-footer">
-                                        {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "red" "Out" player.id%}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="modal" id="modal_blue_out">
-                            <div class="modal-content">
-                                <p>Out игрока:</p>
-                                    <div class="modal-footer">
-                                        {% for player in blue_team %}
-                                            <button onclick="window.location.href='{% url 'Ace/Out' match.id "blue" "Out" player.id%}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
-                                        {% endfor %}
-                                    </div>
                             </div>
                         </div>
 
                         <div class="modal" id="modal_inning_red">
                             <div class="modal-content">
-                                <p>Первым подает игрок:</p>
+                                <p style="text-align: center">Первым подает игрок:</p>
                                     <div class="modal-footer">
                                         {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary modal_points" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>
@@ -582,10 +516,10 @@
 
                         <div class="modal" id="modal_inning_blue">
                             <div class="modal-content">
-                                <p>Первым подает игрок:</p>
+                                <p style="text-align: center">Первым подает игрок:</p>
                                     <div class="modal-footer">
                                         {% for player in blue_team %}
-                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary modal_points" id="yes_button" style="background: blue">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>
@@ -593,10 +527,10 @@
 
                         <div class="modal" id="modal_set_first_inning_player_red">
                             <div class="modal-content">
-                                <p>Первым подает игрок:</p>
+                                <p style="text-align: center">Первым подает игрок:</p>
                                     <div class="modal-footer">
                                         {% for player in red_team %}
-                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "red" player.name %}'" class="btn btn-primary modal_points" id="yes_button" style="background: #bd1313">{{ player.number }}</button>
                                         {% endfor %}
                                     </div>
                             </div>
@@ -604,11 +538,22 @@
 
                         <div class="modal" id="modal_set_first_inning_player_blue">
                             <div class="modal-content">
-                                <p>Первым подает игрок:</p>
+                                <p style="text-align: center">Первым подает игрок:</p>
                                     <div class="modal-footer">
                                         {% for player in blue_team %}
-                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary" id="yes_button" style="background: blue">{{ player.number }}</button>
+                                            <button onclick="window.location.href='{% url 'Подача' match.id "blue" player.name %}'" class="btn btn-primary modal_points" id="yes_button" style="background: blue">{{ player.number }}</button>
                                         {% endfor %}
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_confirm_delete_match">
+                            <div class="modal-content">
+                                <p style="text-align: center">Точно удалить матч?</p>
+                                    <div class="modal-footer">
+                                        <a href="{% url 'Удалить матч' match.id %}" type="button"
+                                           class="btn btn-success col-3 offset" style="margin-right:auto;background: #bd1313; margin-left:6%">Да</a>
+                                        <button  class="btn btn-secondary" onclick="close_confirm_delete()">Нет</button>
                                     </div>
                             </div>
                         </div>

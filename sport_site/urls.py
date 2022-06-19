@@ -13,7 +13,7 @@ urlpatterns = [
     path("Закончить партию/<int:match_id>", views.end_set, name="Закончить партию"),
     path("Подача/<int:match_id>/<str:team>/<str:player_name>", views.set_inning, name="Подача"),
     path("Поменять стороны/<int:match_id>", views.swap_controls, name="Поменять стороны"),
-    path("Ace/Out/<int:match_id>/<str:team>/<str:action>/<int:player_id>", views.ace_out, name="Ace/Out"),
+    path("Ace/Out/<int:match_id>/<str:action>", views.ace_out, name="Ace/Out"),
     path("user_logout/", views.user_logout, name="user_logout"),
     path("Закончить матч", views.end_match, name="Закончить матч"),
     path("Удалить матч/<int:match_id>", views.kill_match, name="Удалить матч"),
@@ -29,4 +29,7 @@ urlpatterns = [
     path("Добавить игрока", views.AddPlayer.as_view(), name="Добавить игрока"),
     path("Статистика", views.stats, name="Статистика"),
     path("Статистика H2H/<int:left_team_id>/<int:right_team_id>", views.stats_h2h, name="Статистика H2H"),
+    path("Статистика игроков", views.stats_players, name="Статистика игроков"),
+    path("Статистика команд", views.stats_teams, name="Статистика команд"),
+    path("Статистика H2H", views.H2HSelectView.as_view(), name="Статистика H2H")
 ]

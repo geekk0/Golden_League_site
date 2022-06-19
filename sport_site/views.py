@@ -11,7 +11,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from .models import Sports, Match, MatchDay, ScheduledMatches, Team, Player
 from django.views.generic import DetailView, View, ListView, TemplateView
-from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, ScheduleFormSetHelper, TeamForm, AddPlayerForm
+from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, ScheduleFormSetHelper, TeamForm, AddPlayerForm,\
+    H2HSelectForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control, never_cache
 from django.utils import timezone
@@ -22,6 +23,7 @@ from django.conf import settings
 from crispy_forms.layout import Submit, Layout, Field
 from django.contrib import messages
 from django.db.models import Avg, Count, Min, Sum
+
 
 class LoginView(View):
 
@@ -277,13 +279,12 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
     set = str(match.active_set)
 
-    remove_ace = request.POST.get("remove_Ace")
-
     if action == "plus":
 
         point_back_list = [team_name, action, str(player_id), ace_out]
 
-        match.point_back_value = json.dumps(point_back_list)
+        match.point_back_value = json.dumps(point_back_list, ensure_ascii=False)
+
         match.save()
 
         if check_scoring_team(player_object, match) and ace_out == "":
@@ -312,6 +313,7 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         elif ace_out == "Out":
             rotation(match, player_object, action="out")
+            print(player_object.name)
             update_player_stat(player_object, action="out")
 
             if team == "red":
@@ -331,11 +333,7 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
     else:
 
-        print(json.loads(match.point_back_value))
-
         player_object = Player.objects.get(id=json.loads(match.point_back_value)[2])
-
-        print(player_object.name)
 
         update_player_stat(player_object, action="minus_point", match_id=match_id)
 
@@ -414,9 +412,14 @@ def swap_controls(request, match_id):
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
 
-def ace_out(request, match_id, team, action, player_id=20):
+def ace_out(request, match_id, action, player_id=20):
 
     match = Match.objects.get(id=match_id)
+
+    if Player.objects.filter(team=match.red_team.id).filter(inning="Active").exists():
+        team = "red"
+    else:
+        team = "blue"
 
     setattr(match, team + "_ace_out", action)
 
@@ -424,19 +427,20 @@ def ace_out(request, match_id, team, action, player_id=20):
 
     match.save()
 
+    player = Player.objects.filter(team=match.red_team.id).filter(inning="Active") | \
+        Player.objects.filter(team=match.blue_team.id).filter(inning="Active")
+
     if action == "Ace":
 
-        player = Player.objects.filter(team=match.red_team.id).filter(inning="Active") | \
-                 Player.objects.filter(team=match.blue_team.id).filter(inning="Active")
-
         change_points(request, match_id=match_id, team=team, action="plus", player_id=player.first().id, ace_out="Ace")
-        # return HttpResponseRedirect("/Изменить счет/"+str(match_id)+"/"+team+"/plus")
 
     if action == "Out":
         if team == "red":
-            change_points(request, match_id=match_id, team="blue", action="plus", player_id=player_id, ace_out="Out")
+            change_points(request, match_id=match_id, team="blue", action="plus", player_id=player.first().id,
+                          ace_out="Out")
         if team == "blue":
-            change_points(request, match_id=match_id, team="red", action="plus", player_id=player_id, ace_out="Out")
+            change_points(request, match_id=match_id, team="red", action="plus", player_id=player.first().id,
+                          ace_out="Out")
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
 
@@ -445,6 +449,10 @@ def end_set(request, match_id):
 
     match = Match.objects.get(id=match_id)
     set = str(match.active_set)
+
+    for player in Player.objects.filter(team=match.red_team) | Player.objects.filter(team=match.blue_team):
+        player.inning = "False"
+        player.save()
 
     if match.red_set_score > 2 or match.blue_set_score > 2:
         match.save()
@@ -876,7 +884,7 @@ def stats_h2h(request, left_team_id=None, right_team_id=None):
     context = {"teams": teams, "players": players, "matches": matches, "left_team_matches": left_team_matches,
                "right_team_matches": right_team_matches, "selected": selected, "active_teams": active_teams,
                "rival_matches": rival_matches}
-    return render(request, "statistics.html", context)
+    return render(request, "statistics_H2H.html", context)
 
 
 def rotation(match_object, player_object, action):
@@ -981,19 +989,61 @@ def recall_last_rotation(match):
 
     red_team_first_player = Player.objects.filter(team=match.red_team).filter(number=1).first()
     red_team_first_player.inning = inning_list[0]
+    print(red_team_first_player.inning)
     red_team_first_player.save()
 
     red_team_second_player = Player.objects.filter(team=match.red_team).filter(number=2).first()
     red_team_second_player.inning = inning_list[1]
+    print(red_team_second_player.inning)
+
     red_team_second_player.save()
 
     blue_team_first_player = Player.objects.filter(team=match.blue_team).filter(number=1).first()
     blue_team_first_player.inning = inning_list[2]
+    print(blue_team_first_player.inning)
+
     blue_team_first_player.save()
 
     blue_team_second_player = Player.objects.filter(team=match.blue_team).filter(number=2).first()
     blue_team_second_player.inning = inning_list[3]
+    print(blue_team_second_player.inning)
+
     blue_team_second_player.save()
+
+
+def stats_players(request):
+    players = Player.objects.all()
+    context = {"players": players}
+
+    return render(request, "statistcs_players.html", context)
+
+
+def stats_teams(request):
+    teams = Team.objects.all()
+    context = {"teams": teams}
+
+    return render(request, "statistics_teams.html", context)
+
+
+class H2HSelectView(View):
+    def get(self, request, *args, **kwargs):
+        teams = Team.objects.all()
+        form = H2HSelectForm(request.GET or None, data_list=teams)
+        context = {"form": form}
+        return render(request, "statistics_H2H.html", context)
+
+    def post(self, request, *args, **kwargs):
+        form = H2HSelectForm(request.POST or None)
+
+        left_team = form["left_team"].value()
+        right_team = form["right_team"].value()
+
+        left_team_id = Team.objects.get(name=left_team).id
+        right_team_id = Team.objects.get(name=right_team).id
+
+        return HttpResponseRedirect("Статистика H2H/" + str(left_team_id) + "/" + str(right_team_id))
+
+
 
 
 
