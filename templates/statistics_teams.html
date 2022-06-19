@@ -1,0 +1,84 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block css %}
+    <link  rel="stylesheet" href="{% static 'css/sortable.css' %}">
+    <script src="{% static 'js/sortable.js' %}"></script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+ <nav class="navbar navbar-expanad-sm bg-info col-12">
+     <div class="navbar-collapse col-10 offset-1 ">
+         <ul class="navbar-nav mr-auto">
+             <ul class="navbar-nav mr-auto">
+                 <li class="navbar-brand-collapse"><a href="{% url 'Личный кабинет' %}" style="color:black">Панель управления судейской бригады </a>  - Статистика - Команды</li>
+             </ul>
+
+         </ul>
+     </div>
+ </nav>
+{% endblock %}
+
+{%  block content %}
+
+    <div class="container">
+            <div class='row' style="margin-top:0; text-align: center">
+
+                <div class="row m-0">
+                            <div class="links col-10 offset-1 row" style="margin-top: 2%;">
+                                <div class="col-4" style="border: solid white 1px; border-right-color:gray">
+                                    <a class="" href="{% url 'Статистика игроков' %}" style="">Игроки</a>
+                                </div>
+                                <div class="col-4" style="border: solid white 1px;border-right-color: gray;border-left-color:gray">
+                                    <h4 >Статистика команд</h4>
+                                </div>
+                                <div class="col-4" style="border: solid white 1px;border-left-color:gray">
+                                    <a class="" href="{% url "Статистика H2H"  %}">H2H</a>
+                                </div>
+                            </div>
+                        </div>
+
+                <div class="col-md-12" style="margin-top: 1.5%">
+                    <table class="sortable">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Сыграно матчей</th>
+                                <th>Выиграно матчей</th>
+                                <th>Процент побед</th>
+                                <th>Побед "всухую"</th>
+                                <th>Сыграно партий</th>
+                                <th>Выиграно партий</th>
+                                <th>Общее количество очков</th>
+                                <th>Количество Ace</th>
+                                <th>Количество Out</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%  for team in teams %}
+                                <tr>
+                                    <td>{{ team.name }}</td>
+                                    <td>{{ team.games_played }}</td>
+                                    <td>{{ team.games_won }}</td>
+                                    <td>{{ team.win_percentage }}</td>
+                                    <td>{{ team.dry_wins }}</td>
+                                    <td>{{ team.sets_played }}</td>
+                                    <td>{{ team.sets_won }}</td>
+                                    <td>{{ team.total_points }}</td>
+                                    <td>{{ team.aces }}</td>
+                                    <td>{{ team.outs }}</td>
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+{% endblock %}

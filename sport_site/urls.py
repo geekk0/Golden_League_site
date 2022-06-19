@@ -27,7 +27,6 @@ urlpatterns = [
     path("Удалить игровой день/<int:matchday_id>", views.delete_matchday, name="Удалить игровой день"),
     path("Смотреть расписание", views.ScheduledMatchesView.as_view(), name="Смотреть расписание"),
     path("Добавить игрока", views.AddPlayer.as_view(), name="Добавить игрока"),
-    path("Статистика", views.stats, name="Статистика"),
     path("Статистика H2H/<int:left_team_id>/<int:right_team_id>", views.stats_h2h, name="Статистика H2H"),
     path("Статистика игроков", views.stats_players, name="Статистика игроков"),
     path("Статистика команд", views.stats_teams, name="Статистика команд"),

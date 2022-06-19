@@ -830,37 +830,27 @@ def update_player_stat(player, action, match_id=300):
         if "Ace" in json.loads(match.point_back_value):
             player.current_match_aces -= 1
             player.aces_total_season -= 1
+            if player.innings and player.current_match_innings > 0:
+                player.innings -= 1
+                player.current_match_innings -= 1
         player.points_total_season -= 1
         player.current_match_points -= 1
     elif action is "ace":
         player.aces_total_season += 1
         player.current_match_aces += 1
+        player.innings += 1
+        player.current_match_innings += 1
     elif action is "out":
         if player.current_match_points > 0:
             player.current_match_points -= 1
             player.points_total_season -= 1
         player.outs_total_season += 1
         player.current_match_outs += 1
+        player.innings += 1
+        player.current_match_innings += 1
     elif action is "plus_set":
         player.sets += 1
     player.save()
-
-
-def stats(request):
-    teams = Team.objects.all().order_by("name")
-    players = Player.objects.all().order_by("name")
-    matches = Match.objects.all().order_by("-date")
-    left_team_matches = Match.objects.filter(red_team_id=0).filter(active="Завершенный")
-    right_team_matches = Match.objects.filter(red_team_id=0).filter(active="Завершенный")
-    if left_team_matches.exists() or right_team_matches.exists():
-        selected = "True"
-        active_teams = [left_team_id, left_team_id]
-    else:
-        selected = "False"
-        active_teams = None
-    context = {"teams": teams, "players": players, "matches": matches, "left_team_matches": left_team_matches,
-               "right_team_matches": right_team_matches, "selected": selected, "active_teams": active_teams}
-    return render(request, "statistics.html", context)
 
 
 def stats_h2h(request, left_team_id=None, right_team_id=None):
