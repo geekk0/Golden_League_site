@@ -275,11 +275,11 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
     team_name = match.red_team.name
 
-    player_object = Player.objects.get(id=player_id)
-
     set = str(match.active_set)
 
     if action == "plus":
+
+        player_object = Player.objects.get(id=player_id)
 
         point_back_list = [team_name, action, str(player_id), ace_out]
 
@@ -289,6 +289,12 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         if check_scoring_team(player_object, match) and ace_out == "":
             rotation(match, player_object, action="scored")
+
+            point_back_list = [team_name, action, str(player_id), ace_out, "rotation"]
+
+            match.point_back_value = json.dumps(point_back_list, ensure_ascii=False)
+
+            match.save()
 
         update_player_stat(player_object, action="plus_point")
 
@@ -313,8 +319,12 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         elif ace_out == "Out":
             rotation(match, player_object, action="out")
-            print(player_object.name)
             update_player_stat(player_object, action="out")
+            point_back_list = [team_name, action, str(player_id), ace_out, "rotation"]
+
+            match.point_back_value = json.dumps(point_back_list, ensure_ascii=False)
+
+            match.save()
 
             if team == "red":
                 list_inning_points.append(str(getattr(match, "red_points_set_" + set)) + "—" +
@@ -337,7 +347,8 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         update_player_stat(player_object, action="minus_point", match_id=match_id)
 
-        recall_last_rotation(match)
+        if check_rotation_happened(match):
+            recall_last_rotation(match)
 
         points = getattr(match, team + "_points_set_" + set)
         if points == 0:
@@ -360,6 +371,15 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
     match.save()
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def check_rotation_happened(match):
+    point_back = json.loads(match.point_back_value)
+
+    if len(point_back) > 4:
+        return True
+    else:
+        return False
 
 
 def set_inning(request, match_id, team, player_name):
@@ -979,24 +999,20 @@ def recall_last_rotation(match):
 
     red_team_first_player = Player.objects.filter(team=match.red_team).filter(number=1).first()
     red_team_first_player.inning = inning_list[0]
-    print(red_team_first_player.inning)
     red_team_first_player.save()
 
     red_team_second_player = Player.objects.filter(team=match.red_team).filter(number=2).first()
     red_team_second_player.inning = inning_list[1]
-    print(red_team_second_player.inning)
 
     red_team_second_player.save()
 
     blue_team_first_player = Player.objects.filter(team=match.blue_team).filter(number=1).first()
     blue_team_first_player.inning = inning_list[2]
-    print(blue_team_first_player.inning)
 
     blue_team_first_player.save()
 
     blue_team_second_player = Player.objects.filter(team=match.blue_team).filter(number=2).first()
     blue_team_second_player.inning = inning_list[3]
-    print(blue_team_second_player.inning)
 
     blue_team_second_player.save()
 
