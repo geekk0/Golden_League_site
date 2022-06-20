@@ -82,14 +82,35 @@
 
         function modal_plus_point_red() {
             let modal = document.getElementById("modal_red_plus_point")
-            modal.style.display = "block"
-            move_button_1()
+            let set_inning_red = document.getElementById("btn_set_inning_red")
+            let modal_set_inning_error = document.getElementById("modal_set_inning_error")
+            console.log(set_inning_red.style.display)
+            if (set_inning_red.style.display !== "none") {
+                modal_set_inning_error.style.display = "block"
+            }
+            else {
+                modal.style.display = "block"
+                move_button_1()
+            }
+        }
+
+        function close_modal_set_inning_error(){
+            let modal_set_inning_error = document.getElementById("modal_set_inning_error")
+            modal_set_inning_error.style.display = "none"
         }
 
         function modal_plus_point_blue() {
             let modal = document.getElementById("modal_blue_plus_point")
-            modal.style.display = "block"
-            move_button_1()
+            let set_inning_blue = document.getElementById("btn_set_inning_blue")
+            let modal_set_inning_error = document.getElementById("modal_set_inning_error")
+            console.log(set_inning_blue.style.display)
+            if (set_inning_blue.style.display !== "none") {
+                modal_set_inning_error.style.display = "block"
+            } else {
+
+                modal.style.display = "block"
+                move_button_1()
+            }
         }
 
         function move_button_1() {
@@ -554,6 +575,15 @@
                                         <a href="{% url 'Удалить матч' match.id %}" type="button"
                                            class="btn btn-success col-3 offset" style="margin-right:auto;background: #bd1313; margin-left:6%">Да</a>
                                         <button  class="btn btn-secondary" onclick="close_confirm_delete()">Нет</button>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="modal" id="modal_set_inning_error">
+                            <div class="modal-content">
+                                <p style="text-align: center">Сначала выберите подающего игрока!</p>
+                                    <div class="modal-footer">
+                                        <button  class="btn btn-secondary" onclick="close_modal_set_inning_error()">Закрыть</button>
                                     </div>
                             </div>
                         </div>

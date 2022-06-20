@@ -287,6 +287,10 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         match.save()
 
+        print(Player.objects.filter(inning="Active"))
+
+        update_player_stat(player_object, action="plus_point", match_id=match_id)
+
         if check_scoring_team(player_object, match) and ace_out == "":
             rotation(match, player_object, action="scored")
 
@@ -295,8 +299,6 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
             match.point_back_value = json.dumps(point_back_list, ensure_ascii=False)
 
             match.save()
-
-        update_player_stat(player_object, action="plus_point")
 
         points = getattr(match, team+"_points_set_"+set)
         setattr(match, team+"_points_set_"+set, points + 1)
@@ -307,7 +309,7 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         if ace_out == "Ace":
 
-            update_player_stat(player_object, action="ace")
+            update_player_stat(player_object, action="ace", match_id=match_id)
 
             if team == "red":
 
@@ -319,7 +321,7 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
 
         elif ace_out == "Out":
             rotation(match, player_object, action="out")
-            update_player_stat(player_object, action="out")
+            update_player_stat(player_object, action="out", match_id=match_id)
             point_back_list = [team_name, action, str(player_id), ace_out, "rotation"]
 
             match.point_back_value = json.dumps(point_back_list, ensure_ascii=False)
@@ -515,9 +517,6 @@ def kill_match(request, match_id):
     red_team_object = match.red_team
     blue_team_object = match.blue_team
 
-    red_team_object.sets_won -= match.red_set_score
-    blue_team_object.sets_won -= match.blue_set_score
-
     for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
         player_stats_rollback(player, match)
 
@@ -526,8 +525,8 @@ def kill_match(request, match_id):
     if Match.objects.filter(blue_team=blue_team_object).count() == 1:
         blue_team_object.delete()
 
-    else:
-        team_stats_rollback(match, red_team_object, blue_team_object)
+    """else:
+        team_stats_rollback(match, red_team_object, blue_team_object)"""
 
     match.delete()
 
@@ -556,7 +555,7 @@ def player_stats_zeroing(player):
 def team_stats_rollback(match, red_team, blue_team):
     red_team.sets_played -= match.active_set - 1
     red_team.sets_won -= match.red_set_score
-    red_team.total_points -= match.blue_team_total
+    red_team.total_points -= match.red_team_total
     current_match_red_team_aces = sum(Player.objects.filter(team=red_team).values_list("current_match_aces", flat=True))
     red_team.aces -= current_match_red_team_aces
     current_match_red_team_outs = sum(Player.objects.filter(team=red_team).values_list("current_match_outs", flat=True))
@@ -789,10 +788,14 @@ def finalize_match_team_stats(match_id):
     red_players = Player.objects.filter(team=red_team_object)
     blue_players = Player.objects.filter(team=blue_team_object)
 
+    red_team_object.sets_won = match_object.red_set_score
+    blue_team_object.sets_won = match_object.blue_set_score
     red_team_object.aces += sum(item.current_match_aces for item in red_players)
     blue_team_object.aces += sum(item.current_match_aces for item in blue_players)
     red_team_object.outs += sum(item.current_match_outs for item in red_players)
     blue_team_object.outs += sum(item.current_match_outs for item in blue_players)
+    red_team_object.total_points += sum(item.current_match_points for item in red_players)
+    blue_team_object.total_points += sum(item.current_match_points for item in blue_players)
 
     red_team_object.save()
     blue_team_object.save()
@@ -824,19 +827,8 @@ def update_set_stat(match_id, team):
     red_team_object = Team.objects.get(id=match_object.red_team.id)
     blue_team_object = Team.objects.get(id=match_object.blue_team.id)
 
-    if team == "red":
-        red_team_object.sets_won += 1
-
-    else:
-        blue_team_object.sets_won += 1
-
-    red_team_object.sets_played += 1
-    blue_team_object.sets_played += 1
-    red_team_object.save()
-    blue_team_object.save()
-
     for player in Player.objects.filter(team=red_team_object) | Player.objects.filter(team=blue_team_object):
-        update_player_stat(player, "plus_set")
+        update_player_stat(player, "plus_set", match_id=match_id)
 
 
 def update_player_stat(player, action, match_id=300):
@@ -845,6 +837,16 @@ def update_player_stat(player, action, match_id=300):
     if action is "plus_point":
         player.points_total_season += 1
         player.current_match_points += 1
+        print(Player.objects.filter(inning="Active"))
+        inning_player_id = Player.objects.filter(inning="Active").first().id
+        inning_player = Player.objects.get(id=inning_player_id)
+        if player != inning_player:
+            inning_player.innings += 1
+            inning_player.current_match_innings += 1
+            inning_player.save()
+        else:
+            player.innings += 1
+            player.current_match_innings += 1
     elif action is "minus_point":
         match = Match.objects.get(id=match_id)
         if "Ace" in json.loads(match.point_back_value):
@@ -858,16 +860,14 @@ def update_player_stat(player, action, match_id=300):
     elif action is "ace":
         player.aces_total_season += 1
         player.current_match_aces += 1
-        player.innings += 1
-        player.current_match_innings += 1
+
     elif action is "out":
         if player.current_match_points > 0:
             player.current_match_points -= 1
             player.points_total_season -= 1
         player.outs_total_season += 1
         player.current_match_outs += 1
-        player.innings += 1
-        player.current_match_innings += 1
+
     elif action is "plus_set":
         player.sets += 1
     player.save()
