@@ -25,11 +25,24 @@
 
 {%  block content %}
 
-    <div class="container">
-            <div class='row' style="margin-top:0; text-align: center">
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", get_orientation)
+
+        function get_orientation() {
+
+            if (window.innerWidth < 550 ) {
+                alert("Пожалуйста, используйте горизонтальную ориентацию устройства");
+            }
+        }
+
+    </script>
+
+
+    <div {% if device == "mobile" %} class="container-xs" style="margin-top: 2%" {% else %} class="container" {% endif %} >
+            <div class='row m-0' style="margin-top:0; text-align: center">
 
                 <div class="row m-0">
-                            <div class="links col-10 offset-1 row" style="margin-top: 2%;">
+                            <div class="links col-10 offset-1 row m-0" style="margin-top: 2%;">
                                 <div class="col-4" style="border: solid white 1px; border-right-color:gray">
                                     <a class="" href="{% url 'Статистика игроков' %}" style="">Игроки</a>
                                 </div>

@@ -194,6 +194,8 @@ def enter_match(request, sport_name):
     else:
         user_is_referee = False
 
+    device = check_user_device(request)
+
     if matches.exists():
 
         match = matches.first()
@@ -225,7 +227,7 @@ def enter_match(request, sport_name):
         innings_set = [left_inning, right_inning]
 
         context = {"matches": matches, "user_is_referee": user_is_referee, "red_team": red_team, "blue_team": blue_team,
-                   "innings_set": innings_set}
+                   "innings_set": innings_set, "device": device}
 
         if request.user.is_staff:
             return render(request, "beach_volleyball.html", context)
@@ -373,6 +375,16 @@ def change_points(request, match_id, team, action, player_id=33, ace_out=""):
     match.save()
 
     return HttpResponseRedirect("/Пляжный волейбол/Матч")
+
+
+def check_user_device(request):
+    user_agent = request.META['HTTP_USER_AGENT']
+    if 'Mobile' in user_agent:
+        device = "mobile"
+    else:
+        device = "desktop"
+    print(device)
+    return device
 
 
 def check_rotation_happened(match):
@@ -1017,16 +1029,21 @@ def recall_last_rotation(match):
     blue_team_second_player.save()
 
 
+@login_required
 def stats_players(request):
     players = Player.objects.all()
-    context = {"players": players}
+    device = check_user_device(request)
+
+    context = {"players": players, "device": device}
 
     return render(request, "statistcs_players.html", context)
 
 
+@login_required
 def stats_teams(request):
     teams = Team.objects.all()
-    context = {"teams": teams}
+    device = check_user_device(request)
+    context = {"teams": teams, "device": device}
 
     return render(request, "statistics_teams.html", context)
 
