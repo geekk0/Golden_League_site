@@ -84,10 +84,26 @@
             let modal = document.getElementById("modal_red_plus_point")
             let set_inning_red = document.getElementById("btn_set_inning_red")
             let modal_set_inning_error = document.getElementById("modal_set_inning_error")
-            console.log(set_inning_red.style.display)
-            if (set_inning_red.style.display !== "none") {
+            console.log(set_inning_red == null)
+            if (set_inning_red) {
                 modal_set_inning_error.style.display = "block"
             }
+
+            else {
+                modal.style.display = "block"
+                move_button_1()
+            }
+        }
+
+        function modal_plus_point_blue() {
+            let modal = document.getElementById("modal_blue_plus_point")
+            let set_inning_blue = document.getElementById("btn_set_inning_blue")
+            let modal_set_inning_error = document.getElementById("modal_set_inning_error")
+            console.log(set_inning_blue == null)
+            if (set_inning_blue) {
+                modal_set_inning_error.style.display = "block"
+            }
+
             else {
                 modal.style.display = "block"
                 move_button_1()
@@ -97,20 +113,6 @@
         function close_modal_set_inning_error(){
             let modal_set_inning_error = document.getElementById("modal_set_inning_error")
             modal_set_inning_error.style.display = "none"
-        }
-
-        function modal_plus_point_blue() {
-            let modal = document.getElementById("modal_blue_plus_point")
-            let set_inning_blue = document.getElementById("btn_set_inning_blue")
-            let modal_set_inning_error = document.getElementById("modal_set_inning_error")
-            console.log(set_inning_blue.style.display)
-            if (set_inning_blue.style.display !== "none") {
-                modal_set_inning_error.style.display = "block"
-            } else {
-
-                modal.style.display = "block"
-                move_button_1()
-            }
         }
 
         function move_button_1() {
