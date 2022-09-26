@@ -11,7 +11,7 @@
 ## Live demo
 https://www.golden-league-stream.tk
 
-##Description
+## Description
 <br>Service site section developed as part of live streaming system, which also contains [script](https://github.com/geekk0/Golden_League_captions) to form scoreboard (team, score) and telegram-bot for server condition and stream status tracking.
 <br>Public site section displays matches schedule and results.
 <br>During the match, referee use web-interface to form score and statistics. Script, the one running on OBS server, takes this data and creates text files, which are used on scene as scoreboard.
