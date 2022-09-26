@@ -1,11 +1,7 @@
 import datetime
-import itertools
-import ast
 import json
-import sys
 import os
 
-import pdfcrowd
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -16,9 +12,6 @@ from .forms import LoginForm, SquadForm, ScheduleForm, ScheduleFormSet, Schedule
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control, never_cache
 from django.utils import timezone
-from io import BytesIO
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 from django.conf import settings
 from crispy_forms.layout import Submit, Layout, Field
 from django.contrib import messages
